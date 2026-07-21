@@ -174,3 +174,59 @@ export async function currentUser(): Promise<User | null> {
     throw error;
   }
 }
+
+/* ---------- establishments ---------- */
+
+export type Establishment = {
+  id: number;
+  name: string;
+  slug: string;
+  currency: string;
+  default_locale: string;
+  address: string | null;
+  phone: string | null;
+  created_at: string | null;
+};
+
+export type EstablishmentPayload = {
+  name: string;
+  slug: string;
+  currency: string;
+  default_locale: string;
+  address?: string | null;
+  phone?: string | null;
+};
+
+export async function listEstablishments(): Promise<Establishment[]> {
+  const { data } = await apiFetch<Wrapped<Establishment[]>>("/api/establishments");
+  return data;
+}
+
+export async function createEstablishment(
+  payload: EstablishmentPayload,
+  locale?: string,
+): Promise<Establishment> {
+  const { data } = await apiFetch<Wrapped<Establishment>>("/api/establishments", {
+    method: "POST",
+    body: payload,
+    locale,
+  });
+  return data;
+}
+
+export async function updateEstablishment(
+  id: number,
+  payload: Partial<EstablishmentPayload>,
+  locale?: string,
+): Promise<Establishment> {
+  const { data } = await apiFetch<Wrapped<Establishment>>(`/api/establishments/${id}`, {
+    method: "PATCH",
+    body: payload,
+    locale,
+  });
+  return data;
+}
+
+export async function deleteEstablishment(id: number): Promise<void> {
+  await apiFetch<void>(`/api/establishments/${id}`, { method: "DELETE" });
+}
