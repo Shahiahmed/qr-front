@@ -3,9 +3,11 @@ import { brand } from "@/content/landing";
 type LogoProps = {
   className?: string;
   size?: "sm" | "md";
+  /** Defaults to the in-page anchor used across the landing. */
+  href?: string;
 };
 
-export function Logo({ className = "", size = "md" }: LogoProps) {
+export function Logo({ className = "", size = "md", href = "#hero" }: LogoProps) {
   // The md mark steps down on narrow phones so the header row stays on one line.
   const markSize =
     size === "sm"
@@ -15,7 +17,7 @@ export function Logo({ className = "", size = "md" }: LogoProps) {
 
   return (
     <a
-      href="#hero"
+      href={href}
       className={`group/logo inline-flex shrink-0 items-center gap-2 text-foreground no-underline sm:gap-2.5 ${className}`}
       aria-label={`${brand.name} — на главную`}
     >

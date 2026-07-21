@@ -5,10 +5,10 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { LanguageSwitch } from "@/components/landing/ui/LanguageSwitch";
 import { Logo } from "@/components/landing/ui/Logo";
-import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
+import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 
 export function Header() {
-  const copy = useLandingCopy();
+  const { copy, locale } = useLandingLocale();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -88,7 +88,7 @@ export function Header() {
           <span className="hidden xl:inline-flex">
             <Button
               variant="ghost"
-              href="#cta"
+              href={`/${locale}/login`}
               className="px-3 py-2.5 text-[15px] font-semibold"
             >
               {copy.navLogin}
@@ -99,7 +99,7 @@ export function Header() {
           <span className="hidden shrink-0 sm:inline-flex">
             <Button
               variant="primary"
-              href="#cta"
+              href={`/${locale}/register`}
               className="whitespace-nowrap px-3.5 py-2.5 text-[13px] xl:px-5 xl:text-[15px]"
             >
               {copy.navTry}
@@ -141,7 +141,7 @@ export function Header() {
           <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-4 sm:flex-row">
             <Button
               variant="secondary"
-              href="#cta"
+              href={`/${locale}/login`}
               onClick={() => setOpen(false)}
               className="w-full py-3.5 text-base sm:flex-1"
             >
@@ -149,7 +149,7 @@ export function Header() {
             </Button>
             <Button
               variant="primary"
-              href="#cta"
+              href={`/${locale}/register`}
               onClick={() => setOpen(false)}
               className="w-full py-3.5 text-base sm:flex-1"
             >

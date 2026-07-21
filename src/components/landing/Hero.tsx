@@ -5,10 +5,10 @@ import { Button } from "@/components/landing/ui/Button";
 import { PhoneMockup } from "@/components/landing/ui/PhoneMockup";
 import { QrCode } from "@/components/landing/ui/QrCode";
 import { Reveal } from "@/components/landing/ui/Reveal";
-import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
+import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 
 export function Hero() {
-  const copy = useLandingCopy();
+  const { copy, locale } = useLandingLocale();
 
   return (
     <section id="hero" aria-labelledby="hero-title" className="relative overflow-hidden">
@@ -44,7 +44,11 @@ export function Hero() {
 
           <Reveal delay={200}>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5 lg:justify-start">
-              <Button variant="primary" href="#cta" className="rounded-[14px] px-7 py-4 text-[17px]">
+              <Button
+                variant="primary"
+                href={`/${locale}/register`}
+                className="rounded-[14px] px-7 py-4 text-[17px]"
+              >
                 {copy.heroCta1}
                 <ArrowRight
                   size={18}

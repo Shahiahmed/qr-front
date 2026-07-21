@@ -4,10 +4,10 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { QrCode } from "@/components/landing/ui/QrCode";
 import { Reveal } from "@/components/landing/ui/Reveal";
-import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
+import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 
 export function CtaBanner() {
-  const copy = useLandingCopy();
+  const { copy, locale } = useLandingLocale();
 
   return (
     <section id="cta" aria-labelledby="cta-title" className="py-16 lg:py-[88px]">
@@ -37,7 +37,7 @@ export function CtaBanner() {
                 <div className="mt-8 flex justify-center lg:justify-start">
                   <Button
                     variant="onAccent"
-                    href="#cta"
+                    href={`/${locale}/register`}
                     className="rounded-[15px] px-10 py-[18px] text-lg font-extrabold"
                   >
                     {copy.ctaBtn}

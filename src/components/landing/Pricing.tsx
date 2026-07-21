@@ -4,11 +4,11 @@ import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { SectionHeading } from "@/components/landing/ui/SectionHeading";
 import { Reveal } from "@/components/landing/ui/Reveal";
-import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
+import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 import type { LandingCopy } from "@/content/landing";
 
 export function Pricing() {
-  const copy = useLandingCopy();
+  const { copy, locale } = useLandingLocale();
 
   return (
     <section
@@ -26,13 +26,13 @@ export function Pricing() {
 
         <div className="grid items-start gap-6 lg:grid-cols-3">
           <Reveal>
-            <PlanCard plan={copy.planFree} />
+            <PlanCard plan={copy.planFree} href={`/${locale}/register`} />
           </Reveal>
           <Reveal delay={90}>
-            <PlanCard plan={copy.planStd} popular={copy.popular} featured />
+            <PlanCard plan={copy.planStd} popular={copy.popular} featured href={`/${locale}/register`} />
           </Reveal>
           <Reveal delay={180}>
-            <PlanCard plan={copy.planPrem} />
+            <PlanCard plan={copy.planPrem} href={`/${locale}/register`} />
           </Reveal>
         </div>
       </div>
@@ -46,10 +46,12 @@ function PlanCard({
   plan,
   popular,
   featured = false,
+  href,
 }: {
   plan: Plan;
   popular?: string;
   featured?: boolean;
+  href: string;
 }) {
   if (featured) {
     return (
@@ -79,7 +81,7 @@ function PlanCard({
             </li>
           ))}
         </ul>
-        <Button variant="dark" href="#cta" className="w-full rounded-[13px] py-3.5 text-base">
+        <Button variant="dark" href={href} className="w-full rounded-[13px] py-3.5 text-base">
           {plan.cta}
         </Button>
       </article>
@@ -109,7 +111,7 @@ function PlanCard({
       </ul>
       <Button
         variant="secondary"
-        href="#cta"
+        href={href}
         className="w-full rounded-[13px] py-3.5 text-base"
       >
         {plan.cta}

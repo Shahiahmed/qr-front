@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Onest } from "next/font/google";
 import { notFound } from "next/navigation";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { landingByLocale } from "@/content/landing";
 import {
   DEFAULT_LOCALE,
@@ -73,7 +74,9 @@ export default async function LocaleLayout({
       lang={HTML_LANG[locale]}
       className={`${onest.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col font-sans">
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }
