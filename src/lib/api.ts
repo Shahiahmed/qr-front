@@ -230,3 +230,112 @@ export async function updateEstablishment(
 export async function deleteEstablishment(id: number): Promise<void> {
   await apiFetch<void>(`/api/establishments/${id}`, { method: "DELETE" });
 }
+
+/* ---------- menu ---------- */
+
+export type Dish = {
+  id: number;
+  menu_category_id: number;
+  name_ru: string;
+  name_kk: string | null;
+  description_ru: string | null;
+  description_kk: string | null;
+  /** Minor units — тиыны. Format with `formatPrice`. */
+  price: number;
+  position: number;
+  is_visible: boolean;
+  is_available: boolean;
+};
+
+export type MenuCategory = {
+  id: number;
+  name_ru: string;
+  name_kk: string | null;
+  position: number;
+  is_visible: boolean;
+  dishes?: Dish[];
+};
+
+export async function getMenu(establishmentId: number): Promise<MenuCategory[]> {
+  const { data } = await apiFetch<Wrapped<MenuCategory[]>>(
+    `/api/establishments/${establishmentId}/menu`,
+  );
+  return data;
+}
+
+export async function createCategory(
+  establishmentId: number,
+  payload: { name_ru: string; name_kk?: string | null },
+  locale?: string,
+): Promise<MenuCategory> {
+  const { data } = await apiFetch<Wrapped<MenuCategory>>(
+    `/api/establishments/${establishmentId}/categories`,
+    { method: "POST", body: payload, locale },
+  );
+  return data;
+}
+
+export async function updateCategory(
+  establishmentId: number,
+  categoryId: number,
+  payload: Partial<{ name_ru: string; name_kk: string | null; is_visible: boolean }>,
+  locale?: string,
+): Promise<MenuCategory> {
+  const { data } = await apiFetch<Wrapped<MenuCategory>>(
+    `/api/establishments/${establishmentId}/categories/${categoryId}`,
+    { method: "PATCH", body: payload, locale },
+  );
+  return data;
+}
+
+export async function deleteCategory(
+  establishmentId: number,
+  categoryId: number,
+): Promise<void> {
+  await apiFetch<void>(
+    `/api/establishments/${establishmentId}/categories/${categoryId}`,
+    { method: "DELETE" },
+  );
+}
+
+export type DishPayload = {
+  menu_category_id: number;
+  name_ru: string;
+  name_kk?: string | null;
+  description_ru?: string | null;
+  description_kk?: string | null;
+  price: number;
+  is_visible?: boolean;
+  is_available?: boolean;
+};
+
+export async function createDish(
+  establishmentId: number,
+  payload: DishPayload,
+  locale?: string,
+): Promise<Dish> {
+  const { data } = await apiFetch<Wrapped<Dish>>(
+    `/api/establishments/${establishmentId}/dishes`,
+    { method: "POST", body: payload, locale },
+  );
+  return data;
+}
+
+export async function updateDish(
+  establishmentId: number,
+  dishId: number,
+  payload: Partial<DishPayload>,
+  locale?: string,
+): Promise<Dish> {
+  const { data } = await apiFetch<Wrapped<Dish>>(
+    `/api/establishments/${establishmentId}/dishes/${dishId}`,
+    { method: "PATCH", body: payload, locale },
+  );
+  return data;
+}
+
+export async function deleteDish(establishmentId: number, dishId: number): Promise<void> {
+  await apiFetch<void>(`/api/establishments/${establishmentId}/dishes/${dishId}`, {
+    method: "DELETE",
+  });
+}
