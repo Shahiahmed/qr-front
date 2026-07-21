@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
 import { formatPrice } from "@/lib/money";
-import { pick, type PublicMenu } from "@/lib/publicMenu";
+import { pick, type PublicMenu } from "@/lib/guestMenuTypes";
 
 const LANGUAGES: { code: GuestLocale; label: string }[] = [
   { code: "ru", label: "RU" },

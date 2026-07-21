@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { listEstablishments } from "@/lib/api";
+import { isApiConfigured, listEstablishments } from "@/lib/api";
 
 export const VENUES_QUERY_KEY = ["establishments"] as const;
 
@@ -17,6 +17,7 @@ export function useVenues() {
   return useQuery({
     queryKey: VENUES_QUERY_KEY,
     queryFn: listEstablishments,
+    enabled: isApiConfigured,
     retry: false,
   });
 }

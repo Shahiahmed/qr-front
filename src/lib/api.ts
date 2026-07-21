@@ -7,10 +7,21 @@
  * CSRF token that Laravel handed out in the `XSRF-TOKEN` cookie.
  */
 
-const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(
-  /\/$/,
-  "",
-);
+/*
+ * A localhost fallback must never reach a production bundle. Shipped once, it
+ * made every visitor's browser try to reach their *own* machine on port 8000,
+ * and Chrome answered with a local-network permission prompt on the landing
+ * page — a marketing page appearing to scan the visitor's computer.
+ *
+ * So: configured URL, or nothing. `localhost` only stands in during dev.
+ */
+const CONFIGURED = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+
+const BASE_URL =
+  CONFIGURED || (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
+
+/** False when no API is reachable — callers must not fire requests. */
+export const isApiConfigured = BASE_URL !== "";
 
 export type ValidationErrors = Record<string, string[]>;
 
@@ -94,6 +105,12 @@ async function send<T>(path: string, options: Options): Promise<T> {
 }
 
 export async function apiFetch<T>(path: string, options: Options = {}): Promise<T> {
+  if (!isApiConfigured) {
+    // Fail loudly rather than aiming a request at whatever host happens to be
+    // reachable from the visitor's browser.
+    throw new ApiError("API URL is not configured", 0);
+  }
+
   const method = options.method ?? "GET";
   const needsCsrf = method !== "GET";
 
