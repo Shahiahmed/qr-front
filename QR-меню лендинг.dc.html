@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Onest',system-ui,sans-serif;color:#1A1714;background:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:-.01em}
+  ::selection{background:#FFD9CF;color:#1A1714}
+  a{color:#EE5233;text-decoration:none}
+  a:hover{color:#C93E24}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  @keyframes floaty2{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+</style>
+</helmet>
+
+<div style="background:#fff;overflow:hidden">
+
+  <!-- ============ HEADER ============ -->
+  <header style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);border-bottom:1px solid #F0ECE8">
+    <div style="max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:38px;height:38px;border-radius:12px;background:#FF6A4D;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:19px;box-shadow:0 6px 16px -4px rgba(255,106,77,.55)">Q</div>
+        <span style="font-weight:800;font-size:20px;letter-spacing:-.02em">Qmenu</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="display:flex;background:#F4F0EC;border-radius:999px;padding:3px">
+          <button onClick="{{ setRu }}" style="{{ ruPillStyle }}">RU</button>
+          <button onClick="{{ setKz }}" style="{{ kzPillStyle }}">KZ</button>
+        </div>
+        <button style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#1A1714;cursor:pointer;padding:10px 6px">{{ navLogin }}</button>
+        <button style="background:#FF6A4D;border:none;font-family:inherit;font-size:15px;font-weight:700;color:#fff;cursor:pointer;padding:11px 20px;border-radius:12px;box-shadow:0 8px 20px -8px rgba(255,106,77,.7)" style-hover="background:#EE5233">{{ navTry }}</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section style="max-width:1180px;margin:0 auto;padding:72px 24px 40px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:#FFF1EC;color:#EE5233;font-weight:600;font-size:14px;padding:8px 14px;border-radius:999px;margin-bottom:24px">
+        <span style="width:8px;height:8px;border-radius:999px;background:#FF6A4D"></span>{{ heroBadge }}
+      </div>
+      <h1 style="font-size:56px;line-height:1.06;letter-spacing:-.04em;font-weight:700;margin:0 0 20px;text-wrap:balance">{{ heroTitle }}</h1>
+      <p style="font-size:20px;line-height:1.5;color:#736C66;margin:0 0 34px;max-width:520px;text-wrap:pretty">{{ heroSub }}</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:34px">
+        <button style="background:#FF6A4D;border:none;font-family:inherit;font-size:17px;font-weight:700;color:#fff;cursor:pointer;padding:16px 28px;border-radius:14px;box-shadow:0 14px 30px -10px rgba(255,106,77,.7)" style-hover="background:#EE5233">{{ heroCta1 }}</button>
+        <button style="background:#fff;border:1.5px solid #E7E2DD;font-family:inherit;font-size:17px;font-weight:700;color:#1A1714;cursor:pointer;padding:16px 28px;border-radius:14px" style-hover="border-color:#1A1714">{{ heroCta2 }}</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+        <div><div style="font-size:26px;font-weight:800">2 мин</div><div style="font-size:14px;color:#8A837C">{{ heroStat1 }}</div></div>
+        <div style="width:1px;height:36px;background:#ECE7E2"></div>
+        <div><div style="font-size:26px;font-weight:800">RU / KZ</div><div style="font-size:14px;color:#8A837C">{{ heroStat2 }}</div></div>
+        <div style="width:1px;height:36px;background:#ECE7E2"></div>
+        <div><div style="font-size:26px;font-weight:800">0 ₸</div><div style="font-size:14px;color:#8A837C">{{ heroStat3 }}</div></div>
+      </div>
+    </div>
+
+    <!-- hero phone -->
+    <div style="justify-self:center;position:relative">
+      <div style="position:absolute;inset:-30px;background:radial-gradient(circle at 60% 40%,#FFE7DF,transparent 70%);filter:blur(10px)"></div>
+      <div style="position:relative;animation:floaty 6s ease-in-out infinite;width:320px;border-radius:46px;background:#141210;padding:12px;box-shadow:0 40px 80px -30px rgba(20,18,16,.55)">
+        <div style="border-radius:36px;background:#fff;overflow:hidden">
+          <div style="height:150px;background:repeating-linear-gradient(135deg,#FFE7DF,#FFE7DF 12px,#FFDDD2 12px,#FFDDD2 24px);position:relative;display:flex;align-items:flex-end;padding:16px">
+            <span style="position:absolute;top:12px;left:16px;font-family:ui-monospace,monospace;font-size:10px;color:#C67A66;background:rgba(255,255,255,.6);padding:3px 7px;border-radius:6px">обложка</span>
+            <div><div style="color:#fff;font-weight:800;font-size:22px;text-shadow:0 2px 8px rgba(0,0,0,.35)">{{ restName }}</div><div style="color:#fff;font-size:12px;opacity:.9;text-shadow:0 1px 6px rgba(0,0,0,.4)">{{ restTag }}</div></div>
+          </div>
+          <div style="display:flex;gap:8px;padding:14px 14px 6px;overflow:hidden">
+            <sc-for list="{{ cats }}" as="cat" hint-placeholder-count="4">
+              <span style="{{ cat.style }}">{{ cat.name }}</span>
+            </sc-for>
+          </div>
+          <div style="padding:8px 14px 18px;display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ heroDishes }}" as="d" hint-placeholder-count="4">
+              <div style="display:flex;gap:12px;align-items:center;padding:10px;border:1px solid #F0ECE8;border-radius:16px">
+                <div style="width:58px;height:58px;border-radius:12px;flex-shrink:0;background:repeating-linear-gradient(135deg,#FFF1EC,#FFF1EC 8px,#FFE4DA 8px,#FFE4DA 16px)"></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div>
+                  <div style="font-size:12px;color:#9A938C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.desc }}</div>
+                </div>
+                <div style="font-weight:800;font-size:14px;color:#EE5233;white-space:nowrap">{{ d.price }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:32px"></div>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" style="background:#FAF7F4;padding:88px 0">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px">
+      <div style="text-align:center;margin-bottom:52px">
+        <div style="color:#EE5233;font-weight:700;font-size:14px;margin-bottom:12px">{{ hiwKicker }}</div>
+        <h2 style="font-size:40px;font-weight:700;letter-spacing:-.035em;margin:0 0 12px">{{ hiwTitle }}</h2>
+        <p style="font-size:18px;color:#736C66;margin:0;max-width:560px;margin-left:auto;margin-right:auto">{{ hiwSub }}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+          <div style="background:#fff;border:1px solid #F0ECE8;border-radius:20px;padding:32px 28px;box-shadow:0 2px 12px -6px rgba(20,18,16,.08)">
+            <div style="width:52px;height:52px;border-radius:16px;background:#FFF1EC;color:#EE5233;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center;margin-bottom:22px">{{ s.num }}</div>
+            <h3 style="font-size:21px;font-weight:700;margin:0 0 10px;letter-spacing:-.01em">{{ s.title }}</h3>
+            <p style="font-size:16px;line-height:1.5;color:#736C66;margin:0">{{ s.text }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADVANTAGES ============ -->
+  <section style="max-width:1180px;margin:0 auto;padding:88px 24px">
+    <div style="text-align:center;margin-bottom:52px">
+      <div style="color:#EE5233;font-weight:700;font-size:14px;margin-bottom:12px">{{ advKicker }}</div>
+      <h2 style="font-size:40px;font-weight:700;letter-spacing:-.035em;margin:0">{{ advTitle }}</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+      <sc-for list="{{ features }}" as="f" hint-placeholder-count="8">
+        <div style="{{ f.wrap }}">
+          <div style="width:9px;height:9px;border-radius:999px;background:#FF6A4D;margin-bottom:18px"></div>
+          <h3 style="font-size:17px;font-weight:600;margin:0 0 7px;letter-spacing:-.015em">{{ f.title }}</h3>
+          <p style="font-size:14.5px;line-height:1.5;color:#8A837C;margin:0">{{ f.text }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section style="background:#141210;padding:96px 0;color:#fff;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-80px;right:-60px;width:400px;height:400px;background:radial-gradient(circle,rgba(255,106,77,.3),transparent 70%)"></div>
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px;position:relative">
+      <div style="text-align:center;margin-bottom:64px">
+        <div style="color:#FF8A70;font-weight:700;font-size:14px;margin-bottom:12px">{{ demoKicker }}</div>
+        <h2 style="font-size:40px;font-weight:700;letter-spacing:-.035em;margin:0 0 12px">{{ demoTitle }}</h2>
+        <p style="font-size:18px;color:#B8B0A9;margin:0;max-width:560px;margin-left:auto;margin-right:auto">{{ demoSub }}</p>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:flex-end;gap:28px;flex-wrap:wrap">
+
+        <!-- phone: menu with categories -->
+        <div style="width:270px;border-radius:42px;background:#232019;padding:10px;box-shadow:0 30px 60px -25px rgba(0,0,0,.7)">
+          <div style="border-radius:33px;background:#fff;overflow:hidden;color:#1A1714">
+            <div style="height:96px;background:repeating-linear-gradient(135deg,#FFE7DF,#FFE7DF 12px,#FFDDD2 12px,#FFDDD2 24px);display:flex;align-items:flex-end;padding:14px"><div style="color:#fff;font-weight:800;font-size:17px;text-shadow:0 2px 8px rgba(0,0,0,.35)">{{ restName }}</div></div>
+            <div style="display:flex;gap:7px;padding:12px 12px 4px">
+              <sc-for list="{{ cats }}" as="cat" hint-placeholder-count="4"><span style="{{ cat.styleSm }}">{{ cat.name }}</span></sc-for>
+            </div>
+            <div style="padding:6px 12px 14px;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ heroDishes }}" as="d" hint-placeholder-count="3">
+                <div style="display:flex;gap:10px;align-items:center;padding:8px;border:1px solid #F0ECE8;border-radius:13px">
+                  <div style="width:44px;height:44px;border-radius:10px;flex-shrink:0;background:repeating-linear-gradient(135deg,#FFF1EC,#FFF1EC 7px,#FFE4DA 7px,#FFE4DA 14px)"></div>
+                  <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div><div style="font-size:11px;color:#EE5233;font-weight:700">{{ d.price }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- phone: dish detail (raised) -->
+        <div style="width:270px;border-radius:42px;background:#232019;padding:10px;box-shadow:0 40px 70px -25px rgba(0,0,0,.8);margin-bottom:28px">
+          <div style="border-radius:33px;background:#fff;overflow:hidden;color:#1A1714">
+            <div style="height:170px;background:repeating-linear-gradient(135deg,#FFE7DF,#FFE7DF 12px,#FFDDD2 12px,#FFDDD2 24px);position:relative"><span style="position:absolute;top:12px;left:12px;font-family:ui-monospace,monospace;font-size:10px;color:#C67A66;background:rgba(255,255,255,.65);padding:3px 7px;border-radius:6px">фото блюда</span></div>
+            <div style="padding:16px">
+              <div style="font-weight:800;font-size:19px;letter-spacing:-.01em">{{ detailName }}</div>
+              <div style="font-size:13px;color:#8A837C;margin:6px 0 14px;line-height:1.45">{{ detailDesc }}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <span style="font-weight:800;font-size:20px">{{ detailPrice }}</span>
+                <div style="display:flex;align-items:center;gap:12px;border:1px solid #ECE7E2;border-radius:999px;padding:5px 12px"><span style="color:#EE5233;font-weight:800">−</span><span style="font-weight:700">1</span><span style="color:#EE5233;font-weight:800">+</span></div>
+              </div>
+              <div style="background:#FF6A4D;color:#fff;text-align:center;font-weight:700;font-size:15px;padding:13px;border-radius:14px">{{ detailAdd }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- phone: cart with table -->
+        <div style="width:270px;border-radius:42px;background:#232019;padding:10px;box-shadow:0 30px 60px -25px rgba(0,0,0,.7)">
+          <div style="border-radius:33px;background:#fff;overflow:hidden;color:#1A1714">
+            <div style="padding:16px 14px 10px;border-bottom:1px solid #F0ECE8;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-weight:800;font-size:17px">{{ cartTitle }}</span>
+              <span style="background:#FFF1EC;color:#EE5233;font-weight:700;font-size:12px;padding:5px 10px;border-radius:999px">{{ cartTable }}</span>
+            </div>
+            <div style="padding:10px 14px;display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ cartItems }}" as="c" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:40px;height:40px;border-radius:10px;flex-shrink:0;background:repeating-linear-gradient(135deg,#FFF1EC,#FFF1EC 7px,#FFE4DA 7px,#FFE4DA 14px)"></div>
+                  <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div><div style="font-size:11px;color:#9A938C">× {{ c.qty }}</div></div>
+                  <div style="font-weight:700;font-size:12px">{{ c.price }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="padding:12px 14px;border-top:1px solid #F0ECE8">
+              <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#8A837C;font-size:13px">{{ cartTotalLabel }}</span><span style="font-weight:800;font-size:17px">{{ cartTotal }}</span></div>
+              <div style="background:#FF6A4D;color:#fff;text-align:center;font-weight:700;font-size:15px;padding:13px;border-radius:14px">{{ cartCheckout }}</div>
+              <div style="text-align:center;color:#9A938C;font-size:12px;margin-top:10px">{{ cartCall }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADAPTIVE SHOWCASE (desktop + mobile) ============ -->
+  <section style="max-width:1180px;margin:0 auto;padding:88px 24px">
+    <div style="text-align:center;margin-bottom:52px">
+      <div style="color:#EE5233;font-weight:700;font-size:14px;margin-bottom:12px">{{ adaptKicker }}</div>
+      <h2 style="font-size:40px;font-weight:700;letter-spacing:-.035em;margin:0 0 12px">{{ adaptTitle }}</h2>
+      <p style="font-size:18px;color:#736C66;margin:0;max-width:560px;margin-left:auto;margin-right:auto">{{ adaptSub }}</p>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:flex-end;gap:32px;flex-wrap:wrap">
+      <!-- desktop browser -->
+      <div style="flex:1;min-width:520px;max-width:720px;border-radius:18px;overflow:hidden;border:1px solid #ECE7E2;box-shadow:0 30px 60px -30px rgba(20,18,16,.35)">
+        <div style="background:#F4F0EC;padding:12px 16px;display:flex;align-items:center;gap:7px">
+          <span style="width:11px;height:11px;border-radius:999px;background:#E0483A"></span>
+          <span style="width:11px;height:11px;border-radius:999px;background:#F0B429"></span>
+          <span style="width:11px;height:11px;border-radius:999px;background:#4BAE4F"></span>
+          <span style="margin-left:14px;background:#fff;border-radius:8px;padding:5px 14px;font-size:12px;color:#9A938C;font-family:ui-monospace,monospace">qmenu.kz/vostok</span>
+        </div>
+        <div style="background:#fff;padding:34px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center">
+            <div>
+              <div style="height:16px;width:70%;background:#141210;border-radius:6px;margin-bottom:12px"></div>
+              <div style="height:16px;width:50%;background:#141210;border-radius:6px;margin-bottom:20px"></div>
+              <div style="height:11px;width:90%;background:#E7E2DD;border-radius:5px;margin-bottom:8px"></div>
+              <div style="height:11px;width:80%;background:#E7E2DD;border-radius:5px;margin-bottom:20px"></div>
+              <div style="display:inline-block;background:#FF6A4D;color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px">{{ heroCta1 }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ heroDishes }}" as="d" hint-placeholder-count="3">
+                <div style="display:flex;gap:10px;align-items:center;padding:9px;border:1px solid #F0ECE8;border-radius:12px">
+                  <div style="width:40px;height:40px;border-radius:9px;flex-shrink:0;background:repeating-linear-gradient(135deg,#FFF1EC,#FFF1EC 7px,#FFE4DA 7px,#FFE4DA 14px)"></div>
+                  <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div></div>
+                  <div style="font-weight:800;font-size:13px;color:#EE5233">{{ d.price }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- mobile phone -->
+      <div style="width:220px;border-radius:38px;background:#141210;padding:9px;box-shadow:0 30px 60px -28px rgba(20,18,16,.5)">
+        <div style="border-radius:30px;background:#fff;overflow:hidden">
+          <div style="padding:14px 14px 10px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:800;font-size:15px">Qmenu</span>
+            <span style="background:#F4F0EC;border-radius:999px;font-size:10px;font-weight:700;padding:4px 8px;color:#736C66">RU · KZ</span>
+          </div>
+          <div style="padding:0 14px">
+            <div style="height:13px;width:85%;background:#141210;border-radius:5px;margin-bottom:8px"></div>
+            <div style="height:13px;width:60%;background:#141210;border-radius:5px;margin-bottom:14px"></div>
+            <div style="background:#FF6A4D;color:#fff;text-align:center;font-size:12px;font-weight:700;padding:10px;border-radius:11px;margin-bottom:14px">{{ heroCta1 }}</div>
+          </div>
+          <div style="padding:0 14px 16px;display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ heroDishes }}" as="d" hint-placeholder-count="2">
+              <div style="display:flex;gap:9px;align-items:center;padding:7px;border:1px solid #F0ECE8;border-radius:11px">
+                <div style="width:34px;height:34px;border-radius:8px;flex-shrink:0;background:repeating-linear-gradient(135deg,#FFF1EC,#FFF1EC 6px,#FFE4DA 6px,#FFE4DA 12px)"></div>
+                <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div></div>
+                <div style="font-weight:800;font-size:11px;color:#EE5233">{{ d.price }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="pricing" style="background:#FAF7F4;padding:88px 0">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px">
+      <div style="text-align:center;margin-bottom:52px">
+        <div style="color:#EE5233;font-weight:700;font-size:14px;margin-bottom:12px">{{ priceKicker }}</div>
+        <h2 style="font-size:40px;font-weight:700;letter-spacing:-.035em;margin:0 0 12px">{{ priceTitle }}</h2>
+        <p style="font-size:18px;color:#736C66;margin:0;max-width:560px;margin-left:auto;margin-right:auto">{{ priceSub }}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start">
+
+        <!-- Free -->
+        <div style="background:#fff;border:1px solid #ECE7E2;border-radius:22px;padding:34px 30px">
+          <div style="font-size:15px;font-weight:700;color:#736C66;margin-bottom:8px">{{ planFree.name }}</div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px"><span style="font-size:40px;font-weight:800;letter-spacing:-.03em">{{ planFree.price }}</span><span style="color:#9A938C;font-size:15px">{{ planFree.period }}</span></div>
+          <div style="font-size:14px;color:#9A938C;margin-bottom:24px">{{ planFree.desc }}</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px">
+            <sc-for list="{{ planFree.features }}" as="ft" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:10px;font-size:15px"><span style="color:#EE5233;font-weight:800">✓</span>{{ ft }}</div>
+            </sc-for>
+          </div>
+          <button style="width:100%;background:#fff;border:1.5px solid #E7E2DD;font-family:inherit;font-size:16px;font-weight:700;color:#1A1714;cursor:pointer;padding:14px;border-radius:13px" style-hover="border-color:#1A1714">{{ planFree.cta }}</button>
+        </div>
+
+        <!-- Standard (popular) -->
+        <div style="background:#141210;color:#fff;border-radius:22px;padding:34px 30px;position:relative;box-shadow:0 30px 60px -25px rgba(20,18,16,.5);transform:translateY(-8px)">
+          <span style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#FF6A4D;color:#fff;font-size:13px;font-weight:700;padding:6px 16px;border-radius:999px;white-space:nowrap">{{ popular }}</span>
+          <div style="font-size:15px;font-weight:700;color:#FF8A70;margin-bottom:8px">{{ planStd.name }}</div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px"><span style="font-size:40px;font-weight:800;letter-spacing:-.03em">{{ planStd.price }}</span><span style="color:#B8B0A9;font-size:15px">{{ planStd.period }}</span></div>
+          <div style="font-size:14px;color:#B8B0A9;margin-bottom:24px">{{ planStd.desc }}</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px">
+            <sc-for list="{{ planStd.features }}" as="ft" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:10px;font-size:15px"><span style="color:#FF8A70;font-weight:800">✓</span>{{ ft }}</div>
+            </sc-for>
+          </div>
+          <button style="width:100%;background:#FF6A4D;border:none;font-family:inherit;font-size:16px;font-weight:700;color:#fff;cursor:pointer;padding:14px;border-radius:13px" style-hover="background:#EE5233">{{ planStd.cta }}</button>
+        </div>
+
+        <!-- Premium -->
+        <div style="background:#fff;border:1px solid #ECE7E2;border-radius:22px;padding:34px 30px">
+          <div style="font-size:15px;font-weight:700;color:#736C66;margin-bottom:8px">{{ planPrem.name }}</div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px"><span style="font-size:40px;font-weight:800;letter-spacing:-.03em">{{ planPrem.price }}</span><span style="color:#9A938C;font-size:15px">{{ planPrem.period }}</span></div>
+          <div style="font-size:14px;color:#9A938C;margin-bottom:24px">{{ planPrem.desc }}</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px">
+            <sc-for list="{{ planPrem.features }}" as="ft" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:10px;font-size:15px"><span style="color:#EE5233;font-weight:800">✓</span>{{ ft }}</div>
+            </sc-for>
+          </div>
+          <button style="width:100%;background:#fff;border:1.5px solid #E7E2DD;font-family:inherit;font-size:16px;font-weight:700;color:#1A1714;cursor:pointer;padding:14px;border-radius:13px" style-hover="border-color:#1A1714">{{ planPrem.cta }}</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section style="max-width:1180px;margin:0 auto;padding:88px 24px">
+    <div style="background:#FF6A4D;border-radius:28px;padding:72px 40px;text-align:center;color:#fff;position:relative;overflow:hidden;box-shadow:0 40px 80px -30px rgba(255,106,77,.55)">
+      <div style="position:absolute;top:-100px;left:-60px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 70%)"></div>
+      <div style="position:absolute;bottom:-120px;right:-40px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%)"></div>
+      <h2 style="font-size:44px;font-weight:700;letter-spacing:-.035em;margin:0 0 16px;position:relative;text-wrap:balance">{{ ctaTitle }}</h2>
+      <p style="font-size:19px;opacity:.95;margin:0 0 32px;position:relative;max-width:540px;margin-left:auto;margin-right:auto">{{ ctaSub }}</p>
+      <button style="background:#fff;border:none;font-family:inherit;font-size:18px;font-weight:800;color:#EE5233;cursor:pointer;padding:18px 40px;border-radius:15px;position:relative;box-shadow:0 14px 30px -10px rgba(0,0,0,.25)" style-hover="transform:translateY(-2px)">{{ ctaBtn }}</button>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer style="border-top:1px solid #F0ECE8;padding:56px 0 40px">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <div style="max-width:300px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:34px;height:34px;border-radius:11px;background:#FF6A4D;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:17px">Q</div>
+          <span style="font-weight:800;font-size:18px">Qmenu</span>
+        </div>
+        <p style="font-size:15px;color:#8A837C;line-height:1.5;margin:0">{{ footTag }}</p>
+      </div>
+      <div style="display:flex;gap:56px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ footLinks }}" as="l" hint-placeholder-count="4"><a href="#" style="font-size:15px;color:#5A544E">{{ l }}</a></sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:14px;color:#B9B2AA;font-weight:600">{{ footContactLabel }}</span>
+          <span style="font-size:15px;color:#5A544E"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="325a575e5e5d72435f575c471c5948">[email&#160;protected]</a></span>
+          <span style="font-size:15px;color:#5A544E">+7 700 000 00 00</span>
+          <span style="font-size:15px;color:#5A544E">Алматы, Казахстан</span>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1180px;margin:36px auto 0;padding:24px 24px 0;border-top:1px solid #F0ECE8;font-size:14px;color:#A39C95">{{ footRights }}</div>
+  </footer>
+
+</div>
+</x-dc>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1280, &quot;height&quot;: 3800 },
+  &quot;defaultLang&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;ru&quot;, &quot;options&quot;: [&quot;ru&quot;, &quot;kz&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; }
+}">
+const catA = "background:#FF6A4D;color:#fff;font-size:12px;font-weight:700;padding:7px 13px;border-radius:999px;white-space:nowrap";
+const catB = "background:#F4F0EC;color:#736C66;font-size:12px;font-weight:600;padding:7px 13px;border-radius:999px;white-space:nowrap";
+const catASm = "background:#FF6A4D;color:#fff;font-size:10px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap";
+const catBSm = "background:#F4F0EC;color:#736C66;font-size:10px;font-weight:600;padding:5px 10px;border-radius:999px;white-space:nowrap";
+
+const RU = {
+  navLogin:"Войти", navTry:"Попробовать бесплатно",
+  heroBadge:"Без установки приложения", heroTitle:"Меню по QR за 2 минуты",
+  heroSub:"Гости сканируют код и видят ваше меню без установки приложения — на русском и казахском.",
+  heroCta1:"Попробовать бесплатно", heroCta2:"Как это работает",
+  heroStat1:"на запуск", heroStat2:"два языка", heroStat3:"старт бесплатно",
+  trustedLabel:"Нам доверяют заведения", trustedLogos:["Восточный дворик","Coffee Lab","Тюбетейка","Bahandi"],
+  restName:"Восточный дворик", restTag:"Узбекская и казахская кухня",
+  cats:[
+    {name:"Горячее",style:catA,styleSm:catASm},
+    {name:"Салаты",style:catB,styleSm:catBSm},
+    {name:"Напитки",style:catB,styleSm:catBSm},
+    {name:"Десерты",style:catB,styleSm:catBSm}
+  ],
+  heroDishes:[
+    {name:"Плов ташкентский",desc:"с мраморной говядиной",price:"2 490 ₸"},
+    {name:"Лагман уйгурский",desc:"ручная лапша, овощи",price:"2 100 ₸"},
+    {name:"Манты (5 шт)",desc:"сочная баранина",price:"1 890 ₸"},
+    {name:"Чай в чайнике",desc:"облепиха, мёд",price:"990 ₸"}
+  ],
+  hiwKicker:"Как это работает", hiwTitle:"Три шага до цифрового меню",
+  hiwSub:"От бумажного меню до заказа со стола — быстро и без разработчиков.",
+  steps:[
+    {num:"1",title:"Сфоткали меню",text:"ИИ распознаёт блюда и цены с бумажного меню — не нужно набирать вручную."},
+    {num:"2",title:"Получили QR-код",text:"Готовый код на печать для каждого стола и красивые таблички."},
+    {num:"3",title:"Гости заказывают",text:"Сканируют код и делают заказ прямо со стола, официант получает уведомление."}
+  ],
+  advKicker:"Преимущества", advTitle:"Всё, что нужно заведению",
+  features:[
+    {icon:"⌘",title:"Двуязычность RU / KZ",text:"Меню сразу на двух языках, гость выбирает удобный."},
+    {icon:"⊘",title:"Стоп-лист в один тап",text:"Блюдо закончилось — скрыли из меню мгновенно."},
+    {icon:"▤",title:"Заказ со стола",text:"Гость оформляет заказ сам, без ожидания официанта."},
+    {icon:"◔",title:"Вызов официанта",text:"Одна кнопка — и помощь подойдёт к столу."},
+    {icon:"₸",title:"Чаевые через Kaspi QR",text:"Гость благодарит команду в один тап."},
+    {icon:"▦",title:"Аналитика сканирований",text:"Видно, что смотрят и заказывают чаще всего."},
+    {icon:"↻",title:"Мгновенное обновление цен",text:"Меняйте цены без перепечатки бумажных меню."},
+    {icon:"◈",title:"Своё оформление",text:"Логотип, фото блюд и фирменные цвета заведения."}
+  ],
+  demoKicker:"Демо", demoTitle:"Как это видит гость",
+  demoSub:"Красивое меню, экран блюда и корзина с номером стола — всё в один тап.",
+  detailName:"Плов ташкентский", detailDesc:"Рассыпчатый рис, мраморная говядина, морковь и зира. Порция на одного.",
+  detailPrice:"2 490 ₸", detailAdd:"Добавить в корзину",
+  cartTitle:"Корзина", cartTable:"Стол №7", cartTotalLabel:"Итого", cartTotal:"6 690 ₸",
+  cartCheckout:"Оформить заказ", cartCall:"или позвать официанта",
+  cartItems:[
+    {name:"Плов ташкентский",qty:1,price:"2 490 ₸"},
+    {name:"Лагман уйгурский",qty:2,price:"4 200 ₸"}
+  ],
+  adaptKicker:"Адаптивно", adaptTitle:"Одинаково красиво на любом экране",
+  adaptSub:"Меню отлично выглядит и на телефоне гостя, и на большом экране — ничего не настраивая.",
+  priceKicker:"Тарифы", priceTitle:"Простые и понятные тарифы",
+  priceSub:"Начните бесплатно и расширяйтесь по мере роста заведения.",
+  popular:"Популярный выбор",
+  planFree:{name:"Бесплатный",price:"0 ₸",period:"навсегда",desc:"Чтобы попробовать и запустить меню",features:["Меню + QR-код","До 30 блюд","Брендинг сервиса"],cta:"Начать бесплатно"},
+  planStd:{name:"Стандарт",price:"9 900 ₸",period:"/ мес",desc:"Для одного заведения",features:["Свой логотип и цвета","Фото блюд","Стоп-лист","Аналитика сканирований"],cta:"Выбрать тариф"},
+  planPrem:{name:"Премиум",price:"24 900 ₸",period:"/ мес",desc:"Для сетей и полного самообслуживания",features:["Заказ со стола","Вызов официанта","Чаевые через Kaspi","Несколько точек"],cta:"Выбрать тариф"},
+  ctaTitle:"Запустите меню уже сегодня", ctaSub:"Регистрация занимает пару минут. Без карты и обязательств.",
+  ctaBtn:"Начать бесплатно",
+  footTag:"QR-меню для ресторанов и кафе. Меню, заказы и оплата — в одном сервисе.",
+  footLinks:["О сервисе","Тарифы","Контакты","Публичная оферта"],
+  footContactLabel:"Контакты",
+  footRights:"© 2026 Qmenu. Все права защищены."
+};
+
+const KZ = {
+  navLogin:"Кіру", navTry:"Тегін көріп көру",
+  heroBadge:"Қосымшасыз", heroTitle:"QR арқылы мәзір 2 минутта",
+  heroSub:"Қонақтар кодты сканерлеп, қосымшасыз мәзіріңізді көреді — орысша және қазақша.",
+  heroCta1:"Тегін көріп көру", heroCta2:"Қалай жұмыс істейді",
+  heroStat1:"іске қосуға", heroStat2:"екі тіл", heroStat3:"тегін бастау",
+  trustedLabel:"Бізге сенеді", trustedLogos:["Шығыс ауласы","Coffee Lab","Тақия","Bahandi"],
+  restName:"Шығыс ауласы", restTag:"Өзбек және қазақ асханасы",
+  cats:[
+    {name:"Ыстық",style:catA,styleSm:catASm},
+    {name:"Салаттар",style:catB,styleSm:catBSm},
+    {name:"Сусындар",style:catB,styleSm:catBSm},
+    {name:"Тәттілер",style:catB,styleSm:catBSm}
+  ],
+  heroDishes:[
+    {name:"Ташкент палауы",desc:"мәрмәр сиыр етімен",price:"2 490 ₸"},
+    {name:"Ұйғыр лағманы",desc:"қол кеспе, көкөніс",price:"2 100 ₸"},
+    {name:"Манты (5 дана)",desc:"шырынды қой еті",price:"1 890 ₸"},
+    {name:"Шайнектегі шай",desc:"шырғанақ, бал",price:"990 ₸"}
+  ],
+  hiwKicker:"Қалай жұмыс істейді", hiwTitle:"Цифрлық мәзірге дейін үш қадам",
+  hiwSub:"Қағаз мәзірден үстелден тапсырысқа дейін — жылдам әрі әзірлеушісіз.",
+  steps:[
+    {num:"1",title:"Мәзірді суретке түсіріңіз",text:"ЖИ қағаз мәзірден тағамдар мен бағаларды таниды — қолмен теру қажет емес."},
+    {num:"2",title:"QR-код алыңыз",text:"Әр үстелге басып шығаруға дайын код және әдемі кестелер."},
+    {num:"3",title:"Қонақтар тапсырыс береді",text:"Кодты сканерлеп, тікелей үстелден тапсырыс береді, даяшы хабарлама алады."}
+  ],
+  advKicker:"Артықшылықтар", advTitle:"Мекемеге қажеттің бәрі",
+  features:[
+    {icon:"⌘",title:"Екі тіл: RU / KZ",text:"Мәзір бірден екі тілде, қонақ ыңғайлысын таңдайды."},
+    {icon:"⊘",title:"Стоп-парақ бір түртумен",text:"Тағам бітті — мәзірден бірден жасырдыңыз."},
+    {icon:"▤",title:"Үстелден тапсырыс",text:"Қонақ даяшыны күтпей өзі тапсырыс береді."},
+    {icon:"◔",title:"Даяшыны шақыру",text:"Бір батырма — көмек үстелге келеді."},
+    {icon:"₸",title:"Kaspi QR арқылы шайпұл",text:"Қонақ командаға бір түртумен алғыс айтады."},
+    {icon:"▦",title:"Сканерлеу аналитикасы",text:"Не жиі қаралып, тапсырыс берілетіні көрінеді."},
+    {icon:"↻",title:"Бағаны бірден жаңарту",text:"Қағаз мәзірді қайта басусыз баға өзгертіңіз."},
+    {icon:"◈",title:"Өз безендіруі",text:"Логотип, тағам фотосы және фирмалық түстер."}
+  ],
+  demoKicker:"Демо", demoTitle:"Мұны қонақ қалай көреді",
+  demoSub:"Әдемі мәзір, тағам экраны және үстел нөмірі бар себет — бәрі бір түртумен.",
+  detailName:"Ташкент палауы", detailDesc:"Үгілмелі күріш, мәрмәр сиыр еті, сәбіз және зире. Бір адамдық.",
+  detailPrice:"2 490 ₸", detailAdd:"Себетке қосу",
+  cartTitle:"Себет", cartTable:"7-үстел", cartTotalLabel:"Барлығы", cartTotal:"6 690 ₸",
+  cartCheckout:"Тапсырысты рәсімдеу", cartCall:"немесе даяшыны шақыру",
+  cartItems:[
+    {name:"Ташкент палауы",qty:1,price:"2 490 ₸"},
+    {name:"Ұйғыр лағманы",qty:2,price:"4 200 ₸"}
+  ],
+  adaptKicker:"Бейімделгіш", adaptTitle:"Кез келген экранда бірдей әдемі",
+  adaptSub:"Мәзір қонақтың телефонында да, үлкен экранда да тамаша көрінеді — баптаусыз.",
+  priceKicker:"Тарифтер", priceTitle:"Қарапайым әрі түсінікті тарифтер",
+  priceSub:"Тегін бастаңыз да, мекеме өскен сайын кеңейіңіз.",
+  popular:"Танымал таңдау",
+  planFree:{name:"Тегін",price:"0 ₸",period:"мәңгі",desc:"Байқап көру және іске қосу үшін",features:["Мәзір + QR-код","30 тағамға дейін","Сервис брендингі"],cta:"Тегін бастау"},
+  planStd:{name:"Стандарт",price:"9 900 ₸",period:"/ ай",desc:"Бір мекемеге",features:["Өз логотипі мен түстері","Тағам фотосы","Стоп-парақ","Сканерлеу аналитикасы"],cta:"Тарифті таңдау"},
+  planPrem:{name:"Премиум",price:"24 900 ₸",period:"/ ай",desc:"Желілер мен толық өзіне-өзі қызмет ету үшін",features:["Үстелден тапсырыс","Даяшыны шақыру","Kaspi арқылы шайпұл","Бірнеше нүкте"],cta:"Тарифті таңдау"},
+  ctaTitle:"Мәзірді бүгін іске қосыңыз", ctaSub:"Тіркелу бірнеше минут алады. Картасыз және міндеттемесіз.",
+  ctaBtn:"Тегін бастау",
+  footTag:"Мейрамханалар мен кафеге арналған QR-мәзір. Мәзір, тапсырыс және төлем — бір сервисте.",
+  footLinks:["Сервис туралы","Тарифтер","Байланыс","Жария оферта"],
+  footContactLabel:"Байланыс",
+  footRights:"© 2026 Qmenu. Барлық құқықтар қорғалған."
+};
+
+class Component extends DCLogic {
+  state = { lang: this.props.defaultLang || "ru" };
+  renderVals() {
+    const lang = this.state.lang;
+    const d = lang === "kz" ? KZ : RU;
+    const pill = "border:none;font-family:inherit;font-size:14px;font-weight:700;padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .15s";
+    const active = pill + ";background:#fff;color:#1A1714;box-shadow:0 2px 6px -2px rgba(0,0,0,.15)";
+    const idle = pill + ";background:transparent;color:#8A837C";
+    const featWrap = "padding:8px 20px 8px 0";
+    // attach wrap style to each feature
+    const features = d.features.map(f => ({ ...f, wrap: featWrap }));
+    return {
+      ...d,
+      features,
+      ruPillStyle: lang === "ru" ? active : idle,
+      kzPillStyle: lang === "kz" ? active : idle,
+      setRu: () => this.setState({ lang: "ru" }),
+      setKz: () => this.setState({ lang: "kz" })
+    };
+  }
+}
+
+</script>
+</body>
+</html>
