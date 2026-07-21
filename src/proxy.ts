@@ -24,6 +24,15 @@ function preferredLocale(request: NextRequest): string {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  /*
+   * The guest menu sits outside the locale prefixes: its address is printed
+   * on a table tent, so it has to stay short and stable, and the guest picks
+   * a language inside the menu rather than in the URL.
+   */
+  if (pathname === "/m" || pathname.startsWith("/m/")) {
+    return NextResponse.next();
+  }
+
   const hasLocale = LOCALES.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );
