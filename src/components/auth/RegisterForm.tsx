@@ -7,11 +7,13 @@ import { Field } from "@/components/auth/Field";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
+import { useSetAuthUser } from "@/lib/useAuth";
 import { ApiError, register, type ValidationErrors } from "@/lib/api";
 
 export function RegisterForm({ locale }: { locale: Locale }) {
   const copy = authByLocale[locale];
   const router = useRouter();
+  const setAuthUser = useSetAuthUser();
 
   const [values, setValues] = useState({
     name: "",
@@ -25,8 +27,10 @@ export function RegisterForm({ locale }: { locale: Locale }) {
 
   const mutation = useMutation({
     mutationFn: (values: Parameters<typeof register>[0]) => register(values, locale),
-    onSuccess: () => {
-      // Registration signs the account in, so go straight to the panel.
+    onSuccess: (user) => {
+      // Publish the session before navigating, so the header shows the panel
+      // link straight away instead of the sign-in buttons.
+      setAuthUser(user);
       router.push(`/${locale}/dashboard`);
     },
     onError: (error: unknown) => {

@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { LanguageSwitch } from "@/components/landing/ui/LanguageSwitch";
 import { Logo } from "@/components/landing/ui/Logo";
 import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
+import { authByLocale } from "@/content/auth";
+import { useAuth } from "@/lib/useAuth";
 
 export function Header() {
   const { copy, locale } = useLandingLocale();
+  const auth = authByLocale[locale];
+  const { isAuthenticated, isLoading } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -85,26 +89,51 @@ export function Header() {
             `hidden` in Tailwind's output and would win — so `hidden` passed
             through `className` silently does nothing.
           */}
-          <span className="hidden xl:inline-flex">
-            <Button
-              variant="ghost"
-              href={`/${locale}/login`}
-              className="px-3 py-2.5 text-[15px] font-semibold"
-            >
-              {copy.navLogin}
-            </Button>
-          </span>
+          {isLoading ? (
+            /*
+             * The landing is static, so the session is only known once the
+             * client asks. Holding the slot keeps the row from jumping when
+             * the answer arrives.
+             */
+            <span
+              className="hidden h-[42px] w-[132px] shrink-0 animate-pulse rounded-[12px] bg-surface-2 sm:block"
+              aria-hidden="true"
+            />
+          ) : isAuthenticated ? (
+            <span className="hidden shrink-0 sm:inline-flex">
+              <Button
+                variant="primary"
+                href={`/${locale}/dashboard`}
+                className="whitespace-nowrap px-3.5 py-2.5 text-[13px] xl:px-5 xl:text-[15px]"
+              >
+                <LayoutDashboard size={16} />
+                {auth.navPanel}
+              </Button>
+            </span>
+          ) : (
+            <>
+              <span className="hidden xl:inline-flex">
+                <Button
+                  variant="ghost"
+                  href={`/${locale}/login`}
+                  className="px-3 py-2.5 text-[15px] font-semibold"
+                >
+                  {copy.navLogin}
+                </Button>
+              </span>
 
-          {/* Visible from sm up; below that the CTA lives inside the burger panel. */}
-          <span className="hidden shrink-0 sm:inline-flex">
-            <Button
-              variant="primary"
-              href={`/${locale}/register`}
-              className="whitespace-nowrap px-3.5 py-2.5 text-[13px] xl:px-5 xl:text-[15px]"
-            >
-              {copy.navTry}
-            </Button>
-          </span>
+              {/* From sm up; below that the CTA lives in the burger panel. */}
+              <span className="hidden shrink-0 sm:inline-flex">
+                <Button
+                  variant="primary"
+                  href={`/${locale}/register`}
+                  className="whitespace-nowrap px-3.5 py-2.5 text-[13px] xl:px-5 xl:text-[15px]"
+                >
+                  {copy.navTry}
+                </Button>
+              </span>
+            </>
+          )}
 
           <button
             type="button"
@@ -139,22 +168,36 @@ export function Header() {
             ))}
           </ul>
           <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-4 sm:flex-row">
-            <Button
-              variant="secondary"
-              href={`/${locale}/login`}
-              onClick={() => setOpen(false)}
-              className="w-full py-3.5 text-base sm:flex-1"
-            >
-              {copy.navLogin}
-            </Button>
-            <Button
-              variant="primary"
-              href={`/${locale}/register`}
-              onClick={() => setOpen(false)}
-              className="w-full py-3.5 text-base sm:flex-1"
-            >
-              {copy.navTry}
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                variant="primary"
+                href={`/${locale}/dashboard`}
+                onClick={() => setOpen(false)}
+                className="w-full py-3.5 text-base"
+              >
+                <LayoutDashboard size={17} />
+                {auth.navPanel}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="secondary"
+                  href={`/${locale}/login`}
+                  onClick={() => setOpen(false)}
+                  className="w-full py-3.5 text-base sm:flex-1"
+                >
+                  {copy.navLogin}
+                </Button>
+                <Button
+                  variant="primary"
+                  href={`/${locale}/register`}
+                  onClick={() => setOpen(false)}
+                  className="w-full py-3.5 text-base sm:flex-1"
+                >
+                  {copy.navTry}
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       ) : null}

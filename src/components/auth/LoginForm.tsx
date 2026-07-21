@@ -7,11 +7,13 @@ import { Field } from "@/components/auth/Field";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
+import { useSetAuthUser } from "@/lib/useAuth";
 import { ApiError, login, type ValidationErrors } from "@/lib/api";
 
 export function LoginForm({ locale }: { locale: Locale }) {
   const copy = authByLocale[locale];
   const router = useRouter();
+  const setAuthUser = useSetAuthUser();
 
   const [values, setValues] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -19,7 +21,10 @@ export function LoginForm({ locale }: { locale: Locale }) {
 
   const mutation = useMutation({
     mutationFn: (values: Parameters<typeof login>[0]) => login(values, locale),
-    onSuccess: () => router.push(`/${locale}/dashboard`),
+    onSuccess: (user) => {
+      setAuthUser(user);
+      router.push(`/${locale}/dashboard`);
+    },
     onError: (error: unknown) => {
       if (error instanceof ApiError) {
         setErrors(error.errors);

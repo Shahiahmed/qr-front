@@ -27,6 +27,8 @@ export type AuthCopy = {
   networkError: string;
 
   dashboardTitle: string;
+  /** Header link shown instead of the sign-in buttons. */
+  navPanel: string;
   dashboardHello: string;
   dashboardNext: string;
   logout: string;
@@ -58,6 +60,7 @@ const RU: AuthCopy = {
   networkError: "Не удалось связаться с сервером. Проверьте соединение.",
 
   dashboardTitle: "Кабинет",
+  navPanel: "Кабинет",
   dashboardHello: "Вы вошли как",
   dashboardNext: "Следующий шаг — добавить заведение: название, адрес и контакты.",
   logout: "Выйти",
@@ -89,6 +92,7 @@ const KZ: AuthCopy = {
   networkError: "Сервермен байланысу мүмкін болмады. Байланысты тексеріңіз.",
 
   dashboardTitle: "Кабинет",
+  navPanel: "Кабинет",
   dashboardHello: "Сіз кірдіңіз:",
   dashboardNext: "Келесі қадам — мекеме қосу: атауы, мекенжайы және байланыс.",
   logout: "Шығу",
