@@ -1,37 +1,28 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
-import {
-  landingByLocale,
-  type LandingCopy,
-  type Locale,
-} from "@/content/landing";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { landingByLocale, type LandingCopy, type Locale } from "@/content/landing";
 
 type LandingLocaleContextValue = {
   locale: Locale;
-  setLocale: (locale: Locale) => void;
   copy: LandingCopy;
 };
 
-const LandingLocaleContext = createContext<LandingLocaleContextValue | null>(
-  null,
-);
+const LandingLocaleContext = createContext<LandingLocaleContextValue | null>(null);
 
-export function LandingLocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>("ru");
-
+/**
+ * The locale comes from the `[locale]` route segment, not from local state:
+ * every language has its own URL, so switching means navigating.
+ */
+export function LandingLocaleProvider({
+  locale,
+  children,
+}: {
+  locale: Locale;
+  children: ReactNode;
+}) {
   const value = useMemo(
-    () => ({
-      locale,
-      setLocale,
-      copy: landingByLocale[locale],
-    }),
+    () => ({ locale, copy: landingByLocale[locale] }),
     [locale],
   );
 
