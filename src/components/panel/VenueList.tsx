@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FilePlus2, Pencil, Trash2, UtensilsCrossed } from "lucide-react";
+import { FilePlus2, Pencil, QrCode, Trash2, UtensilsCrossed } from "lucide-react";
 import { useState } from "react";
 import { VenueDialog } from "@/components/panel/VenueDialog";
 import { Button } from "@/components/landing/ui/Button";
@@ -65,6 +65,15 @@ export function VenueList({ locale }: { locale: Locale }) {
               >
                 {copy.venueMenu}
               </Button>
+
+              <a
+                href={`/${locale}/dashboard/venues/${venue.id}/qr`}
+                aria-label={copy.qrOpen}
+                title={copy.qrOpen}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-strong text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+              >
+                <QrCode size={16} />
+              </a>
 
               <button
                 type="button"

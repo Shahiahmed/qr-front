@@ -57,7 +57,9 @@ export function PanelShell({
   ];
 
   return (
-    <div className="min-h-dvh bg-surface">
+    // White when printing: the tinted panel background is wasted ink and
+    // costs the code contrast a scanner needs.
+    <div className="min-h-dvh bg-surface print:bg-white">
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
           <Logo href={`/${locale}`} size="sm" />

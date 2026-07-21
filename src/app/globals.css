@@ -228,3 +228,32 @@ html {
     #ffe4da 16px
   );
 }
+
+/* ---------- printing the table tent ---------- */
+
+/*
+ * Everything but the tent is hidden with `print:hidden` in the markup. The
+ * panel chrome — header, tabs, page background — is stripped here so the sheet
+ * carries the code and nothing else, and so the QR stays pure black on white
+ * whatever the browser would otherwise do to backgrounds.
+ */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  header,
+  nav {
+    display: none !important;
+  }
+
+  /* Colour-managed printers otherwise lighten the modules and break scanning. */
+  svg {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

@@ -60,6 +60,19 @@ export type AuthCopy = {
   save: string;
 
   profileTitle: string;
+
+  qrTitle: string;
+  qrSubtitle: string;
+  qrOpen: string;
+  qrDownloadPng: string;
+  qrDownloadSvg: string;
+  qrPrint: string;
+  qrLinkLabel: string;
+  qrCopied: string;
+  qrCopy: string;
+  /** Printed on the table tent, above the code. */
+  tentHeading: string;
+  tentHint: string;
 };
 
 const RU: AuthCopy = {
@@ -120,6 +133,18 @@ const RU: AuthCopy = {
   save: "Сохранить",
 
   profileTitle: "Профиль",
+
+  qrTitle: "QR-код",
+  qrSubtitle: "Распечатайте и поставьте на стол. Гость наведёт камеру и увидит меню.",
+  qrOpen: "QR-код",
+  qrDownloadPng: "Скачать PNG",
+  qrDownloadSvg: "Скачать SVG",
+  qrPrint: "Печать таблички",
+  qrLinkLabel: "Ссылка на меню",
+  qrCopied: "Скопировано",
+  qrCopy: "Копировать",
+  tentHeading: "Меню здесь",
+  tentHint: "Наведите камеру телефона на код",
 };
 
 const KZ: AuthCopy = {
@@ -180,6 +205,18 @@ const KZ: AuthCopy = {
   save: "Сақтау",
 
   profileTitle: "Профиль",
+
+  qrTitle: "QR-код",
+  qrSubtitle: "Басып шығарып, үстелге қойыңыз. Қонақ камераны бағыттап, мәзірді көреді.",
+  qrOpen: "QR-код",
+  qrDownloadPng: "PNG жүктеу",
+  qrDownloadSvg: "SVG жүктеу",
+  qrPrint: "Кестені басып шығару",
+  qrLinkLabel: "Мәзірге сілтеме",
+  qrCopied: "Көшірілді",
+  qrCopy: "Көшіру",
+  tentHeading: "Мәзір осында",
+  tentHint: "Телефон камерасын кодқа бағыттаңыз",
 };
 
 export const authByLocale: Record<Locale, AuthCopy> = { ru: RU, kz: KZ };
