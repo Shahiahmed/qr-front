@@ -16,6 +16,9 @@ export type PublicDish = {
   description_kk: string | null;
   price: number;
   is_available: boolean;
+  // Optional: dish photo upload is not built yet, so real menus omit it. The
+  // built-in demo sets it, and the guest card renders one only when present.
+  image_url?: string | null;
 };
 
 export type PublicCategory = {

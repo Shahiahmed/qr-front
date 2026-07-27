@@ -51,7 +51,9 @@ export async function generateMetadata({
 export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) {
   const { slug } = await params;
 
-  if (slug === DEMO_SLUG) return <GuestMenu menu={demoMenu} />;
+  // Ordering is on for the demo so a prospect can feel the at-the-table flow;
+  // the checkout there is a local mock (see GuestMenu).
+  if (slug === DEMO_SLUG) return <GuestMenu menu={demoMenu} ordering />;
 
   const menu = await fetchPublicMenu(slug);
 

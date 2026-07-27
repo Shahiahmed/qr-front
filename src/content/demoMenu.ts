@@ -10,10 +10,19 @@ import type { PublicMenu } from "@/lib/guestMenuTypes";
  *
  * Prices are in minor units (тиыны, 1/100 ₸) like real menu data. One dish is
  * marked unavailable so the stop-list treatment shows up in the demo.
+ *
+ * Photos are hotlinked from Unsplash (sized + auto-format at the edge) — good
+ * enough for a demo with no backend. Real menus get owner uploads later, which
+ * is why `image_url` is optional; Айран is left without one on purpose so the
+ * photo-less card also shows in the demo.
  */
 
 /** The reserved slug the guest router recognises as the built-in demo. */
 export const DEMO_SLUG = "demo";
+
+/** Unsplash CDN URL sized for a guest menu card. */
+const photo = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=640&h=480&q=72&auto=format&fit=crop`;
 
 export const demoMenu: PublicMenu = {
   name: "Дастархан",
@@ -36,6 +45,7 @@ export const demoMenu: PublicMenu = {
           description_kk: "Ірімшік құймақ, қаймақ пен жидек джемімен беріледі.",
           price: 190000,
           is_available: true,
+          image_url: photo("1567620905732-2d1ec7ab7445"),
         },
         {
           id: 102,
@@ -45,6 +55,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 140000,
           is_available: true,
+          image_url: photo("1517673400267-0251440c45dc"),
         },
         {
           id: 103,
@@ -54,6 +65,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 170000,
           is_available: true,
+          image_url: photo("1510693206972-df098062cb71"),
         },
       ],
     },
@@ -70,6 +82,7 @@ export const demoMenu: PublicMenu = {
           description_kk: "Ромэн салаты, грильдегі тауық еті, пармезан және фирмалық тұздық.",
           price: 290000,
           is_available: true,
+          image_url: photo("1551248429-40975aa4de74"),
         },
         {
           id: 202,
@@ -79,6 +92,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 240000,
           is_available: true,
+          image_url: photo("1512621776951-a57141f2eefd"),
         },
         {
           id: 203,
@@ -88,6 +102,7 @@ export const demoMenu: PublicMenu = {
           description_kk: "Піскен қызанақ, жұқа пияз және көкөніс — палау мен етке.",
           price: 120000,
           is_available: true,
+          image_url: photo("1540189549336-e6e99c3679fe"),
         },
       ],
     },
@@ -104,6 +119,7 @@ export const demoMenu: PublicMenu = {
           description_kk: "Үй кеспесі мен пияз тұздығына қосылған сиыр және жылқы еті.",
           price: 390000,
           is_available: true,
+          image_url: photo("1633945274405-b6c8069047b0"),
         },
         {
           id: 302,
@@ -113,6 +129,7 @@ export const demoMenu: PublicMenu = {
           description_kk: "Қазандағы қой еті, сәбіз және зире қосылған палау.",
           price: 260000,
           is_available: true,
+          image_url: photo("1603133872878-684f208fb84b"),
         },
         {
           id: 303,
@@ -122,6 +139,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 220000,
           is_available: true,
+          image_url: photo("1563245372-f21724e3856d"),
         },
         {
           id: 304,
@@ -131,6 +149,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 280000,
           is_available: true,
+          image_url: photo("1631292784640-2b24be784d5d"),
         },
       ],
     },
@@ -147,6 +166,7 @@ export const demoMenu: PublicMenu = {
           description_kk: "Грильдегі мәрмәр сиыр еті, қуыру дәрежесі таңдау бойынша.",
           price: 690000,
           is_available: true,
+          image_url: photo("1432139509613-5c4255815697"),
         },
         {
           id: 402,
@@ -156,6 +176,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 240000,
           is_available: true,
+          image_url: photo("1563379926898-05f4575a45d8"),
         },
         {
           id: 403,
@@ -166,6 +187,7 @@ export const demoMenu: PublicMenu = {
           price: 480000,
           // On the stop list, so the demo shows the "sold out" treatment.
           is_available: false,
+          image_url: photo("1467003909585-2f8a72700288"),
         },
       ],
     },
@@ -182,6 +204,7 @@ export const demoMenu: PublicMenu = {
           description_kk: "Нәзік қаймақ кремі бар классикалық балды торт.",
           price: 150000,
           is_available: true,
+          image_url: photo("1565958011703-44f9829ba187"),
         },
         {
           id: 502,
@@ -191,6 +214,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 190000,
           is_available: true,
+          image_url: photo("1524351199678-941a58a3df50"),
         },
         {
           id: 503,
@@ -200,6 +224,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 110000,
           is_available: true,
+          image_url: photo("1551024506-0bccd828d307"),
         },
       ],
     },
@@ -216,6 +241,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 130000,
           is_available: true,
+          image_url: photo("1541167760496-1628856ab772"),
         },
         {
           id: 602,
@@ -225,6 +251,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 160000,
           is_available: true,
+          image_url: photo("1571934811356-5cc061b6821f"),
         },
         {
           id: 603,
@@ -234,6 +261,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 160000,
           is_available: true,
+          image_url: photo("1600271886742-f049cd451bba"),
         },
         {
           id: 604,
@@ -252,6 +280,7 @@ export const demoMenu: PublicMenu = {
           description_kk: null,
           price: 60000,
           is_available: true,
+          image_url: photo("1556679343-c7306c1976bc"),
         },
       ],
     },
