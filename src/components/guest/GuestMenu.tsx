@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Minus, Plus, X } from "lucide-react";
+import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
 import { formatPrice } from "@/lib/money";
 import { pick, type PublicDish, type PublicMenu } from "@/lib/guestMenuTypes";
@@ -31,7 +32,13 @@ export function GuestMenu({
 
   const sections = menu.categories.filter((category) => category.dishes.length > 0);
   const [active, setActive] = useState<number | null>(sections[0]?.id ?? null);
-  const refs = useRef(new Map<number, HTMLElement>());
+  const sectionRefs = useRef(new Map<number, HTMLElement>());
+  const tabRefs = useRef(new Map<number, HTMLButtonElement>());
+  const tabsListRef = useRef<HTMLUListElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  // While a tab click is animating, ignore scroll-spy so it cannot snap
+  // the highlight back to a previous section (common on the last few).
+  const clickLockUntil = useRef(0);
 
   // dish id → quantity in the order
   const [cart, setCart] = useState<Record<number, number>>({});
@@ -69,28 +76,87 @@ export function GuestMenu({
     setCartOpen(false);
   };
 
+  const headerOffset = () => headerRef.current?.offsetHeight ?? 132;
+
+  /** Slide the tab strip so the active pill sits near the centre. */
+  const scrollTabIntoView = (id: number) => {
+    const list = tabsListRef.current;
+    const tab = tabRefs.current.get(id);
+    if (!list || !tab) return;
+
+    // Manual scrollLeft — element.scrollIntoView also nudges the page
+    // vertically and is flaky inside a sticky overflow-x strip on mobile.
+    const tabOffset =
+      tab.getBoundingClientRect().left -
+      list.getBoundingClientRect().left +
+      list.scrollLeft;
+    const target = tabOffset - list.clientWidth / 2 + tab.offsetWidth / 2;
+    list.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+  };
+
+  const scrollToSection = (id: number) => {
+    const section = sectionRefs.current.get(id);
+    if (!section) return;
+
+    setActive(id);
+    clickLockUntil.current = Date.now() + 800;
+    scrollTabIntoView(id);
+
+    const top =
+      window.scrollY + section.getBoundingClientRect().top - headerOffset() - 4;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  };
+
   /*
-   * The tab strip follows the scroll rather than only driving it: a guest
-   * swiping down the menu should see where they are.
+   * Scroll-spy: pick the last section whose top has crossed under the sticky
+   * header. Native hash links + IntersectionObserver fought each other here —
+   * short trailing sections never reached the observer band, so the highlight
+   * jumped back and taps on "Напитки" felt broken.
    */
   useEffect(() => {
     if (sections.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+    const syncActiveFromScroll = () => {
+      if (Date.now() < clickLockUntil.current) return;
 
-        if (visible) setActive(Number(visible.target.getAttribute("data-id")));
-      },
-      // Band just under the sticky header, so a heading counts as "current"
-      // when it reaches the top rather than the middle of the screen.
-      { rootMargin: "-120px 0px -65% 0px", threshold: 0 },
-    );
+      const offset = headerOffset() + 8;
+      let current = sections[0].id;
 
-    refs.current.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
+      for (const category of sections) {
+        const node = sectionRefs.current.get(category.id);
+        if (!node) continue;
+        if (node.getBoundingClientRect().top <= offset) {
+          current = category.id;
+        } else {
+          break;
+        }
+      }
+
+      // Near the bottom the last section may never reach the header line —
+      // still treat it as current so the final tab lights up.
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 24;
+      if (atBottom) {
+        current = sections[sections.length - 1].id;
+      }
+
+      setActive((prev) => {
+        if (prev === current) return prev;
+        // Defer so the pill has painted as active before we measure it.
+        requestAnimationFrame(() => scrollTabIntoView(current));
+        return current;
+      });
+    };
+
+    syncActiveFromScroll();
+    window.addEventListener("scroll", syncActiveFromScroll, { passive: true });
+    window.addEventListener("resize", syncActiveFromScroll);
+    return () => {
+      window.removeEventListener("scroll", syncActiveFromScroll);
+      window.removeEventListener("resize", syncActiveFromScroll);
+    };
+    // sections is rebuilt each render; length is enough — demo/menu ids are stable.
   }, [sections.length]);
 
   // Lock the page behind the cart sheet and let Escape close it.
@@ -106,18 +172,21 @@ export function GuestMenu({
   }, [cartOpen]);
 
   const barVisible = ordering && totalCount > 0 && !cartOpen;
+  const lastSectionId = sections[sections.length - 1]?.id;
 
   return (
     <div className={`min-h-dvh bg-surface ${barVisible ? "pb-28" : "pb-16"}`}>
-      <header className="sticky top-0 z-20 border-b border-border bg-white/90 backdrop-blur-lg">
+      <GuestVenueCover menu={menu} copy={copy} />
+
+      <header
+        ref={headerRef}
+        className="sticky top-0 z-20 border-b border-border bg-white/90 backdrop-blur-lg"
+      >
         <div className="mx-auto flex max-w-[680px] items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <h1 className="truncate text-[19px] font-extrabold tracking-[-0.02em]">
               {menu.name}
             </h1>
-            {menu.address ? (
-              <p className="truncate text-xs text-muted-soft">{menu.address}</p>
-            ) : null}
           </div>
 
           <div
@@ -146,19 +215,28 @@ export function GuestMenu({
         {sections.length > 1 ? (
           <nav aria-label={copy.sectionsAria} className="mx-auto max-w-[680px]">
             {/* Scrolls sideways: a venue can easily have a dozen sections. */}
-            <ul className="flex gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <ul
+              ref={tabsListRef}
+              className="flex gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               {sections.map((category) => (
                 <li key={category.id}>
-                  <a
-                    href={`#section-${category.id}`}
-                    className={`inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-bold transition-colors hover:no-underline ${
+                  <button
+                    type="button"
+                    ref={(node) => {
+                      if (node) tabRefs.current.set(category.id, node);
+                      else tabRefs.current.delete(category.id);
+                    }}
+                    onClick={() => scrollToSection(category.id)}
+                    aria-current={active === category.id ? "true" : undefined}
+                    className={`inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-bold transition-colors ${
                       active === category.id
                         ? "bg-accent text-white"
                         : "bg-surface-2 text-muted"
                     }`}
                   >
                     {pick(locale, category.name_ru, category.name_kk)}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -177,11 +255,15 @@ export function GuestMenu({
             id={`section-${category.id}`}
             data-id={category.id}
             ref={(node) => {
-              if (node) refs.current.set(category.id, node);
-              else refs.current.delete(category.id);
+              if (node) sectionRefs.current.set(category.id, node);
+              else sectionRefs.current.delete(category.id);
             }}
-            // Clears the sticky header when jumped to from the tab strip.
-            className="scroll-mt-[132px] pt-7"
+            // Last section stretches so its heading can reach the sticky header.
+            className={
+              category.id === lastSectionId
+                ? "min-h-[calc(100dvh-7.5rem)] pt-7"
+                : "pt-7"
+            }
           >
             <h2 className="mb-3 text-[17px] font-extrabold uppercase tracking-[0.06em] text-muted">
               {pick(locale, category.name_ru, category.name_kk)}

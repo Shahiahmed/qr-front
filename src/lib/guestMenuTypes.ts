@@ -35,6 +35,14 @@ export type PublicMenu = {
   default_locale: string;
   address: string | null;
   phone: string | null;
+  // Optional extras used by the built-in demo header. Real venues get these
+  // from the API later — until then the guest UI simply skips empty fields.
+  cover_url?: string | null;
+  wifi_ssid?: string | null;
+  wifi_password?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  tiktok_url?: string | null;
   categories: PublicCategory[];
 };
 

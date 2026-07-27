@@ -195,6 +195,14 @@ export function VenueDialog({
             onChange={(e) => update("address", e.target.value)}
           />
 
+          <Field
+            label={copy.fieldPhone}
+            name="phone"
+            value={values.phone ?? ""}
+            errors={errors.phone}
+            onChange={(e) => update("phone", e.target.value)}
+          />
+
           <div className="mt-2 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
             <Button
               type="button"

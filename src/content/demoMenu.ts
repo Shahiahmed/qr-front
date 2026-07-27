@@ -24,6 +24,10 @@ export const DEMO_SLUG = "demo";
 const photo = (id: string) =>
   `https://images.unsplash.com/photo-${id}?w=640&h=480&q=72&auto=format&fit=crop`;
 
+/** Wider crop for the venue cover above the menu. */
+const cover = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=1200&h=640&q=75&auto=format&fit=crop`;
+
 export const demoMenu: PublicMenu = {
   name: "Дастархан",
   slug: DEMO_SLUG,
@@ -31,6 +35,12 @@ export const demoMenu: PublicMenu = {
   default_locale: "ru",
   address: "Алматы, пр. Достык, 132",
   phone: "+7 727 000 00 00",
+  cover_url: cover("1517248135467-4c7edcad34c4"),
+  wifi_ssid: "Dastarkhan_Guest",
+  wifi_password: "dastar2024",
+  instagram_url: "https://instagram.com/dastarkhan",
+  facebook_url: "https://facebook.com/dastarkhan",
+  tiktok_url: "https://tiktok.com/@dastarkhan",
   categories: [
     {
       id: 1,
