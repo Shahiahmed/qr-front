@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GuestMenu } from "@/components/guest/GuestMenu";
 import { guestByLocale } from "@/content/guest";
+import { DEMO_SLUG, demoMenu } from "@/content/demoMenu";
 import { fetchPublicMenu } from "@/lib/publicMenu";
 
 /*
@@ -11,10 +12,28 @@ import { fetchPublicMenu } from "@/lib/publicMenu";
 // Must be a literal: Next reads this statically, it cannot evaluate an import.
 export const revalidate = 60;
 
+/*
+ * The built-in demo is baked at build time so it opens on the marketing site
+ * with no backend at all — it never touches the API. Other slugs stay
+ * on-demand (dynamicParams defaults to true).
+ */
+export function generateStaticParams() {
+  return [{ slug: DEMO_SLUG }];
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<"/m/[slug]">): Promise<Metadata> {
   const { slug } = await params;
+
+  if (slug === DEMO_SLUG) {
+    return {
+      title: "Демо-меню — Qmenu",
+      description: "Так гость видит меню заведения на Qmenu. Живой пример.",
+      openGraph: { title: `${demoMenu.name} — демо-меню`, type: "website" },
+    };
+  }
+
   const menu = await fetchPublicMenu(slug);
 
   if (!menu) return { title: "Qmenu", robots: { index: false } };
@@ -31,6 +50,9 @@ export async function generateMetadata({
 
 export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) {
   const { slug } = await params;
+
+  if (slug === DEMO_SLUG) return <GuestMenu menu={demoMenu} />;
+
   const menu = await fetchPublicMenu(slug);
 
   if (!menu) {

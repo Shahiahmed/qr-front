@@ -1,7 +1,9 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/landing/ui/SectionHeading";
 import { Reveal } from "@/components/landing/ui/Reveal";
+import { Button } from "@/components/landing/ui/Button";
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
 
 export function Demo() {
@@ -43,6 +45,24 @@ export function Demo() {
             <CartPhone />
           </Reveal>
         </div>
+
+        <Reveal delay={120}>
+          <div className="mt-12 flex justify-center">
+            {/*
+             * Opens the real guest menu at /m/demo in a new tab — the same
+             * page a customer gets by scanning a code, not a mockup.
+             */}
+            <Button
+              variant="onAccent"
+              href="/m/demo"
+              target="_blank"
+              rel="noopener"
+            >
+              {copy.demoCta}
+              <ArrowRight size={18} className="transition-transform group-hover/btn:translate-x-0.5" />
+            </Button>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

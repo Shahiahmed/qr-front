@@ -30,6 +30,7 @@ export type LandingCopy = {
   demoKicker: string;
   demoTitle: string;
   demoSub: string;
+  demoCta: string;
   detailName: string;
   detailDesc: string;
   detailPrice: string;
@@ -168,6 +169,7 @@ const RU: LandingCopy = {
   demoKicker: "Демо",
   demoTitle: "Как это видит гость",
   demoSub: "Красивое меню, экран блюда и корзина с номером стола — всё в один тап.",
+  demoCta: "Открыть живое демо",
   detailName: "Плов ташкентский",
   detailDesc: "Рассыпчатый рис, мраморная говядина, морковь и зира. Порция на одного.",
   detailPrice: "2 490 ₸",
@@ -321,6 +323,7 @@ const KZ: LandingCopy = {
   demoKicker: "Демо",
   demoTitle: "Мұны қонақ қалай көреді",
   demoSub: "Әдемі мәзір, тағам экраны және үстел нөмірі бар себет — бәрі бір түртумен.",
+  demoCta: "Тірі демоны ашу",
   detailName: "Ташкент палауы",
   detailDesc: "Үгілмелі күріш, мәрмәр сиыр еті, сәбіз және зире. Бір адамдық.",
   detailPrice: "2 490 ₸",
