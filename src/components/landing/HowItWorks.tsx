@@ -1,11 +1,11 @@
 "use client";
 
-import { Camera, QrCode as QrIcon, Smartphone } from "lucide-react";
+import { ClipboardList, QrCode as QrIcon, Store } from "lucide-react";
 import { SectionHeading } from "@/components/landing/ui/SectionHeading";
 import { Reveal } from "@/components/landing/ui/Reveal";
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
 
-const STEP_ICONS = [Camera, QrIcon, Smartphone];
+const STEP_ICONS = [Store, ClipboardList, QrIcon];
 
 export function HowItWorks() {
   const copy = useLandingCopy();
@@ -33,7 +33,7 @@ export function HowItWorks() {
 
           <ol className="relative grid gap-6 md:grid-cols-3">
             {copy.steps.map((step, index) => {
-              const Icon = STEP_ICONS[index] ?? Camera;
+                  const Icon = STEP_ICONS[index] ?? Store;
 
               return (
                 <Reveal as="li" key={step.num} delay={index * 90}>

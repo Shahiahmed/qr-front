@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BellRing, PlayCircle, ScanLine } from "lucide-react";
+import { ArrowRight, BellRing, ExternalLink, ScanLine } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { PhoneMockup } from "@/components/landing/ui/PhoneMockup";
 import { QrCode } from "@/components/landing/ui/QrCode";
@@ -57,11 +57,13 @@ export function Hero() {
               </Button>
               <Button
                 variant="secondary"
-                href="#how"
+                href="/m/demo"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-[14px] px-7 py-4 text-[17px]"
               >
-                <PlayCircle size={18} className="text-accent-hover" />
                 {copy.heroCta2}
+                <ExternalLink size={16} className="text-accent-hover" />
               </Button>
             </div>
           </Reveal>

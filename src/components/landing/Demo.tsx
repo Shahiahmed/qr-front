@@ -102,7 +102,12 @@ function MenuPhone() {
               key={dish.name}
               className="flex items-center gap-2.5 rounded-[13px] border border-border p-2"
             >
-              <div className="placeholder-stripes-sm h-11 w-11 shrink-0 rounded-[10px]" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={dish.image}
+                alt=""
+                className="h-11 w-11 shrink-0 rounded-[10px] object-cover"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-xs font-bold">{dish.name}</div>
                 <div className="text-[11px] font-bold text-accent-hover">

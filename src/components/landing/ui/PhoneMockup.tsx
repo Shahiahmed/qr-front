@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
 
 type PhoneMockupProps = {
@@ -7,42 +8,63 @@ type PhoneMockupProps = {
   animated?: boolean;
 };
 
+/**
+ * Hero phone: real device frame from `/public/mockup.png` (transparent screen)
+ * with the sample menu painted behind it.
+ *
+ * Screen hole in the PNG (measured): sides ≈6%, top/bottom ≈1.05%. The old
+ * 8.25% top left a transparent band above the cover — looked like an empty
+ * black status strip.
+ */
 export function PhoneMockup({ className = "", animated = true }: PhoneMockupProps) {
   const copy = useLandingCopy();
 
   return (
     <div
-      className={`relative w-[280px] sm:w-[320px] ${className}`}
+      className={`relative w-[260px] sm:w-[300px] ${className}`}
       aria-hidden="true"
     >
       <div className="absolute inset-[-30px] bg-[radial-gradient(circle_at_60%_40%,#FFE7DF,transparent_70%)] blur-[10px]" />
-      <div
-        className={`relative rounded-[46px] bg-[linear-gradient(160deg,#3a332c,#141210_35%)] p-3 shadow-[0_40px_80px_-30px_rgba(20,18,16,0.6),0_0_0_1px_rgba(255,255,255,0.06)_inset] ${
-          animated ? "animate-floaty" : ""
-        }`}
-      >
-        {/* Camera notch. */}
-        <div className="absolute left-1/2 top-[18px] z-10 h-[22px] w-[88px] -translate-x-1/2 rounded-full bg-[#141210]" />
-        <div className="relative overflow-hidden rounded-[36px] bg-white">
-          <div className="placeholder-stripes relative flex h-[150px] items-end p-4">
-            <span className="absolute left-4 top-3 rounded-md bg-white/60 px-1.5 py-0.5 font-mono text-[10px] text-[#C67A66]">
-              обложка
-            </span>
-            <div>
-              <div className="text-[22px] font-extrabold text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.35)]">
+
+      <div className={`relative ${animated ? "animate-floaty" : ""}`}>
+        {/* Fills the transparent cutout; large radius matches the PNG glass. */}
+        <div
+          className="absolute flex flex-col overflow-hidden bg-white isolate"
+          style={{
+            top: "1.05%",
+            right: "5.97%",
+            bottom: "1.05%",
+            left: "5.97%",
+            // Continuous-corner radius of the screen hole in mockup.png
+            borderRadius: "14% / 7%",
+          }}
+        >
+          <div className="relative flex min-h-0 flex-[0_0_36%] items-end overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=480&q=72&auto=format&fit=crop"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent"
+            />
+            <div className="relative z-[1] p-3.5">
+              <div className="text-[18px] font-extrabold leading-tight text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.35)] sm:text-[20px]">
                 {copy.restName}
               </div>
-              <div className="text-xs text-white/90 [text-shadow:0_1px_6px_rgba(0,0,0,0.4)]">
+              <div className="text-[11px] text-white/90 [text-shadow:0_1px_6px_rgba(0,0,0,0.4)]">
                 {copy.restTag}
               </div>
             </div>
           </div>
 
-          <div className="flex gap-2 overflow-hidden px-3.5 pb-1.5 pt-3.5">
+          <div className="flex shrink-0 gap-1.5 overflow-hidden px-3 pb-1 pt-2.5">
             {copy.cats.map((cat) => (
               <span
                 key={cat.name}
-                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold ${
+                className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold ${
                   cat.active
                     ? "bg-accent text-white"
                     : "bg-[#F4F0EC] font-semibold text-muted"
@@ -53,24 +75,43 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
             ))}
           </div>
 
-          <div className="flex flex-col gap-2.5 px-3.5 pb-[18px] pt-2">
+          <div className="flex min-h-0 flex-1 flex-col justify-evenly gap-1.5 px-3 pb-3 pt-1">
             {copy.heroDishes.map((dish) => (
               <div
                 key={dish.name}
-                className="flex items-center gap-3 rounded-2xl border border-border p-2.5"
+                className="flex min-h-0 flex-1 items-center gap-2.5 rounded-xl border border-border px-2 py-1.5"
               >
-                <div className="placeholder-stripes-sm h-[58px] w-[58px] shrink-0 rounded-xl" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={dish.image}
+                  alt=""
+                  className="h-[42px] w-[42px] shrink-0 rounded-lg object-cover sm:h-[46px] sm:w-[46px]"
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-bold">{dish.name}</div>
-                  <div className="truncate text-xs text-[#9A938C]">{dish.desc}</div>
+                  <div className="truncate text-[12px] font-bold sm:text-[13px]">
+                    {dish.name}
+                  </div>
+                  <div className="truncate text-[10px] text-[#9A938C] sm:text-[11px]">
+                    {dish.desc}
+                  </div>
                 </div>
-                <div className="whitespace-nowrap text-sm font-extrabold text-accent-hover">
+                <div className="whitespace-nowrap text-[12px] font-extrabold text-accent-hover sm:text-[13px]">
                   {dish.price}
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        <Image
+          src="/mockup.png"
+          alt=""
+          width={1339}
+          height={2716}
+          priority
+          className="relative z-10 h-auto w-full select-none"
+          draggable={false}
+        />
       </div>
     </div>
   );
