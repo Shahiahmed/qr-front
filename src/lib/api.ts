@@ -192,6 +192,21 @@ export async function currentUser(): Promise<User | null> {
   }
 }
 
+export async function changePassword(
+  payload: {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  },
+  locale?: string,
+): Promise<void> {
+  await apiFetch<void>("/api/user/password", {
+    method: "PUT",
+    body: payload,
+    locale,
+  });
+}
+
 /* ---------- establishments ---------- */
 
 export type Establishment = {

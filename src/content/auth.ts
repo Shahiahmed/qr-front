@@ -60,6 +60,11 @@ export type AuthCopy = {
   save: string;
 
   profileTitle: string;
+  passwordChangeTitle: string;
+  currentPasswordLabel: string;
+  newPasswordLabel: string;
+  passwordChangeSubmit: string;
+  passwordChangeSuccess: string;
 
   qrTitle: string;
   qrSubtitle: string;
@@ -133,6 +138,11 @@ const RU: AuthCopy = {
   save: "Сохранить",
 
   profileTitle: "Профиль",
+  passwordChangeTitle: "Смена пароля",
+  currentPasswordLabel: "Текущий пароль",
+  newPasswordLabel: "Новый пароль",
+  passwordChangeSubmit: "Сменить пароль",
+  passwordChangeSuccess: "Пароль обновлён.",
 
   qrTitle: "QR-код",
   qrSubtitle: "Распечатайте и поставьте на стол. Гость наведёт камеру и увидит меню.",
@@ -205,6 +215,11 @@ const KZ: AuthCopy = {
   save: "Сақтау",
 
   profileTitle: "Профиль",
+  passwordChangeTitle: "Құпиясөзді өзгерту",
+  currentPasswordLabel: "Қазіргі құпиясөз",
+  newPasswordLabel: "Жаңа құпиясөз",
+  passwordChangeSubmit: "Құпиясөзді өзгерту",
+  passwordChangeSuccess: "Құпиясөз жаңартылды.",
 
   qrTitle: "QR-код",
   qrSubtitle: "Басып шығарып, үстелге қойыңыз. Қонақ камераны бағыттап, мәзірді көреді.",
