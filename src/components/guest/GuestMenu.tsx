@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Minus, Plus, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
-import { DEMO_SLUG } from "@/content/demoMenu";
 import { themeVars } from "@/content/themes";
 import {
   clearGuestOrder,
@@ -33,7 +32,6 @@ export function GuestMenu({
   menu: PublicMenu;
   ordering?: boolean;
 }) {
-  const isDemo = menu.slug === DEMO_SLUG;
   const [locale, setLocale] = useState<GuestLocale>(
     menu.default_locale === "kk" ? "kk" : "ru",
   );
@@ -549,7 +547,7 @@ export function GuestMenu({
                 </ul>
 
                 <p className="mt-4 text-center text-xs text-muted-soft">
-                  {isDemo ? copy.demoNote : copy.localNote}
+                  {copy.localNote}
                 </p>
 
                 <button
