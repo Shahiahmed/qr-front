@@ -3,14 +3,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
-  ChevronDown,
   ImageIcon,
   Loader2,
-  Palette,
   Trash2,
   Upload,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import type { Locale } from "@/content/landing";
 import { menuByLocale, type MenuCopy } from "@/content/menu";
@@ -24,28 +22,26 @@ import {
 } from "@/lib/api";
 import { VENUES_QUERY_KEY } from "@/lib/venues";
 
+export type VenueDesignSection = "look" | "contacts";
+
 /**
- * The "Оформление" section of the menu constructor: colour theme plus the venue
- * header a guest sees above the menu (address, phone, Wi-Fi, socials).
- *
- * Saving a venue clears the public-menu cache on the backend (model event), so
- * a guest sees the change on the next scan; here we just refresh the panel's
- * own venue list.
+ * Venue look / contacts editor. Split into two tabs in MenuEditor so owners
+ * are not staring at photos, colours and Wi‑Fi while they only wanted to
+ * edit a dish price.
  */
 export function VenueDesignPanel({
   locale,
   venue,
+  section,
 }: {
   locale: Locale;
   venue: Establishment;
+  section: VenueDesignSection;
 }) {
   const copy = menuByLocale[locale];
   const queryClient = useQueryClient();
   const themeLang = locale === "kz" ? "kk" : "ru";
 
-  const [open, setOpen] = useState(true);
-
-  // Initialised once from the venue; the form owns its state while editing.
   const [theme, setTheme] = useState(venue.theme || "classic");
   const [fields, setFields] = useState({
     address: venue.address ?? "",
@@ -56,6 +52,20 @@ export function VenueDesignPanel({
     facebook_url: venue.facebook_url ?? "",
     tiktok_url: venue.tiktok_url ?? "",
   });
+
+  // Keep local form in sync when the venue list refreshes after an image upload.
+  useEffect(() => {
+    setTheme(venue.theme || "classic");
+    setFields({
+      address: venue.address ?? "",
+      phone: venue.phone ?? "",
+      wifi_ssid: venue.wifi_ssid ?? "",
+      wifi_password: venue.wifi_password ?? "",
+      instagram_url: venue.instagram_url ?? "",
+      facebook_url: venue.facebook_url ?? "",
+      tiktok_url: venue.tiktok_url ?? "",
+    });
+  }, [venue]);
 
   const set = (key: keyof typeof fields) => (value: string) =>
     setFields((f) => ({ ...f, [key]: value }));
@@ -68,149 +78,142 @@ export function VenueDesignPanel({
     },
   });
 
-  return (
-    <section className="mb-6 overflow-hidden rounded-[20px] border border-border bg-white">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left"
+  const saveBar = (
+    <div className="mt-5 flex flex-wrap items-center gap-3">
+      <Button
+        variant="primary"
+        onClick={() => save.mutate()}
+        disabled={save.isPending}
+        className="py-2.5 text-[15px]"
       >
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent-hover">
-          <Palette size={18} />
+        {save.isPending ? copy.saving : copy.save}
+      </Button>
+
+      {save.isSuccess && !save.isPending ? (
+        <span className="inline-flex items-center gap-1.5 text-[14px] font-bold text-accent-hover">
+          <Check size={16} strokeWidth={2.5} />
+          {copy.designSaved}
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[17px] font-extrabold tracking-[-0.02em]">
-            {copy.design}
-          </span>
-          <span className="block truncate text-[13px] text-muted-soft">
-            {copy.designSub}
-          </span>
-        </span>
-        <ChevronDown
-          size={20}
-          className={`shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {open ? (
-        <div className="border-t border-border px-5 py-5">
-          {/* Cover + logo upload */}
-          <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.imagesLabel}</p>
-          <div className="mb-6 space-y-4">
-            <ImageUploader
-              venue={venue}
-              kind="cover"
-              currentUrl={venue.cover_url}
-              label={copy.coverLabel}
-              hint={copy.coverHint}
-              shape="wide"
-              copy={copy}
-              locale={locale}
-            />
-            <ImageUploader
-              venue={venue}
-              kind="logo"
-              currentUrl={venue.logo_url}
-              label={copy.logoLabel}
-              hint={copy.logoHint}
-              shape="square"
-              copy={copy}
-              locale={locale}
-            />
-          </div>
-
-          {/* Theme presets */}
-          <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.themeLabel}</p>
-          <div className="mb-6 flex flex-wrap gap-2">
-            {MENU_THEMES.map((preset) => {
-              const selected = theme === preset.key;
-              return (
-                <button
-                  key={preset.key}
-                  type="button"
-                  onClick={() => setTheme(preset.key)}
-                  aria-pressed={selected}
-                  className={`inline-flex items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-3 text-[13px] font-bold transition-colors ${
-                    selected
-                      ? "border-foreground bg-surface"
-                      : "border-border-strong hover:bg-surface"
-                  }`}
-                >
-                  <span
-                    className="grid h-6 w-6 place-items-center rounded-full text-white"
-                    style={{ background: preset.accent }}
-                  >
-                    {selected ? <Check size={14} strokeWidth={3} /> : null}
-                  </span>
-                  {themeLang === "kk" ? preset.labelKk : preset.labelRu}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Header fields */}
-          <p className="mb-2.5 text-[14px] font-bold text-muted">
-            {copy.headerFieldsLabel}
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field
-              label={copy.fAddress}
-              value={fields.address}
-              onChange={set("address")}
-              className="sm:col-span-2"
-            />
-            <Field label={copy.fPhone} value={fields.phone} onChange={set("phone")} inputMode="tel" />
-            <Field label={copy.fWifiName} value={fields.wifi_ssid} onChange={set("wifi_ssid")} />
-            <Field label={copy.fWifiPass} value={fields.wifi_password} onChange={set("wifi_password")} />
-            <Field
-              label={copy.fInstagram}
-              value={fields.instagram_url}
-              onChange={set("instagram_url")}
-              placeholder={copy.socialHint}
-              inputMode="url"
-            />
-            <Field
-              label={copy.fFacebook}
-              value={fields.facebook_url}
-              onChange={set("facebook_url")}
-              placeholder={copy.socialHint}
-              inputMode="url"
-            />
-            <Field
-              label={copy.fTiktok}
-              value={fields.tiktok_url}
-              onChange={set("tiktok_url")}
-              placeholder={copy.socialHint}
-              inputMode="url"
-            />
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Button
-              variant="primary"
-              onClick={() => save.mutate()}
-              disabled={save.isPending}
-              className="py-2.5 text-[15px]"
-            >
-              {save.isPending ? copy.saving : copy.save}
-            </Button>
-
-            {save.isSuccess && !save.isPending ? (
-              <span className="inline-flex items-center gap-1.5 text-[14px] font-bold text-accent-hover">
-                <Check size={16} strokeWidth={2.5} />
-                {copy.designSaved}
-              </span>
-            ) : null}
-
-            {save.isError ? (
-              <span className="text-[14px] font-semibold text-red-600">
-                {copy.designError}
-              </span>
-            ) : null}
-          </div>
-        </div>
       ) : null}
+
+      {save.isError ? (
+        <span className="text-[14px] font-semibold text-red-600">
+          {copy.designError}
+        </span>
+      ) : null}
+    </div>
+  );
+
+  if (section === "look") {
+    return (
+      <section className="rounded-[20px] border border-border bg-white p-5">
+        <header className="mb-5">
+          <h2 className="text-[17px] font-extrabold tracking-[-0.02em]">
+            {copy.tabLook}
+          </h2>
+          <p className="mt-0.5 text-[13px] text-muted-soft">{copy.lookSub}</p>
+        </header>
+
+        <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.imagesLabel}</p>
+        <div className="mb-6 space-y-4">
+          <ImageUploader
+            venue={venue}
+            kind="cover"
+            currentUrl={venue.cover_url}
+            label={copy.coverLabel}
+            hint={copy.coverHint}
+            shape="wide"
+            copy={copy}
+            locale={locale}
+          />
+          <ImageUploader
+            venue={venue}
+            kind="logo"
+            currentUrl={venue.logo_url}
+            label={copy.logoLabel}
+            hint={copy.logoHint}
+            shape="square"
+            copy={copy}
+            locale={locale}
+          />
+        </div>
+
+        <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.themeLabel}</p>
+        <div className="flex flex-wrap gap-2">
+          {MENU_THEMES.map((preset) => {
+            const selected = theme === preset.key;
+            return (
+              <button
+                key={preset.key}
+                type="button"
+                onClick={() => setTheme(preset.key)}
+                aria-pressed={selected}
+                className={`inline-flex items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-3 text-[13px] font-bold transition-colors ${
+                  selected
+                    ? "border-foreground bg-surface"
+                    : "border-border-strong hover:bg-surface"
+                }`}
+              >
+                <span
+                  className="grid h-6 w-6 place-items-center rounded-full text-white"
+                  style={{ background: preset.accent }}
+                >
+                  {selected ? <Check size={14} strokeWidth={3} /> : null}
+                </span>
+                {themeLang === "kk" ? preset.labelKk : preset.labelRu}
+              </button>
+            );
+          })}
+        </div>
+
+        {saveBar}
+      </section>
+    );
+  }
+
+  return (
+    <section className="rounded-[20px] border border-border bg-white p-5">
+      <header className="mb-5">
+        <h2 className="text-[17px] font-extrabold tracking-[-0.02em]">
+          {copy.tabContacts}
+        </h2>
+        <p className="mt-0.5 text-[13px] text-muted-soft">{copy.contactsSub}</p>
+      </header>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field
+          label={copy.fAddress}
+          value={fields.address}
+          onChange={set("address")}
+          className="sm:col-span-2"
+        />
+        <Field label={copy.fPhone} value={fields.phone} onChange={set("phone")} inputMode="tel" />
+        <Field label={copy.fWifiName} value={fields.wifi_ssid} onChange={set("wifi_ssid")} />
+        <Field label={copy.fWifiPass} value={fields.wifi_password} onChange={set("wifi_password")} />
+        <Field
+          label={copy.fInstagram}
+          value={fields.instagram_url}
+          onChange={set("instagram_url")}
+          placeholder={copy.socialHint}
+          inputMode="url"
+        />
+        <Field
+          label={copy.fFacebook}
+          value={fields.facebook_url}
+          onChange={set("facebook_url")}
+          placeholder={copy.socialHint}
+          inputMode="url"
+        />
+        <Field
+          label={copy.fTiktok}
+          value={fields.tiktok_url}
+          onChange={set("tiktok_url")}
+          placeholder={copy.socialHint}
+          inputMode="url"
+        />
+      </div>
+
+      {saveBar}
     </section>
   );
 }
@@ -218,11 +221,6 @@ export function VenueDesignPanel({
 /** 8 MB — matches the server's `max:8192`, caught here to skip a doomed POST. */
 const MAX_BYTES = 8 * 1024 * 1024;
 
-/**
- * One image slot (cover or logo): a live preview, a hidden file input, and
- * upload / remove actions. On success it refreshes the venue list so the
- * preview — and the guest menu — pick up the new URL.
- */
 function ImageUploader({
   venue,
   kind,
@@ -265,7 +263,6 @@ function ImageUploader({
 
   const onFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    // Reset so picking the same file again still fires onChange.
     event.target.value = "";
     if (!file) return;
 

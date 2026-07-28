@@ -10,10 +10,14 @@ import {
   EyeOff,
   ExternalLink,
   FolderPlus,
+  MapPin,
+  Palette,
   Pencil,
   Plus,
+  QrCode,
   Sparkles,
   Trash2,
+  UtensilsCrossed,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
@@ -22,7 +26,7 @@ import { CategoryDialog } from "@/components/panel/CategoryDialog";
 import { DishDialog } from "@/components/panel/DishDialog";
 import { VenueDesignPanel } from "@/components/panel/VenueDesignPanel";
 import type { Locale } from "@/content/landing";
-import { menuByLocale } from "@/content/menu";
+import { menuByLocale, type MenuCopy } from "@/content/menu";
 import {
   applyMenuStarter,
   deleteCategory,
@@ -41,6 +45,8 @@ type DialogState =
   | { kind: "category"; category?: MenuCategory }
   | { kind: "dish"; categoryId: number; dish?: Dish };
 
+type EditorTab = "menu" | "look" | "contacts";
+
 export function MenuEditor({
   locale,
   establishmentId,
@@ -52,13 +58,14 @@ export function MenuEditor({
   establishmentId: number;
   currency: string;
   slug?: string;
-  /** Loaded lazily from the venue list; the design panel waits on it. */
+  /** Loaded lazily from the venue list; design tabs wait on it. */
   venue?: Establishment;
 }) {
   const copy = menuByLocale[locale];
   const queryClient = useQueryClient();
   const { data: categories, isPending, error } = useMenu(establishmentId);
 
+  const [tab, setTab] = useState<EditorTab>("menu");
   const [dialog, setDialog] = useState<DialogState>({ kind: "none" });
 
   const invalidate = () =>
@@ -177,21 +184,8 @@ export function MenuEditor({
     onSuccess: invalidate,
   });
 
-  if (isPending) {
-    return <div className="h-64 animate-pulse rounded-[20px] bg-surface-2" />;
-  }
-
-  if (error) {
-    return (
-      <p className="rounded-[20px] border border-border bg-white p-6 text-muted">
-        {String(error instanceof Error ? error.message : error)}
-      </p>
-    );
-  }
-
   const list = categories ?? [];
 
-  // Swap a section with its neighbour and persist the whole new order.
   const moveCategory = (index: number, dir: -1 | 1) => {
     const target = index + dir;
     if (target < 0 || target >= list.length) return;
@@ -200,44 +194,218 @@ export function MenuEditor({
     reorder.mutate(next.map((c) => c.id));
   };
 
+  const tabs: { id: EditorTab; label: string; icon: ReactNode }[] = [
+    {
+      id: "menu",
+      label: copy.tabMenu,
+      icon: <UtensilsCrossed size={16} strokeWidth={2.25} />,
+    },
+    {
+      id: "look",
+      label: copy.tabLook,
+      icon: <Palette size={16} strokeWidth={2.25} />,
+    },
+    {
+      id: "contacts",
+      label: copy.tabContacts,
+      icon: <MapPin size={16} strokeWidth={2.25} />,
+    },
+  ];
+
   return (
     <>
-      {venue ? <VenueDesignPanel locale={locale} venue={venue} /> : null}
-
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <Button
-          variant="primary"
-          onClick={() => setDialog({ kind: "category" })}
-          className="py-2.5 text-[15px]"
+      <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
+        <Link
+          href={`/${locale}/dashboard`}
+          className="text-[14px] font-semibold text-muted transition-colors hover:text-foreground"
         >
-          <FolderPlus size={17} />
-          {copy.addCategory}
-        </Button>
+          ← {copy.backToVenues}
+        </Link>
 
         {slug ? (
           <a
             href={`/m/${slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-[12px] border border-border-strong bg-white px-4 py-2.5 text-[15px] font-bold transition-colors hover:border-foreground hover:bg-surface"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-1.5 text-[13px] font-bold transition-colors hover:border-foreground"
           >
             {copy.openGuestMenu}
-            <ExternalLink size={15} className="text-accent-hover" />
+            <ExternalLink size={14} className="text-accent-hover" />
           </a>
         ) : null}
 
         <Link
-          href={`/${locale}/dashboard`}
-          className="text-[15px] font-semibold text-muted transition-colors hover:text-foreground"
+          href={`/${locale}/dashboard/venues/${establishmentId}/qr`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-1.5 text-[13px] font-bold transition-colors hover:border-foreground"
         >
-          ← {copy.backToVenues}
+          <QrCode size={14} className="text-accent-hover" />
+          {copy.openQr}
         </Link>
+      </div>
+
+      <nav
+        aria-label={copy.title}
+        className="mb-6 flex gap-1 overflow-x-auto rounded-2xl border border-border bg-white p-1 scrollbar-none"
+      >
+        {tabs.map((item) => {
+          const active = tab === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setTab(item.id)}
+              aria-current={active ? "page" : undefined}
+              className={`inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-colors sm:text-[14px] ${
+                active
+                  ? "bg-accent text-white shadow-sm"
+                  : "text-muted hover:bg-surface hover:text-foreground"
+              }`}
+            >
+              <span className="shrink-0">{item.icon}</span>
+              <span className="truncate">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {tab === "look" ? (
+        venue ? (
+          <VenueDesignPanel locale={locale} venue={venue} section="look" />
+        ) : (
+          <div className="h-48 animate-pulse rounded-[20px] bg-surface-2" />
+        )
+      ) : null}
+
+      {tab === "contacts" ? (
+        venue ? (
+          <VenueDesignPanel locale={locale} venue={venue} section="contacts" />
+        ) : (
+          <div className="h-48 animate-pulse rounded-[20px] bg-surface-2" />
+        )
+      ) : null}
+
+      {tab === "menu" ? (
+        <MenuSections
+          copy={copy}
+          isPending={isPending}
+          error={error}
+          list={list}
+          currency={currency}
+          fillStarter={fillStarter}
+          moveCategory={moveCategory}
+          onAddCategory={() => setDialog({ kind: "category" })}
+          onEditCategory={(category) => setDialog({ kind: "category", category })}
+          onDeleteCategory={(id) => {
+            if (window.confirm(copy.deleteCategoryConfirm)) {
+              removeCategory.mutate(id);
+            }
+          }}
+          onAddDish={(categoryId) => setDialog({ kind: "dish", categoryId })}
+          onEditDish={(categoryId, dish) =>
+            setDialog({ kind: "dish", categoryId, dish })
+          }
+          onDeleteDish={(id) => {
+            if (window.confirm(copy.deleteDishConfirm)) {
+              removeDish.mutate(id);
+            }
+          }}
+          onToggleStop={(dish) => toggleStop.mutate(dish)}
+          onToggleVisible={(dish) => toggleVisible.mutate(dish)}
+        />
+      ) : null}
+
+      {dialog.kind === "category" ? (
+        <CategoryDialog
+          locale={locale}
+          establishmentId={establishmentId}
+          category={dialog.category}
+          onClose={() => setDialog({ kind: "none" })}
+        />
+      ) : null}
+
+      {dialog.kind === "dish" ? (
+        <DishDialog
+          locale={locale}
+          establishmentId={establishmentId}
+          categories={list}
+          categoryId={dialog.categoryId}
+          dish={dialog.dish}
+          onClose={() => setDialog({ kind: "none" })}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function MenuSections({
+  copy,
+  isPending,
+  error,
+  list,
+  currency,
+  fillStarter,
+  moveCategory,
+  onAddCategory,
+  onEditCategory,
+  onDeleteCategory,
+  onAddDish,
+  onEditDish,
+  onDeleteDish,
+  onToggleStop,
+  onToggleVisible,
+}: {
+  copy: MenuCopy;
+  isPending: boolean;
+  error: Error | null;
+  list: MenuCategory[];
+  currency: string;
+  fillStarter: {
+    mutate: () => void;
+    isPending: boolean;
+    isError: boolean;
+    error: Error | null;
+  };
+  moveCategory: (index: number, dir: -1 | 1) => void;
+  onAddCategory: () => void;
+  onEditCategory: (category: MenuCategory) => void;
+  onDeleteCategory: (id: number) => void;
+  onAddDish: (categoryId: number) => void;
+  onEditDish: (categoryId: number, dish: Dish) => void;
+  onDeleteDish: (id: number) => void;
+  onToggleStop: (dish: Dish) => void;
+  onToggleVisible: (dish: Dish) => void;
+}) {
+  if (isPending) {
+    return <div className="h-64 animate-pulse rounded-[20px] bg-surface-2" />;
+  }
+
+  if (error) {
+    return (
+      <p className="rounded-[20px] border border-border bg-white p-6 text-muted">
+        {String(error.message)}
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Button
+          variant="primary"
+          onClick={onAddCategory}
+          className="py-2.5 text-[15px]"
+        >
+          <FolderPlus size={17} />
+          {copy.addCategory}
+        </Button>
       </div>
 
       {list.length === 0 ? (
         <div className="rounded-[20px] border border-dashed border-border-strong bg-white/60 p-10 text-center">
           <p className="text-[17px] font-bold">{copy.empty}</p>
-          <p className="mx-auto mt-1.5 max-w-md text-[15px] text-muted">{copy.emptyHint}</p>
+          <p className="mx-auto mt-1.5 max-w-md text-[15px] text-muted">
+            {copy.emptyHint}
+          </p>
           <Button
             variant="primary"
             onClick={() => fillStarter.mutate()}
@@ -293,7 +461,7 @@ export function MenuEditor({
               <div className="ml-auto flex items-center gap-2">
                 <Button
                   variant="secondary"
-                  onClick={() => setDialog({ kind: "dish", categoryId: category.id })}
+                  onClick={() => onAddDish(category.id)}
                   className="px-3 py-2 text-sm"
                 >
                   <Plus size={15} />
@@ -302,7 +470,7 @@ export function MenuEditor({
 
                 <IconButton
                   label={copy.editCategory}
-                  onClick={() => setDialog({ kind: "category", category })}
+                  onClick={() => onEditCategory(category)}
                 >
                   <Pencil size={15} />
                 </IconButton>
@@ -310,11 +478,7 @@ export function MenuEditor({
                 <IconButton
                   label={copy.deleteCategory}
                   danger
-                  onClick={() => {
-                    if (window.confirm(copy.deleteCategoryConfirm)) {
-                      removeCategory.mutate(category.id);
-                    }
-                  }}
+                  onClick={() => onDeleteCategory(category.id)}
                 >
                   <Trash2 size={15} />
                 </IconButton>
@@ -362,23 +526,21 @@ export function MenuEditor({
 
                     <IconButton
                       label={dish.is_visible ? copy.hidden : copy.visibility}
-                      onClick={() => toggleVisible.mutate(dish)}
+                      onClick={() => onToggleVisible(dish)}
                     >
                       {dish.is_visible ? <Eye size={15} /> : <EyeOff size={15} />}
                     </IconButton>
 
                     <IconButton
                       label={dish.is_available ? copy.outOfStock : copy.inStock}
-                      onClick={() => toggleStop.mutate(dish)}
+                      onClick={() => onToggleStop(dish)}
                     >
                       {dish.is_available ? <Ban size={15} /> : <Check size={15} />}
                     </IconButton>
 
                     <IconButton
                       label={copy.editDish}
-                      onClick={() =>
-                        setDialog({ kind: "dish", categoryId: category.id, dish })
-                      }
+                      onClick={() => onEditDish(category.id, dish)}
                     >
                       <Pencil size={15} />
                     </IconButton>
@@ -386,11 +548,7 @@ export function MenuEditor({
                     <IconButton
                       label={copy.deleteDish}
                       danger
-                      onClick={() => {
-                        if (window.confirm(copy.deleteDishConfirm)) {
-                          removeDish.mutate(dish.id);
-                        }
-                      }}
+                      onClick={() => onDeleteDish(dish.id)}
                     >
                       <Trash2 size={15} />
                     </IconButton>
@@ -401,26 +559,6 @@ export function MenuEditor({
           </section>
         ))}
       </div>
-
-      {dialog.kind === "category" ? (
-        <CategoryDialog
-          locale={locale}
-          establishmentId={establishmentId}
-          category={dialog.category}
-          onClose={() => setDialog({ kind: "none" })}
-        />
-      ) : null}
-
-      {dialog.kind === "dish" ? (
-        <DishDialog
-          locale={locale}
-          establishmentId={establishmentId}
-          categories={list}
-          categoryId={dialog.categoryId}
-          dish={dialog.dish}
-          onClose={() => setDialog({ kind: "none" })}
-        />
-      ) : null}
     </>
   );
 }

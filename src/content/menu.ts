@@ -9,6 +9,14 @@ export type MenuCopy = {
   fillStarter: string;
   fillingStarter: string;
   openGuestMenu: string;
+  openQr: string;
+
+  /** Constructor sub-tabs — one job per screen. */
+  tabMenu: string;
+  tabLook: string;
+  tabContacts: string;
+  lookSub: string;
+  contactsSub: string;
 
   addCategory: string;
   editCategory: string;
@@ -37,7 +45,7 @@ export type MenuCopy = {
   hiddenBadge: string;
   visibility: string;
 
-  // Design / venue header ("Оформление")
+  // Design / venue header
   design: string;
   designSub: string;
   themeLabel: string;
@@ -86,6 +94,13 @@ const RU: MenuCopy = {
   fillStarter: "Заполнить примером",
   fillingStarter: "Заполняем…",
   openGuestMenu: "Как видит гость",
+  openQr: "QR-код",
+
+  tabMenu: "Меню",
+  tabLook: "Оформление",
+  tabContacts: "Контакты",
+  lookSub: "Обложка, логотип и цвет меню.",
+  contactsSub: "Адрес, телефон, Wi‑Fi и соцсети в шапке меню.",
 
   addCategory: "Добавить раздел",
   editCategory: "Изменить раздел",
@@ -115,9 +130,9 @@ const RU: MenuCopy = {
   visibility: "Показывать гостям",
 
   design: "Оформление",
-  designSub: "Цвет меню, контакты и Wi-Fi — гость видит это в шапке меню.",
+  designSub: "Как меню выглядит у гостя.",
   themeLabel: "Цвет меню",
-  headerFieldsLabel: "Контакты и Wi-Fi",
+  headerFieldsLabel: "Контакты и Wi‑Fi",
   fAddress: "Адрес",
   fPhone: "Телефон",
   fWifiName: "Wi-Fi сеть",
@@ -160,6 +175,13 @@ const KZ: MenuCopy = {
   fillStarter: "Үлгімен толтыру",
   fillingStarter: "Толтырылуда…",
   openGuestMenu: "Қонақ қалай көреді",
+  openQr: "QR-код",
+
+  tabMenu: "Мәзір",
+  tabLook: "Безендіру",
+  tabContacts: "Байланыс",
+  lookSub: "Мұқаба, логотип және мәзір түсі.",
+  contactsSub: "Мекенжай, телефон, Wi‑Fi және әлеуметтік желілер.",
 
   addCategory: "Бөлім қосу",
   editCategory: "Бөлімді өзгерту",
@@ -189,9 +211,9 @@ const KZ: MenuCopy = {
   visibility: "Қонақтарға көрсету",
 
   design: "Безендіру",
-  designSub: "Мәзір түсі, байланыс және Wi-Fi — қонақ мұны мәзір шапкасынан көреді.",
+  designSub: "Қонақ мәзірді қалай көреді.",
   themeLabel: "Мәзір түсі",
-  headerFieldsLabel: "Байланыс және Wi-Fi",
+  headerFieldsLabel: "Байланыс және Wi‑Fi",
   fAddress: "Мекенжай",
   fPhone: "Телефон",
   fWifiName: "Wi-Fi желісі",

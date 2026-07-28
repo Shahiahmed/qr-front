@@ -630,18 +630,7 @@ export function GuestMenu({
 
                 {totalCount > 0 ? (
                   <div className="border-t border-border px-5 py-4">
-                    <label className="mb-3 flex items-center justify-between gap-3">
-                      <span className="text-[14px] font-bold text-muted">
-                        {copy.cartTableLabel}
-                      </span>
-                      <input
-                        value={table}
-                        onChange={(e) => setTable(e.target.value)}
-                        inputMode="numeric"
-                        placeholder={copy.cartTablePlaceholder}
-                        className="w-32 rounded-xl border border-border bg-white px-3 py-2 text-right text-[14px] font-bold outline-none focus:border-accent"
-                      />
-                    </label>
+                    {/* Table number: hidden until per-table QR codes exist. */}
                     <div className="mb-3 flex items-center justify-between">
                       <span className="text-[15px] text-muted">{copy.cartTotal}</span>
                       <span className="text-[20px] font-extrabold tabular-nums">
