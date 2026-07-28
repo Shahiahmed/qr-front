@@ -35,14 +35,16 @@ export type PublicMenu = {
   default_locale: string;
   address: string | null;
   phone: string | null;
-  // Optional extras used by the built-in demo header. Real venues get these
-  // from the API later — until then the guest UI simply skips empty fields.
+  // Header extras. Real venues fill these from the panel; empty fields are
+  // simply skipped by the guest UI. (`cover_url` still waits on image upload.)
   cover_url?: string | null;
   wifi_ssid?: string | null;
   wifi_password?: string | null;
   instagram_url?: string | null;
   facebook_url?: string | null;
   tiktok_url?: string | null;
+  // Colour preset key (see content/themes.ts). Falls back to the default.
+  theme?: string | null;
   categories: PublicCategory[];
 };
 

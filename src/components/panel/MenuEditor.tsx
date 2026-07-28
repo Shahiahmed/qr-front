@@ -2,6 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  ArrowDown,
+  ArrowUp,
   Ban,
   Check,
   Eye,
@@ -18,14 +20,17 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import { CategoryDialog } from "@/components/panel/CategoryDialog";
 import { DishDialog } from "@/components/panel/DishDialog";
+import { VenueDesignPanel } from "@/components/panel/VenueDesignPanel";
 import type { Locale } from "@/content/landing";
 import { menuByLocale } from "@/content/menu";
 import {
   applyMenuStarter,
   deleteCategory,
   deleteDish,
+  reorderCategories,
   updateDish,
   type Dish,
+  type Establishment,
   type MenuCategory,
 } from "@/lib/api";
 import { menuQueryKey, useMenu } from "@/lib/menu";
@@ -41,11 +46,14 @@ export function MenuEditor({
   establishmentId,
   currency,
   slug,
+  venue,
 }: {
   locale: Locale;
   establishmentId: number;
   currency: string;
   slug?: string;
+  /** Loaded lazily from the venue list; the design panel waits on it. */
+  venue?: Establishment;
 }) {
   const copy = menuByLocale[locale];
   const queryClient = useQueryClient();
@@ -127,6 +135,38 @@ export function MenuEditor({
     onSettled: invalidate,
   });
 
+  /*
+   * Section order is optimistic like the stop list — the arrows must feel
+   * instant. Reorder the cache now, send the new id order, reconcile after.
+   */
+  const reorder = useMutation({
+    mutationFn: (ids: number[]) => reorderCategories(establishmentId, ids, locale),
+
+    onMutate: async (ids: number[]) => {
+      const key = menuQueryKey(establishmentId);
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<MenuCategory[]>(key);
+
+      queryClient.setQueryData<MenuCategory[]>(key, (cats) => {
+        if (!cats) return cats;
+        const byId = new Map(cats.map((c) => [c.id, c]));
+        return ids
+          .map((id) => byId.get(id))
+          .filter((c): c is MenuCategory => Boolean(c));
+      });
+
+      return { previous };
+    },
+
+    onError: (_error, _ids, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(menuQueryKey(establishmentId), context.previous);
+      }
+    },
+
+    onSettled: invalidate,
+  });
+
   const removeDish = useMutation({
     mutationFn: (id: number) => deleteDish(establishmentId, id),
     onSuccess: invalidate,
@@ -151,8 +191,19 @@ export function MenuEditor({
 
   const list = categories ?? [];
 
+  // Swap a section with its neighbour and persist the whole new order.
+  const moveCategory = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= list.length) return;
+    const next = [...list];
+    [next[index], next[target]] = [next[target], next[index]];
+    reorder.mutate(next.map((c) => c.id));
+  };
+
   return (
     <>
+      {venue ? <VenueDesignPanel locale={locale} venue={venue} /> : null}
+
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Button
           variant="primary"
@@ -207,12 +258,31 @@ export function MenuEditor({
       ) : null}
 
       <div className="flex flex-col gap-5">
-        {list.map((category) => (
+        {list.map((category, index) => (
           <section
             key={category.id}
             className="rounded-[20px] border border-border bg-white p-5"
           >
             <header className="mb-4 flex flex-wrap items-center gap-3 border-b border-border pb-4">
+              <div className="flex shrink-0 flex-col">
+                <IconButton
+                  label={copy.moveUp}
+                  disabled={index === 0}
+                  onClick={() => moveCategory(index, -1)}
+                  small
+                >
+                  <ArrowUp size={15} />
+                </IconButton>
+                <IconButton
+                  label={copy.moveDown}
+                  disabled={index === list.length - 1}
+                  onClick={() => moveCategory(index, 1)}
+                  small
+                >
+                  <ArrowDown size={15} />
+                </IconButton>
+              </div>
+
               <h2 className="text-[19px] font-extrabold tracking-[-0.02em]">
                 {category.name_ru}
               </h2>
@@ -358,11 +428,16 @@ export function MenuEditor({
 function IconButton({
   label,
   danger = false,
+  small = false,
+  disabled = false,
   onClick,
   children,
 }: {
   label: string;
   danger?: boolean;
+  /** Compact height, used for the stacked reorder arrows. */
+  small?: boolean;
+  disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -372,7 +447,10 @@ function IconButton({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border-strong text-muted transition-colors ${
+      disabled={disabled}
+      className={`inline-flex w-9 shrink-0 items-center justify-center border-border-strong text-muted transition-colors disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent ${
+        small ? "h-6 rounded-md border" : "h-9 rounded-lg border"
+      } ${
         danger
           ? "hover:border-red-300 hover:bg-red-50 hover:text-red-600"
           : "hover:bg-surface-2 hover:text-foreground"

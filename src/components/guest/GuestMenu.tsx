@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Minus, Plus, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
+import { themeVars } from "@/content/themes";
 import { formatPrice } from "@/lib/money";
 import { pick, type PublicDish, type PublicMenu } from "@/lib/guestMenuTypes";
 
@@ -99,6 +100,8 @@ export function GuestMenu({
     if (!section) return;
 
     setActive(id);
+    // Runs only from an onClick, not during render; the lock is wall-clock.
+    // eslint-disable-next-line react-hooks/purity
     clickLockUntil.current = Date.now() + 800;
     scrollTabIntoView(id);
 
@@ -175,7 +178,12 @@ export function GuestMenu({
   const lastSectionId = sections[sections.length - 1]?.id;
 
   return (
-    <div className={`min-h-dvh bg-surface ${barVisible ? "pb-28" : "pb-16"}`}>
+    // The theme sets accent CSS vars on the root; every `bg-accent` /
+    // `text-accent` below inherits them, so the whole menu recolours at once.
+    <div
+      style={themeVars(menu.theme)}
+      className={`min-h-dvh bg-surface ${barVisible ? "pb-28" : "pb-16"}`}
+    >
       <GuestVenueCover menu={menu} copy={copy} />
 
       <header

@@ -37,6 +37,26 @@ export type MenuCopy = {
   hiddenBadge: string;
   visibility: string;
 
+  // Design / venue header ("Оформление")
+  design: string;
+  designSub: string;
+  themeLabel: string;
+  headerFieldsLabel: string;
+  fAddress: string;
+  fPhone: string;
+  fWifiName: string;
+  fWifiPass: string;
+  fInstagram: string;
+  fFacebook: string;
+  fTiktok: string;
+  socialHint: string;
+  designSaved: string;
+  designError: string;
+
+  // Section order
+  moveUp: string;
+  moveDown: string;
+
   kkOptional: string;
   cancel: string;
   save: string;
@@ -81,6 +101,24 @@ const RU: MenuCopy = {
   hiddenBadge: "Скрыто",
   visibility: "Показывать гостям",
 
+  design: "Оформление",
+  designSub: "Цвет меню, контакты и Wi-Fi — гость видит это в шапке меню.",
+  themeLabel: "Цвет меню",
+  headerFieldsLabel: "Контакты и Wi-Fi",
+  fAddress: "Адрес",
+  fPhone: "Телефон",
+  fWifiName: "Wi-Fi сеть",
+  fWifiPass: "Пароль Wi-Fi",
+  fInstagram: "Instagram",
+  fFacebook: "Facebook",
+  fTiktok: "TikTok",
+  socialHint: "Ссылка на профиль",
+  designSaved: "Сохранено",
+  designError: "Не удалось сохранить. Проверьте ссылки соцсетей.",
+
+  moveUp: "Выше",
+  moveDown: "Ниже",
+
   kkOptional: "Можно заполнить позже",
   cancel: "Отмена",
   save: "Сохранить",
@@ -124,6 +162,24 @@ const KZ: MenuCopy = {
   hidden: "Жасырылған",
   hiddenBadge: "Жасырылған",
   visibility: "Қонақтарға көрсету",
+
+  design: "Безендіру",
+  designSub: "Мәзір түсі, байланыс және Wi-Fi — қонақ мұны мәзір шапкасынан көреді.",
+  themeLabel: "Мәзір түсі",
+  headerFieldsLabel: "Байланыс және Wi-Fi",
+  fAddress: "Мекенжай",
+  fPhone: "Телефон",
+  fWifiName: "Wi-Fi желісі",
+  fWifiPass: "Wi-Fi құпия сөзі",
+  fInstagram: "Instagram",
+  fFacebook: "Facebook",
+  fTiktok: "TikTok",
+  socialHint: "Профиль сілтемесі",
+  designSaved: "Сақталды",
+  designError: "Сақтау мүмкін болмады. Әлеуметтік желі сілтемелерін тексеріңіз.",
+
+  moveUp: "Жоғары",
+  moveDown: "Төмен",
 
   kkOptional: "Кейін толтыруға болады",
   cancel: "Болдырмау",

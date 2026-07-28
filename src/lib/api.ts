@@ -217,6 +217,13 @@ export type Establishment = {
   default_locale: string;
   address: string | null;
   phone: string | null;
+  wifi_ssid: string | null;
+  wifi_password: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  tiktok_url: string | null;
+  /** Colour preset key — see content/themes.ts. */
+  theme: string;
   created_at: string | null;
 };
 
@@ -227,6 +234,12 @@ export type EstablishmentPayload = {
   default_locale: string;
   address?: string | null;
   phone?: string | null;
+  wifi_ssid?: string | null;
+  wifi_password?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  tiktok_url?: string | null;
+  theme?: string;
 };
 
 export async function listEstablishments(): Promise<Establishment[]> {
@@ -340,6 +353,19 @@ export async function deleteCategory(
     `/api/establishments/${establishmentId}/categories/${categoryId}`,
     { method: "DELETE" },
   );
+}
+
+/** Save a new section order. Returns the menu in the new order. */
+export async function reorderCategories(
+  establishmentId: number,
+  ids: number[],
+  locale?: string,
+): Promise<MenuCategory[]> {
+  const { data } = await apiFetch<Wrapped<MenuCategory[]>>(
+    `/api/establishments/${establishmentId}/categories/reorder`,
+    { method: "PATCH", body: { ids }, locale },
+  );
+  return data;
 }
 
 export type DishPayload = {
