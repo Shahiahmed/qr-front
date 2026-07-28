@@ -57,6 +57,7 @@ async function fetchCsrfCookie(): Promise<void> {
 
 type Options = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  /** JSON object, or a FormData for multipart (file) uploads. */
   body?: unknown;
   /** Route locale — the API answers validation errors in this language. */
   locale?: string;
@@ -75,7 +76,11 @@ async function send<T>(path: string, options: Options): Promise<T> {
     "Accept-Language": languageTag(options.locale),
   };
 
-  if (options.body !== undefined) {
+  const isForm = options.body instanceof FormData;
+
+  // Let the browser set multipart's Content-Type (it carries the boundary);
+  // only JSON bodies get the header set by hand.
+  if (options.body !== undefined && !isForm) {
     headers["Content-Type"] = "application/json";
   }
 
@@ -86,7 +91,12 @@ async function send<T>(path: string, options: Options): Promise<T> {
     method,
     credentials: "include",
     headers,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    body:
+      options.body === undefined
+        ? undefined
+        : isForm
+          ? (options.body as FormData)
+          : JSON.stringify(options.body),
   });
 
   if (response.status === 204) return undefined as T;
@@ -224,8 +234,14 @@ export type Establishment = {
   tiktok_url: string | null;
   /** Colour preset key — see content/themes.ts. */
   theme: string;
+  /** Owner-uploaded imagery; null until set. Absolute URLs. */
+  cover_url: string | null;
+  logo_url: string | null;
   created_at: string | null;
 };
+
+/** The two image slots an owner can fill. */
+export type VenueImageKind = "cover" | "logo";
 
 export type EstablishmentPayload = {
   name: string;
@@ -274,6 +290,37 @@ export async function updateEstablishment(
 
 export async function deleteEstablishment(id: number): Promise<void> {
   await apiFetch<void>(`/api/establishments/${id}`, { method: "DELETE" });
+}
+
+/** Upload (or replace) the venue cover / logo. Returns the updated venue. */
+export async function uploadVenueImage(
+  id: number,
+  kind: VenueImageKind,
+  file: File,
+  locale?: string,
+): Promise<Establishment> {
+  const form = new FormData();
+  form.append("kind", kind);
+  form.append("file", file);
+
+  const { data } = await apiFetch<Wrapped<Establishment>>(
+    `/api/establishments/${id}/image`,
+    { method: "POST", body: form, locale },
+  );
+  return data;
+}
+
+/** Remove the venue cover / logo. Returns the updated venue. */
+export async function deleteVenueImage(
+  id: number,
+  kind: VenueImageKind,
+  locale?: string,
+): Promise<Establishment> {
+  const { data } = await apiFetch<Wrapped<Establishment>>(
+    `/api/establishments/${id}/image/${kind}`,
+    { method: "DELETE", locale },
+  );
+  return data;
 }
 
 /* ---------- menu ---------- */

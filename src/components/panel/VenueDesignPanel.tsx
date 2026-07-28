@@ -1,13 +1,27 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronDown, Palette } from "lucide-react";
-import { useState } from "react";
+import {
+  Check,
+  ChevronDown,
+  ImageIcon,
+  Loader2,
+  Palette,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import type { Locale } from "@/content/landing";
-import { menuByLocale } from "@/content/menu";
+import { menuByLocale, type MenuCopy } from "@/content/menu";
 import { MENU_THEMES } from "@/content/themes";
-import { updateEstablishment, type Establishment } from "@/lib/api";
+import {
+  deleteVenueImage,
+  updateEstablishment,
+  uploadVenueImage,
+  type Establishment,
+  type VenueImageKind,
+} from "@/lib/api";
 import { VENUES_QUERY_KEY } from "@/lib/venues";
 
 /**
@@ -81,6 +95,31 @@ export function VenueDesignPanel({
 
       {open ? (
         <div className="border-t border-border px-5 py-5">
+          {/* Cover + logo upload */}
+          <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.imagesLabel}</p>
+          <div className="mb-6 space-y-4">
+            <ImageUploader
+              venue={venue}
+              kind="cover"
+              currentUrl={venue.cover_url}
+              label={copy.coverLabel}
+              hint={copy.coverHint}
+              shape="wide"
+              copy={copy}
+              locale={locale}
+            />
+            <ImageUploader
+              venue={venue}
+              kind="logo"
+              currentUrl={venue.logo_url}
+              label={copy.logoLabel}
+              hint={copy.logoHint}
+              shape="square"
+              copy={copy}
+              locale={locale}
+            />
+          </div>
+
           {/* Theme presets */}
           <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.themeLabel}</p>
           <div className="mb-6 flex flex-wrap gap-2">
@@ -173,6 +212,137 @@ export function VenueDesignPanel({
         </div>
       ) : null}
     </section>
+  );
+}
+
+/** 8 MB — matches the server's `max:8192`, caught here to skip a doomed POST. */
+const MAX_BYTES = 8 * 1024 * 1024;
+
+/**
+ * One image slot (cover or logo): a live preview, a hidden file input, and
+ * upload / remove actions. On success it refreshes the venue list so the
+ * preview — and the guest menu — pick up the new URL.
+ */
+function ImageUploader({
+  venue,
+  kind,
+  currentUrl,
+  label,
+  hint,
+  shape,
+  copy,
+  locale,
+}: {
+  venue: Establishment;
+  kind: VenueImageKind;
+  currentUrl: string | null;
+  label: string;
+  hint: string;
+  shape: "wide" | "square";
+  copy: MenuCopy;
+  locale: Locale;
+}) {
+  const queryClient = useQueryClient();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY });
+
+  const upload = useMutation({
+    mutationFn: (file: File) => uploadVenueImage(venue.id, kind, file, locale),
+    onSuccess: refresh,
+    onError: () => setError(copy.imageError),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteVenueImage(venue.id, kind, locale),
+    onSuccess: refresh,
+    onError: () => setError(copy.imageError),
+  });
+
+  const busy = upload.isPending || remove.isPending;
+
+  const onFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Reset so picking the same file again still fires onChange.
+    event.target.value = "";
+    if (!file) return;
+
+    setError(null);
+    if (file.size > MAX_BYTES) {
+      setError(copy.imageTooBig);
+      return;
+    }
+    upload.mutate(file);
+  };
+
+  const isWide = shape === "wide";
+  const frame = isWide
+    ? "h-[68px] w-[124px] rounded-xl"
+    : "h-[68px] w-[68px] rounded-full";
+
+  return (
+    <div className="flex items-start gap-3.5">
+      <div
+        className={`relative shrink-0 overflow-hidden border border-border-strong bg-surface ${frame}`}
+      >
+        {currentUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={currentUrl} alt={label} className="h-full w-full object-cover" />
+        ) : (
+          <span className="grid h-full w-full place-items-center text-muted-soft">
+            <ImageIcon size={20} />
+          </span>
+        )}
+        {busy ? (
+          <span className="absolute inset-0 grid place-items-center bg-white/70">
+            <Loader2 size={18} className="animate-spin text-accent" />
+          </span>
+        ) : null}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-[13px] font-semibold">{label}</p>
+        <p className="mt-0.5 text-[12px] leading-snug text-muted-soft">{hint}</p>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-2.5 py-1.5 text-[13px] font-bold transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+          >
+            <Upload size={14} strokeWidth={2.5} />
+            {currentUrl ? copy.changeImage : copy.uploadImage}
+          </button>
+
+          {currentUrl ? (
+            <button
+              type="button"
+              onClick={() => remove.mutate()}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold text-muted transition-colors hover:text-red-600 disabled:opacity-40"
+            >
+              <Trash2 size={14} strokeWidth={2.25} />
+              {copy.removeImage}
+            </button>
+          ) : null}
+        </div>
+
+        {error ? (
+          <p className="mt-1.5 text-[12px] font-semibold text-red-600">{error}</p>
+        ) : null}
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        onChange={onFile}
+        className="hidden"
+      />
+    </div>
   );
 }
 

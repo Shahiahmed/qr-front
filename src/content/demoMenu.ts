@@ -36,6 +36,9 @@ export const demoMenu: PublicMenu = {
   address: "Алматы, пр. Достык, 132",
   phone: "+7 727 000 00 00",
   cover_url: cover("1517248135467-4c7edcad34c4"),
+  // Inline SVG emblem so the demo showcases the centred logo without a file.
+  logo_url:
+    "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20rx%3D'22'%20fill%3D'%23161616'%2F%3E%3Ccircle%20cx%3D'50'%20cy%3D'50'%20r%3D'38'%20fill%3D'none'%20stroke%3D'%23d8a24a'%20stroke-width%3D'3'%2F%3E%3Ctext%20x%3D'50'%20y%3D'63'%20font-family%3D'Georgia%2C%20%22Times%20New%20Roman%22%2C%20serif'%20font-size%3D'40'%20font-weight%3D'700'%20fill%3D'%23d8a24a'%20text-anchor%3D'middle'%3E%D0%94%3C%2Ftext%3E%3C%2Fsvg%3E",
   wifi_ssid: "Dastarkhan_Guest",
   wifi_password: "dastar2024",
   instagram_url: "https://instagram.com/dastarkhan",

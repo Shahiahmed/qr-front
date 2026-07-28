@@ -36,8 +36,10 @@ export type PublicMenu = {
   address: string | null;
   phone: string | null;
   // Header extras. Real venues fill these from the panel; empty fields are
-  // simply skipped by the guest UI. (`cover_url` still waits on image upload.)
+  // simply skipped by the guest UI. Cover is the wide photo behind the header;
+  // logo is a small badge centred over it.
   cover_url?: string | null;
+  logo_url?: string | null;
   wifi_ssid?: string | null;
   wifi_password?: string | null;
   instagram_url?: string | null;

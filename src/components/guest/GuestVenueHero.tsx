@@ -19,13 +19,27 @@ export function GuestVenueCover({
   menu: PublicMenu;
   copy: GuestCopy;
 }) {
-  const hasCover = Boolean(menu.cover_url?.trim());
+  const cover = menu.cover_url?.trim() || null;
+  const logo = menu.logo_url?.trim() || null;
   const chips = <VenueChips menu={menu} copy={copy} />;
 
-  if (!hasCover) {
-    if (!hasVenueInfo(menu)) return null;
+  if (!cover) {
+    // Nothing to show at all: no cover, no logo, no contact info.
+    if (!logo && !hasVenueInfo(menu)) return null;
+
+    // A plain strip: logo as a small badge beside the chips.
     return (
-      <div className="border-b border-border bg-surface px-4 py-3">{chips}</div>
+      <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-3">
+        {logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logo}
+            alt={menu.name}
+            className="h-11 w-11 shrink-0 rounded-full border border-border object-cover"
+          />
+        ) : null}
+        {hasVenueInfo(menu) ? <div className="min-w-0 flex-1">{chips}</div> : null}
+      </div>
     );
   }
 
@@ -33,7 +47,7 @@ export function GuestVenueCover({
     <div className="relative aspect-[2/1] max-h-[260px] w-full overflow-hidden bg-surface-2 sm:aspect-[21/9] sm:max-h-[300px]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={menu.cover_url!}
+        src={cover}
         alt={menu.name}
         className="h-full w-full object-cover"
       />
@@ -41,6 +55,19 @@ export function GuestVenueCover({
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black/65 via-black/25 to-transparent"
       />
+
+      {/* Logo centred over the cover, clear of the bottom chips. */}
+      {logo ? (
+        <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[52px] grid place-items-center px-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logo}
+            alt={menu.name}
+            className="h-[72px] w-[72px] rounded-full border-2 border-white/90 bg-white object-cover shadow-[0_6px_20px_-6px_rgba(0,0,0,0.5)] sm:h-[88px] sm:w-[88px]"
+          />
+        </div>
+      ) : null}
+
       {hasVenueInfo(menu) ? (
         <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-8 sm:px-4 sm:pb-3.5">
           <div className="mx-auto max-w-[680px]">{chips}</div>

@@ -53,6 +53,19 @@ export type MenuCopy = {
   designSaved: string;
   designError: string;
 
+  // Images (cover + logo)
+  imagesLabel: string;
+  coverLabel: string;
+  coverHint: string;
+  logoLabel: string;
+  logoHint: string;
+  uploadImage: string;
+  changeImage: string;
+  removeImage: string;
+  uploading: string;
+  imageError: string;
+  imageTooBig: string;
+
   // Section order
   moveUp: string;
   moveDown: string;
@@ -116,6 +129,18 @@ const RU: MenuCopy = {
   designSaved: "Сохранено",
   designError: "Не удалось сохранить. Проверьте ссылки соцсетей.",
 
+  imagesLabel: "Фото заведения",
+  coverLabel: "Обложка",
+  coverHint: "Широкое фото над меню. JPG или PNG, до 8 МБ.",
+  logoLabel: "Логотип",
+  logoHint: "Показывается в центре обложки. PNG с прозрачным фоном — лучше всего.",
+  uploadImage: "Загрузить",
+  changeImage: "Заменить",
+  removeImage: "Удалить",
+  uploading: "Загрузка…",
+  imageError: "Не удалось загрузить. Попробуйте другой файл.",
+  imageTooBig: "Файл больше 8 МБ. Выберите фото поменьше.",
+
   moveUp: "Выше",
   moveDown: "Ниже",
 
@@ -177,6 +202,18 @@ const KZ: MenuCopy = {
   socialHint: "Профиль сілтемесі",
   designSaved: "Сақталды",
   designError: "Сақтау мүмкін болмады. Әлеуметтік желі сілтемелерін тексеріңіз.",
+
+  imagesLabel: "Мекеме фотосы",
+  coverLabel: "Мұқаба",
+  coverHint: "Мәзір үстіндегі кең фото. JPG немесе PNG, 8 МБ дейін.",
+  logoLabel: "Логотип",
+  logoHint: "Мұқабаның ортасында көрсетіледі. Мөлдір фоны бар PNG — ең жақсысы.",
+  uploadImage: "Жүктеу",
+  changeImage: "Ауыстыру",
+  removeImage: "Жою",
+  uploading: "Жүктелуде…",
+  imageError: "Жүктеу мүмкін болмады. Басқа файлды таңдаңыз.",
+  imageTooBig: "Файл 8 МБ-тан үлкен. Кішірек фото таңдаңыз.",
 
   moveUp: "Жоғары",
   moveDown: "Төмен",
