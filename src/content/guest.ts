@@ -31,7 +31,12 @@ export type GuestCopy = {
   placedTitle: string;
   placedText: string;
   placedTable: string;
+  /** Demo-only honesty line under the ticket. */
   demoNote: string;
+  /** Real menus: order stays on this phone for the waiter to read. */
+  localNote: string;
+  showTicket: string;
+  ticketEmpty: string;
   done: string;
 };
 
@@ -61,10 +66,13 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     cartTablePlaceholder: "например, 12",
     checkout: "Оформить заказ",
     close: "Закрыть",
-    placedTitle: "Заказ отправлен!",
-    placedText: "Официант уже увидел его и скоро подойдёт.",
+    placedTitle: "Покажите официанту",
+    placedText: "Заказ сохранён на этом телефоне — передайте экран официанту.",
     placedTable: "Стол",
     demoNote: "Это демонстрация — заказ никуда не отправляется.",
+    localNote: "Пока без сервера: заказ виден только на этом устройстве.",
+    showTicket: "Показать заказ",
+    ticketEmpty: "В заказе ничего нет.",
     done: "Готово",
   },
   kk: {
@@ -92,10 +100,13 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     cartTablePlaceholder: "мысалы, 12",
     checkout: "Тапсырыс беру",
     close: "Жабу",
-    placedTitle: "Тапсырыс жіберілді!",
-    placedText: "Даяшы оны көрді, жақын арада келеді.",
+    placedTitle: "Даяшыға көрсетіңіз",
+    placedText: "Тапсырыс осы телефонда сақталды — экранды даяшыға беріңіз.",
     placedTable: "Үстел",
     demoNote: "Бұл демо — тапсырыс ешқайда жіберілмейді.",
+    localNote: "Әзірге серверсіз: тапсырыс тек осы құрылғыда көрінеді.",
+    showTicket: "Тапсырысты көрсету",
+    ticketEmpty: "Тапсырыста ештеңе жоқ.",
     done: "Дайын",
   },
 };

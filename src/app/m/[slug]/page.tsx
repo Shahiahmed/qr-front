@@ -51,8 +51,8 @@ export async function generateMetadata({
 export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) {
   const { slug } = await params;
 
-  // Ordering is on for the demo so a prospect can feel the at-the-table flow;
-  // the checkout there is a local mock (see GuestMenu).
+  // Local cart for every public menu: stored in this browser and shown to the
+  // waiter on screen. Server-side order intake comes later.
   if (slug === DEMO_SLUG) return <GuestMenu menu={demoMenu} ordering />;
 
   const menu = await fetchPublicMenu(slug);
@@ -68,5 +68,5 @@ export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) 
     );
   }
 
-  return <GuestMenu menu={menu} />;
+  return <GuestMenu menu={menu} ordering />;
 }

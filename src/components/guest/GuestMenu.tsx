@@ -4,7 +4,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Minus, Plus, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
+import { DEMO_SLUG } from "@/content/demoMenu";
 import { themeVars } from "@/content/themes";
+import {
+  clearGuestOrder,
+  createOrderTicket,
+  loadGuestOrder,
+  saveGuestOrder,
+  type GuestOrderTicket,
+} from "@/lib/guestOrderStorage";
 import { formatPrice } from "@/lib/money";
 import { pick, type PublicDish, type PublicMenu } from "@/lib/guestMenuTypes";
 
@@ -14,10 +22,9 @@ const LANGUAGES: { code: GuestLocale; label: string }[] = [
 ];
 
 /**
- * `ordering` turns on the at-the-table cart. It is off by default: real venue
- * menus must not show a "place order" button until the backend can receive one
- * (order submission is not built yet). The built-in demo passes it on, and the
- * checkout there is a local mock — nothing is sent anywhere.
+ * `ordering` turns on the at-the-table cart. Checkout is local-only for now:
+ * the cart and the placed ticket live in `localStorage` on this phone so the
+ * guest can show the screen to a waiter. Nothing is posted to the API yet.
  */
 export function GuestMenu({
   menu,
@@ -26,6 +33,7 @@ export function GuestMenu({
   menu: PublicMenu;
   ordering?: boolean;
 }) {
+  const isDemo = menu.slug === DEMO_SLUG;
   const [locale, setLocale] = useState<GuestLocale>(
     menu.default_locale === "kk" ? "kk" : "ru",
   );
@@ -46,6 +54,10 @@ export function GuestMenu({
   const [cartOpen, setCartOpen] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [table, setTable] = useState("");
+  const [ticket, setTicket] = useState<GuestOrderTicket | null>(null);
+  // Gate persistence until localStorage has been read — otherwise the first
+  // save would wipe a restored ticket with empty state.
+  const [hydrated, setHydrated] = useState(false);
 
   const dishById = useMemo(() => {
     const map = new Map<number, PublicDish>();
@@ -58,6 +70,31 @@ export function GuestMenu({
     (sum, [id, q]) => sum + (dishById.get(Number(id))?.price ?? 0) * q,
     0,
   );
+
+  // Restore cart / open ticket after a refresh on the same phone.
+  useEffect(() => {
+    if (!ordering) {
+      setHydrated(false);
+      return;
+    }
+
+    const stored = loadGuestOrder(menu.slug);
+    if (stored) {
+      setCart(stored.cart);
+      setTable(stored.table);
+      if (stored.ticket) {
+        setTicket(stored.ticket);
+        setPlaced(true);
+      }
+    }
+    setHydrated(true);
+  }, [ordering, menu.slug]);
+
+  // Persist draft + ticket whenever they change (after first hydrate).
+  useEffect(() => {
+    if (!ordering || !hydrated) return;
+    saveGuestOrder(menu.slug, { cart, table, ticket });
+  }, [ordering, menu.slug, hydrated, cart, table, ticket]);
 
   const addOne = (id: number) =>
     setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
@@ -74,7 +111,38 @@ export function GuestMenu({
     setCart({});
     setTable("");
     setPlaced(false);
+    setTicket(null);
     setCartOpen(false);
+    clearGuestOrder(menu.slug);
+  };
+
+  const placeOrder = () => {
+    const lines = Object.entries(cart)
+      .map(([id, qty]) => {
+        const dish = dishById.get(Number(id));
+        if (!dish || qty <= 0) return null;
+        return {
+          id: dish.id,
+          name_ru: dish.name_ru,
+          name_kk: dish.name_kk,
+          price: dish.price,
+          qty,
+        };
+      })
+      .filter((line): line is NonNullable<typeof line> => line !== null);
+
+    if (lines.length === 0) return;
+
+    const nextTicket = createOrderTicket({
+      cart,
+      table,
+      currency: menu.currency,
+      lines,
+    });
+
+    setTicket(nextTicket);
+    setCart({});
+    setPlaced(true);
   };
 
   const headerOffset = () => headerRef.current?.offsetHeight ?? 132;
@@ -163,9 +231,12 @@ export function GuestMenu({
   }, [sections.length]);
 
   // Lock the page behind the cart sheet and let Escape close it.
+  // A placed ticket stays in storage — Escape only hides the sheet.
   useEffect(() => {
     if (!cartOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setCartOpen(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCartOpen(false);
+    };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
     return () => {
@@ -174,7 +245,7 @@ export function GuestMenu({
     };
   }, [cartOpen]);
 
-  const barVisible = ordering && totalCount > 0 && !cartOpen;
+  const barVisible = ordering && !cartOpen && (totalCount > 0 || Boolean(ticket));
   const lastSectionId = sections[sections.length - 1]?.id;
 
   return (
@@ -368,23 +439,46 @@ export function GuestMenu({
         ))}
       </main>
 
-      {/* Floating order bar — only with items in the cart. */}
+      {/* Floating order bar — cart in progress, or reopen the waiter ticket. */}
       {barVisible ? (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-white/95 backdrop-blur-lg">
           <div className="mx-auto max-w-[680px] px-4 py-3">
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
-            >
-              <span className="flex items-center gap-2">
-                <span className="grid h-6 min-w-6 place-items-center rounded-full bg-white/20 px-1.5 text-xs tabular-nums">
-                  {totalCount}
+            {ticket && totalCount === 0 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setPlaced(true);
+                  setCartOpen(true);
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
+              >
+                {copy.showTicket}
+                {ticket.table ? (
+                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs tabular-nums">
+                    {copy.placedTable} {ticket.table}
+                  </span>
+                ) : null}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setPlaced(false);
+                  setCartOpen(true);
+                }}
+                className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="grid h-6 min-w-6 place-items-center rounded-full bg-white/20 px-1.5 text-xs tabular-nums">
+                    {totalCount}
+                  </span>
+                  {copy.orderBar}
                 </span>
-                {copy.orderBar}
-              </span>
-              <span className="tabular-nums">{formatPrice(totalMinor, menu.currency)}</span>
-            </button>
+                <span className="tabular-nums">
+                  {formatPrice(totalMinor, menu.currency)}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       ) : null}
@@ -400,32 +494,68 @@ export function GuestMenu({
           <button
             type="button"
             aria-label={copy.close}
-            onClick={() => (placed ? resetOrder() : setCartOpen(false))}
+            onClick={() => setCartOpen(false)}
             className="absolute inset-0 bg-black/45"
           />
 
           <div className="relative flex max-h-[88dvh] w-full max-w-[680px] flex-col rounded-t-[26px] bg-surface shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.4)]">
-            {placed ? (
-              <div className="flex flex-col items-center px-6 py-12 text-center">
-                <div className="grid h-16 w-16 place-items-center rounded-full bg-accent-soft text-accent-hover">
-                  <Check size={34} strokeWidth={2.5} />
+            {placed && ticket ? (
+              <div className="flex flex-col overflow-y-auto px-5 pb-6 pt-5">
+                <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-accent-hover">
+                  <Check size={28} strokeWidth={2.5} />
                 </div>
-                <h2 className="mt-5 text-[22px] font-extrabold tracking-[-0.01em]">
+                <h2 className="mt-4 text-center text-[22px] font-extrabold tracking-[-0.01em]">
                   {copy.placedTitle}
                 </h2>
-                <p className="mt-1.5 max-w-[320px] text-[14px] text-muted-soft">
+                <p className="mt-1.5 text-center text-[14px] text-muted-soft">
                   {copy.placedText}
                 </p>
-                {table.trim() ? (
-                  <p className="mt-3 rounded-full bg-white px-4 py-1.5 text-sm font-bold">
-                    {copy.placedTable} {table.trim()}
+
+                {ticket.table ? (
+                  <p className="mt-4 text-center text-[42px] font-extrabold tabular-nums tracking-[-0.03em]">
+                    {copy.placedTable} {ticket.table}
                   </p>
                 ) : null}
-                <p className="mt-4 text-xs text-muted-soft">{copy.demoNote}</p>
+
+                <ul className="mt-5 flex flex-col gap-2.5 rounded-2xl border border-border bg-white p-4">
+                  {ticket.items.length === 0 ? (
+                    <li className="py-4 text-center text-muted">{copy.ticketEmpty}</li>
+                  ) : (
+                    ticket.items.map((line) => {
+                      const name =
+                        pick(locale, line.name_ru, line.name_kk) ?? line.name_ru;
+                      return (
+                        <li
+                          key={line.id}
+                          className="flex items-start justify-between gap-3 text-[15px]"
+                        >
+                          <span className="min-w-0 font-bold">
+                            {name}{" "}
+                            <span className="text-muted-soft">× {line.qty}</span>
+                          </span>
+                          <span className="shrink-0 font-extrabold tabular-nums text-accent-hover">
+                            {formatPrice(line.price * line.qty, ticket.currency)}
+                          </span>
+                        </li>
+                      );
+                    })
+                  )}
+                  <li className="mt-1 flex items-center justify-between border-t border-border pt-3">
+                    <span className="text-[15px] text-muted">{copy.cartTotal}</span>
+                    <span className="text-[20px] font-extrabold tabular-nums">
+                      {formatPrice(ticket.totalMinor, ticket.currency)}
+                    </span>
+                  </li>
+                </ul>
+
+                <p className="mt-4 text-center text-xs text-muted-soft">
+                  {isDemo ? copy.demoNote : copy.localNote}
+                </p>
+
                 <button
                   type="button"
                   onClick={resetOrder}
-                  className="mt-7 w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white"
+                  className="mt-5 w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white"
                 >
                   {copy.done}
                 </button>
@@ -522,7 +652,7 @@ export function GuestMenu({
                     </div>
                     <button
                       type="button"
-                      onClick={() => setPlaced(true)}
+                      onClick={placeOrder}
                       className="w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white transition-transform active:scale-[0.99]"
                     >
                       {copy.checkout}
