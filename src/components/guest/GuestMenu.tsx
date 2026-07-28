@@ -245,6 +245,11 @@ export function GuestMenu({
 
   const barVisible = ordering && !cartOpen && (totalCount > 0 || Boolean(ticket));
   const lastSectionId = sections[sections.length - 1]?.id;
+  const about = pick(
+    locale,
+    menu.description_ru ?? null,
+    menu.description_kk ?? null,
+  )?.trim() || null;
 
   return (
     // The theme sets accent CSS vars on the root; every `bg-accent` /
@@ -254,6 +259,14 @@ export function GuestMenu({
       className={`min-h-dvh bg-surface ${barVisible ? "pb-28" : "pb-16"}`}
     >
       <GuestVenueCover menu={menu} copy={copy} />
+
+      {about ? (
+        <div className="border-b border-border bg-white px-4 py-3.5">
+          <p className="mx-auto max-w-[680px] text-[14px] leading-relaxed text-muted">
+            {about}
+          </p>
+        </div>
+      ) : null}
 
       <header
         ref={headerRef}

@@ -47,6 +47,9 @@ export type PublicMenu = {
   tiktok_url?: string | null;
   // Colour preset key (see content/themes.ts). Falls back to the default.
   theme?: string | null;
+  /** Optional venue blurb under the cover. Demo fills it; real venues later. */
+  description_ru?: string | null;
+  description_kk?: string | null;
   categories: PublicCategory[];
 };
 

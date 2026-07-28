@@ -44,6 +44,10 @@ export const demoMenu: PublicMenu = {
   instagram_url: "https://instagram.com/dastarkhan",
   facebook_url: "https://facebook.com/dastarkhan",
   tiktok_url: "https://tiktok.com/@dastarkhan",
+  description_ru:
+    "Семейное кафе на Достыке. Готовим по домашним рецептам — бешбармак, плов и свежая выпечка каждый день. Если чего-то нет в меню, спросите официанта.",
+  description_kk:
+    "Достықтағы отбасылық кафе. Үй рецептілері бойынша дайындаймыз — бешбармақ, палау және күн сайын жаңа пісірілген нан. Мәзірде жоқ болса, даяшыдан сұраңыз.",
   categories: [
     {
       id: 1,
