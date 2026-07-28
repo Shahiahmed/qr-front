@@ -295,6 +295,18 @@ export async function getMenu(establishmentId: number): Promise<MenuCategory[]> 
   return data;
 }
 
+/** Seed an empty venue with the bilingual starter menu. 409 if not empty. */
+export async function applyMenuStarter(
+  establishmentId: number,
+  locale?: string,
+): Promise<MenuCategory[]> {
+  const { data } = await apiFetch<Wrapped<MenuCategory[]>>(
+    `/api/establishments/${establishmentId}/menu/starter`,
+    { method: "POST", locale },
+  );
+  return data;
+}
+
 export async function createCategory(
   establishmentId: number,
   payload: { name_ru: string; name_kk?: string | null },

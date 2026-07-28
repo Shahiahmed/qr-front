@@ -35,6 +35,7 @@ export function MenuPageClient({
         locale={locale}
         establishmentId={establishmentId}
         currency={venue?.currency ?? "KZT"}
+        slug={venue?.slug}
       />
     </PanelShell>
   );

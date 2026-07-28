@@ -179,6 +179,20 @@ export function DishDialog({
           />
         </div>
 
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="dish-desc-kk" className="text-sm font-semibold">
+            {copy.dishDescKk}
+          </label>
+          <textarea
+            id="dish-desc-kk"
+            rows={2}
+            value={values.description_kk ?? ""}
+            onChange={(e) => update("description_kk", e.target.value)}
+            className="w-full resize-y rounded-xl border border-border-strong bg-white px-4 py-3 text-base outline-none focus:border-accent focus:ring-2 focus:ring-accent/25"
+          />
+          <p className="text-sm text-muted-soft">{copy.kkOptional}</p>
+        </div>
+
         <div className="mt-2 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
           <Button
             type="button"

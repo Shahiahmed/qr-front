@@ -1,15 +1,27 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Ban, Check, FolderPlus, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Ban,
+  Check,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  FolderPlus,
+  Pencil,
+  Plus,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import { CategoryDialog } from "@/components/panel/CategoryDialog";
 import { DishDialog } from "@/components/panel/DishDialog";
 import type { Locale } from "@/content/landing";
 import { menuByLocale } from "@/content/menu";
 import {
+  applyMenuStarter,
   deleteCategory,
   deleteDish,
   updateDish,
@@ -28,10 +40,12 @@ export function MenuEditor({
   locale,
   establishmentId,
   currency,
+  slug,
 }: {
   locale: Locale;
   establishmentId: number;
   currency: string;
+  slug?: string;
 }) {
   const copy = menuByLocale[locale];
   const queryClient = useQueryClient();
@@ -42,10 +56,16 @@ export function MenuEditor({
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: menuQueryKey(establishmentId) });
 
+  const fillStarter = useMutation({
+    mutationFn: () => applyMenuStarter(establishmentId, locale),
+    onSuccess: (menu) => {
+      queryClient.setQueryData(menuQueryKey(establishmentId), menu);
+    },
+  });
+
   /*
    * The stop list is sold as one tap, so it cannot wait on a round trip:
-   * flip the dish in the cache immediately and reconcile afterwards. A
-   * waiter marking a dish as run out during service is on venue wifi.
+   * flip the dish in the cache immediately and reconcile afterwards.
    */
   const toggleStop = useMutation({
     mutationFn: (dish: Dish) =>
@@ -53,9 +73,7 @@ export function MenuEditor({
 
     onMutate: async (dish: Dish) => {
       const key = menuQueryKey(establishmentId);
-      // Stop an in-flight refetch from landing on top of the optimistic edit.
       await queryClient.cancelQueries({ queryKey: key });
-
       const previous = queryClient.getQueryData<MenuCategory[]>(key);
 
       queryClient.setQueryData<MenuCategory[]>(key, (categories) =>
@@ -71,7 +89,36 @@ export function MenuEditor({
     },
 
     onError: (_error, _dish, context) => {
-      // Put the menu back rather than leaving a lie on screen.
+      if (context?.previous) {
+        queryClient.setQueryData(menuQueryKey(establishmentId), context.previous);
+      }
+    },
+
+    onSettled: invalidate,
+  });
+
+  const toggleVisible = useMutation({
+    mutationFn: (dish: Dish) =>
+      updateDish(establishmentId, dish.id, { is_visible: !dish.is_visible }, locale),
+
+    onMutate: async (dish: Dish) => {
+      const key = menuQueryKey(establishmentId);
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<MenuCategory[]>(key);
+
+      queryClient.setQueryData<MenuCategory[]>(key, (categories) =>
+        categories?.map((category) => ({
+          ...category,
+          dishes: category.dishes?.map((item) =>
+            item.id === dish.id ? { ...item, is_visible: !item.is_visible } : item,
+          ),
+        })),
+      );
+
+      return { previous };
+    },
+
+    onError: (_error, _dish, context) => {
       if (context?.previous) {
         queryClient.setQueryData(menuQueryKey(establishmentId), context.previous);
       }
@@ -95,7 +142,6 @@ export function MenuEditor({
   }
 
   if (error) {
-    // A venue that is not yours answers 404 — say so instead of an empty menu.
     return (
       <p className="rounded-[20px] border border-border bg-white p-6 text-muted">
         {String(error instanceof Error ? error.message : error)}
@@ -116,6 +162,19 @@ export function MenuEditor({
           <FolderPlus size={17} />
           {copy.addCategory}
         </Button>
+
+        {slug ? (
+          <a
+            href={`/m/${slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-[12px] border border-border-strong bg-white px-4 py-2.5 text-[15px] font-bold transition-colors hover:border-foreground hover:bg-surface"
+          >
+            {copy.openGuestMenu}
+            <ExternalLink size={15} className="text-accent-hover" />
+          </a>
+        ) : null}
+
         <Link
           href={`/${locale}/dashboard`}
           className="text-[15px] font-semibold text-muted transition-colors hover:text-foreground"
@@ -127,7 +186,23 @@ export function MenuEditor({
       {list.length === 0 ? (
         <div className="rounded-[20px] border border-dashed border-border-strong bg-white/60 p-10 text-center">
           <p className="text-[17px] font-bold">{copy.empty}</p>
-          <p className="mt-1.5 text-[15px] text-muted">{copy.emptyHint}</p>
+          <p className="mx-auto mt-1.5 max-w-md text-[15px] text-muted">{copy.emptyHint}</p>
+          <Button
+            variant="primary"
+            onClick={() => fillStarter.mutate()}
+            disabled={fillStarter.isPending}
+            className="mt-5 py-2.5 text-[15px]"
+          >
+            <Sparkles size={17} />
+            {fillStarter.isPending ? copy.fillingStarter : copy.fillStarter}
+          </Button>
+          {fillStarter.isError ? (
+            <p className="mt-3 text-sm text-red-600">
+              {fillStarter.error instanceof Error
+                ? fillStarter.error.message
+                : String(fillStarter.error)}
+            </p>
+          ) : null}
         </div>
       ) : null}
 
@@ -184,15 +259,23 @@ export function MenuEditor({
                   <li
                     key={dish.id}
                     className={`flex flex-wrap items-center gap-3 py-3 ${
-                      dish.is_available ? "" : "opacity-60"
+                      dish.is_available && dish.is_visible ? "" : "opacity-60"
                     }`}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-bold">{dish.name_ru}</span>
+                        {dish.name_kk ? (
+                          <span className="text-sm text-muted-soft">· {dish.name_kk}</span>
+                        ) : null}
                         {!dish.is_available ? (
                           <span className="rounded-md bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600">
                             {copy.outOfStockBadge}
+                          </span>
+                        ) : null}
+                        {!dish.is_visible ? (
+                          <span className="rounded-md bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted">
+                            {copy.hiddenBadge}
                           </span>
                         ) : null}
                       </div>
@@ -207,7 +290,13 @@ export function MenuEditor({
                       {formatPrice(dish.price, currency)}
                     </span>
 
-                    {/* Point of the stop list: one tap, no dialog. */}
+                    <IconButton
+                      label={dish.is_visible ? copy.hidden : copy.visibility}
+                      onClick={() => toggleVisible.mutate(dish)}
+                    >
+                      {dish.is_visible ? <Eye size={15} /> : <EyeOff size={15} />}
+                    </IconButton>
+
                     <IconButton
                       label={dish.is_available ? copy.outOfStock : copy.inStock}
                       onClick={() => toggleStop.mutate(dish)}
@@ -275,7 +364,7 @@ function IconButton({
   label: string;
   danger?: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <button

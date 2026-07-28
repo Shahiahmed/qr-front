@@ -6,6 +6,9 @@ export type MenuCopy = {
 
   empty: string;
   emptyHint: string;
+  fillStarter: string;
+  fillingStarter: string;
+  openGuestMenu: string;
 
   addCategory: string;
   editCategory: string;
@@ -46,7 +49,10 @@ const RU: MenuCopy = {
   backToVenues: "Заведения",
 
   empty: "В меню пока пусто.",
-  emptyHint: "Начните с раздела — например «Горячее» или «Напитки».",
+  emptyHint: "Заполните примером — три раздела с блюдами, потом правите под себя.",
+  fillStarter: "Заполнить примером",
+  fillingStarter: "Заполняем…",
+  openGuestMenu: "Как видит гость",
 
   addCategory: "Добавить раздел",
   editCategory: "Изменить раздел",
@@ -87,7 +93,10 @@ const KZ: MenuCopy = {
   backToVenues: "Мекемелер",
 
   empty: "Мәзір әзірге бос.",
-  emptyHint: "Бөлімнен бастаңыз — мысалы «Ыстық» немесе «Сусындар».",
+  emptyHint: "Үлгімен толтырыңыз — үш бөлім тағамдармен, кейін өзіңізге бейімдеңіз.",
+  fillStarter: "Үлгімен толтыру",
+  fillingStarter: "Толтырылуда…",
+  openGuestMenu: "Қонақ қалай көреді",
 
   addCategory: "Бөлім қосу",
   editCategory: "Бөлімді өзгерту",
