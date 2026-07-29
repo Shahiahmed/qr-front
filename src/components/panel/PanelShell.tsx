@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { LayoutList, LogOut, UserRound } from "lucide-react";
+import { CreditCard, LayoutList, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
@@ -11,7 +11,7 @@ import type { Locale } from "@/content/landing";
 import { currentUser, logout } from "@/lib/api";
 import { USER_QUERY_KEY, useSetAuthUser } from "@/lib/useAuth";
 
-export type PanelTab = "venues" | "profile";
+export type PanelTab = "venues" | "subscription" | "profile";
 
 export function PanelShell({
   locale,
@@ -53,6 +53,7 @@ export function PanelShell({
 
   const tabs = [
     { id: "venues" as const, label: copy.tabVenues, href: `/${locale}/dashboard`, icon: LayoutList },
+    { id: "subscription" as const, label: copy.tabSubscription, href: `/${locale}/dashboard/subscription`, icon: CreditCard },
     { id: "profile" as const, label: copy.tabProfile, href: `/${locale}/dashboard/profile`, icon: UserRound },
   ];
 

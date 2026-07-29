@@ -456,3 +456,77 @@ export async function deleteDish(establishmentId: number, dishId: number): Promi
     method: "DELETE",
   });
 }
+
+/* ---------- subscription plans ---------- */
+
+/** A public plan as served by GET /api/plans (see PublicPlans::present). */
+export type Plan = {
+  id: number;
+  name_ru: string;
+  name_kk: string | null;
+  tagline_ru: string | null;
+  tagline_kk: string | null;
+  /** Original price in minor units (тиыны). */
+  price: number;
+  /** Price after discount, in minor units. Equals `price` when no discount. */
+  price_final: number;
+  discount_percent: number;
+  period: "month" | "year";
+  features: { ru: string; kk: string | null }[];
+  max_establishments: number | null;
+  is_featured: boolean;
+};
+
+/** Public catalogue — no auth. Returns [] rather than throwing on failure, so
+ *  a static landing page survives the API being unreachable. */
+export async function getPlans(locale?: string): Promise<Plan[]> {
+  try {
+    const { data } = await apiFetch<Wrapped<Plan[]>>("/api/plans", { locale });
+    return data;
+  } catch {
+    return [];
+  }
+}
+
+export type SubscriptionRequestStatus = "new" | "approved" | "rejected";
+
+export type SubscriptionRequest = {
+  id: number;
+  status: SubscriptionRequestStatus;
+  contact_phone: string | null;
+  note: string | null;
+  plan: { id: number; name_ru: string; name_kk: string | null } | null;
+  created_at: string | null;
+  reviewed_at: string | null;
+};
+
+export type Subscription = {
+  id: number;
+  status: string;
+  starts_at: string | null;
+  ends_at: string | null;
+  plan: Plan | null;
+};
+
+export type SubscriptionStatus = {
+  subscription: Subscription | null;
+  pending_request: SubscriptionRequest | null;
+};
+
+/** The owner's current plan + any request still awaiting a decision. */
+export async function getSubscriptionStatus(locale?: string): Promise<SubscriptionStatus> {
+  return apiFetch<SubscriptionStatus>("/api/subscription", { locale });
+}
+
+/** File a request for a plan. 409 if one is already pending. */
+export async function createSubscriptionRequest(
+  payload: { plan_id: number; contact_phone?: string | null; note?: string | null },
+  locale?: string,
+): Promise<SubscriptionRequest> {
+  const { data } = await apiFetch<Wrapped<SubscriptionRequest>>("/api/subscription-requests", {
+    method: "POST",
+    body: payload,
+    locale,
+  });
+  return data;
+}

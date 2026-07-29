@@ -32,35 +32,35 @@ export function Benefits() {
     <section
       id="benefits"
       aria-labelledby="benefits-title"
-      className="py-16 lg:py-[88px]"
+      className="py-16 lg:py-24"
     >
       <div className="mx-auto max-w-[1180px] px-4 sm:px-6">
-        <Reveal className="mb-[52px] text-center">
-          <div className="mb-3 text-sm font-bold uppercase tracking-[0.16em] text-accent-hover">
+        <Reveal className="mb-14 text-center lg:mb-16">
+          <p className="mb-3 text-[12px] font-bold uppercase tracking-[0.16em] text-accent-hover">
             {copy.advKicker}
-          </div>
+          </p>
           <h2
             id="benefits-title"
-            className="text-[32px] font-bold tracking-[-0.035em] sm:text-[40px]"
+            className="text-[30px] font-extrabold tracking-[-0.038em] text-ink sm:text-[38px]"
           >
             {copy.advTitle}
           </h2>
         </Reveal>
 
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid gap-px overflow-hidden rounded-3xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
           {copy.features.map((feature, index) => {
             const Icon = FEATURE_ICONS[index] ?? Languages;
 
             return (
-              <Reveal as="li" key={feature.title} delay={(index % 4) * 70}>
-                <div className="group h-full rounded-[18px] border border-border bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-accent-tint hover:bg-accent-soft/40 hover:shadow-[0_20px_40px_-24px_rgba(20,18,16,0.28)]">
-                  <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-[14px] bg-surface-2 text-foreground transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
-                    <Icon size={19} strokeWidth={2.1} />
+              <Reveal as="li" key={feature.title} delay={(index % 4) * 50}>
+                <div className="group h-full bg-white p-6 transition-colors duration-200 hover:bg-surface sm:p-7">
+                  <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent-hover">
+                    <Icon size={18} strokeWidth={2} />
                   </span>
-                  <h3 className="mb-1.5 text-[17px] font-semibold tracking-[-0.015em]">
+                  <h3 className="mb-1.5 text-[16px] font-bold tracking-[-0.015em] text-ink">
                     {feature.title}
                   </h3>
-                  <p className="text-[14.5px] leading-relaxed text-muted-soft">
+                  <p className="text-[14px] leading-relaxed text-muted">
                     {feature.text}
                   </p>
                 </div>

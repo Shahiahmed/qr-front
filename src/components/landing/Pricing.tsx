@@ -1,14 +1,58 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { SectionHeading } from "@/components/landing/ui/SectionHeading";
 import { Reveal } from "@/components/landing/ui/Reveal";
 import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 import type { LandingCopy } from "@/content/landing";
+import { getPlans, type Plan as ApiPlan } from "@/lib/api";
+import { formatPrice } from "@/lib/money";
 
 export function Pricing() {
   const { copy, locale } = useLandingLocale();
+
+  // The page is statically rendered; plans arrive from the API on the client.
+  // Until they do (or if the API is down), the hand-written fallback shows —
+  // the marketing section must never go blank.
+  const [plans, setPlans] = useState<ApiPlan[] | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    getPlans(locale).then((data) => {
+      if (alive) setPlans(data);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [locale]);
+
+  const href = `/${locale}/register`;
+
+  const cards =
+    plans && plans.length > 0
+      ? plans.map((plan, i) => (
+          <Reveal key={plan.id} delay={i * 90}>
+            <PlanCard
+              plan={toCardPlan(plan, locale, copy)}
+              popular={copy.popular}
+              featured={plan.is_featured}
+              href={href}
+            />
+          </Reveal>
+        ))
+      : [
+          <Reveal key="free">
+            <PlanCard plan={copy.planFree} href={href} />
+          </Reveal>,
+          <Reveal key="std" delay={90}>
+            <PlanCard plan={copy.planStd} popular={copy.popular} featured href={href} />
+          </Reveal>,
+          <Reveal key="prem" delay={180}>
+            <PlanCard plan={copy.planPrem} href={href} />
+          </Reveal>,
+        ];
 
   return (
     <section
@@ -24,23 +68,32 @@ export function Pricing() {
           titleId="pricing-title"
         />
 
-        <div className="grid items-start gap-6 lg:grid-cols-3">
-          <Reveal>
-            <PlanCard plan={copy.planFree} href={`/${locale}/register`} />
-          </Reveal>
-          <Reveal delay={90}>
-            <PlanCard plan={copy.planStd} popular={copy.popular} featured href={`/${locale}/register`} />
-          </Reveal>
-          <Reveal delay={180}>
-            <PlanCard plan={copy.planPrem} href={`/${locale}/register`} />
-          </Reveal>
-        </div>
+        <div className="grid items-start gap-6 lg:grid-cols-3">{cards}</div>
       </div>
     </section>
   );
 }
 
 type Plan = LandingCopy["planFree"];
+
+/** «/ мес» · «/ жыл» etc. — the suffix shown next to a recurring price. */
+function periodLabel(period: ApiPlan["period"], locale: string): string {
+  const kz = locale === "kz";
+  if (period === "year") return kz ? "/ жыл" : "/ год";
+  return kz ? "/ ай" : "/ мес";
+}
+
+/** Fold a DB plan into the visual card's shape, choosing the locale's text. */
+function toCardPlan(plan: ApiPlan, locale: string, copy: LandingCopy): Plan {
+  const kz = locale === "kz";
+  const name = (kz && plan.name_kk) || plan.name_ru;
+  const desc = (kz && plan.tagline_kk) || plan.tagline_ru || "";
+  const features = plan.features.map((f) => (kz && f.kk) || f.ru);
+  const price = plan.price_final === 0 ? "0 ₸" : formatPrice(plan.price_final);
+  const period = plan.price_final === 0 ? copy.planFree.period : periodLabel(plan.period, locale);
+
+  return { name, price, period, desc, features, cta: copy.planStd.cta };
+}
 
 function PlanCard({
   plan,

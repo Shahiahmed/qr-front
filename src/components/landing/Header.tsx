@@ -12,7 +12,7 @@ import { useAuth } from "@/lib/useAuth";
 export function Header() {
   const { copy, locale } = useLandingLocale();
   const auth = authByLocale[locale];
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -89,17 +89,7 @@ export function Header() {
             `hidden` in Tailwind's output and would win — so `hidden` passed
             through `className` silently does nothing.
           */}
-          {isLoading ? (
-            /*
-             * The landing is static, so the session is only known once the
-             * client asks. Holding the slot keeps the row from jumping when
-             * the answer arrives.
-             */
-            <span
-              className="hidden h-[42px] w-[132px] shrink-0 animate-pulse rounded-[12px] bg-surface-2 sm:block"
-              aria-hidden="true"
-            />
-          ) : isAuthenticated ? (
+          {isAuthenticated ? (
             <span className="hidden shrink-0 sm:inline-flex">
               <Button
                 variant="primary"

@@ -35,6 +35,40 @@ export type AuthCopy = {
 
   tabVenues: string;
   tabProfile: string;
+  tabSubscription: string;
+
+  subTitle: string;
+  /** Intro line under the page title. */
+  subSubtitle: string;
+  /** Heading over the "your current plan" card. */
+  subCurrentPlan: string;
+  /** Shown when the owner has no paid plan yet. */
+  subFreeName: string;
+  subFreeNote: string;
+  /** «Действует до 12.08.2026» — prefix before the end date. */
+  subActiveUntil: string;
+  /** Banner when a request is awaiting a decision. */
+  subPendingTitle: string;
+  subPendingNote: string;
+  /** Heading over the plan chooser / request form. */
+  subChooseTitle: string;
+  subChooseSub: string;
+  subPickPlan: string;
+  subContactPhone: string;
+  subContactPhonePlaceholder: string;
+  subComment: string;
+  subCommentPlaceholder: string;
+  subRequestCta: string;
+  subRequestSending: string;
+  subRequestSuccess: string;
+  subSelectPlanFirst: string;
+  subAlreadyPending: string;
+  subNoPlans: string;
+  subPerMonth: string;
+  subPerYear: string;
+  /** «−10 %» badge next to a discounted plan price. */
+  subDiscountOff: string;
+  subFeaturesTitle: string;
 
   venuesTitle: string;
   venuesEmpty: string;
@@ -113,6 +147,33 @@ const RU: AuthCopy = {
 
   tabVenues: "Заведения",
   tabProfile: "Профиль",
+  tabSubscription: "Подписка",
+
+  subTitle: "Подписка",
+  subSubtitle: "Выберите тариф и оставьте заявку — мы активируем его вручную.",
+  subCurrentPlan: "Ваш тариф",
+  subFreeName: "Бесплатный",
+  subFreeNote: "Базовые возможности. Оформите подписку, чтобы открыть больше.",
+  subActiveUntil: "Действует до",
+  subPendingTitle: "Заявка на рассмотрении",
+  subPendingNote: "Мы свяжемся с вами и активируем тариф вручную.",
+  subChooseTitle: "Оформить подписку",
+  subChooseSub: "Выберите тариф — заявка уйдёт администратору.",
+  subPickPlan: "Тариф",
+  subContactPhone: "Телефон для связи",
+  subContactPhonePlaceholder: "+7 700 000 00 00",
+  subComment: "Комментарий",
+  subCommentPlaceholder: "Например: нужно несколько заведений",
+  subRequestCta: "Оставить заявку",
+  subRequestSending: "Отправляем…",
+  subRequestSuccess: "Заявка отправлена — мы свяжемся с вами.",
+  subSelectPlanFirst: "Выберите тариф.",
+  subAlreadyPending: "У вас уже есть заявка на рассмотрении.",
+  subNoPlans: "Тарифы скоро появятся.",
+  subPerMonth: "/ мес",
+  subPerYear: "/ год",
+  subDiscountOff: "скидка",
+  subFeaturesTitle: "Что входит",
 
   venuesTitle: "Заведения",
   venuesEmpty: "Пока нет ни одного заведения. Добавьте первое — это займёт минуту.",
@@ -190,6 +251,33 @@ const KZ: AuthCopy = {
 
   tabVenues: "Мекемелер",
   tabProfile: "Профиль",
+  tabSubscription: "Жазылым",
+
+  subTitle: "Жазылым",
+  subSubtitle: "Тарифті таңдап, өтінім қалдырыңыз — оны қолмен қосамыз.",
+  subCurrentPlan: "Сіздің тарифіңіз",
+  subFreeName: "Тегін",
+  subFreeNote: "Негізгі мүмкіндіктер. Көбірек ашу үшін жазылым рәсімдеңіз.",
+  subActiveUntil: "Дейін жарамды",
+  subPendingTitle: "Өтінім қарастырылуда",
+  subPendingNote: "Біз сізбен хабарласып, тарифті қолмен қосамыз.",
+  subChooseTitle: "Жазылым рәсімдеу",
+  subChooseSub: "Тарифті таңдаңыз — өтінім әкімшіге жіберіледі.",
+  subPickPlan: "Тариф",
+  subContactPhone: "Байланыс телефоны",
+  subContactPhonePlaceholder: "+7 700 000 00 00",
+  subComment: "Пікір",
+  subCommentPlaceholder: "Мысалы: бірнеше мекеме қажет",
+  subRequestCta: "Өтінім қалдыру",
+  subRequestSending: "Жіберілуде…",
+  subRequestSuccess: "Өтінім жіберілді — біз сізбен хабарласамыз.",
+  subSelectPlanFirst: "Тарифті таңдаңыз.",
+  subAlreadyPending: "Сізде қарастырылып жатқан өтінім бар.",
+  subNoPlans: "Тарифтер жақында пайда болады.",
+  subPerMonth: "/ ай",
+  subPerYear: "/ жыл",
+  subDiscountOff: "жеңілдік",
+  subFeaturesTitle: "Не кіреді",
 
   venuesTitle: "Мекемелер",
   venuesEmpty: "Әзірге мекеме жоқ. Біріншісін қосыңыз — бір минут алады.",
