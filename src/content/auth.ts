@@ -70,6 +70,12 @@ export type AuthCopy = {
   subDiscountOff: string;
   subFeaturesTitle: string;
 
+  /** Access-window labels shown on venue cards + the subscription card. */
+  accessTrial: string;
+  accessExpired: string;
+  accessExpiredHint: string;
+  accessUnlimited: string;
+
   venuesTitle: string;
   venuesEmpty: string;
   venueAdd: string;
@@ -175,6 +181,11 @@ const RU: AuthCopy = {
   subDiscountOff: "скидка",
   subFeaturesTitle: "Что входит",
 
+  accessTrial: "Пробный период",
+  accessExpired: "Доступ истёк",
+  accessExpiredHint: "Оформите подписку, чтобы меню снова открылось для гостей.",
+  accessUnlimited: "Без ограничений",
+
   venuesTitle: "Заведения",
   venuesEmpty: "Пока нет ни одного заведения. Добавьте первое — это займёт минуту.",
   venueAdd: "Добавить заведение",
@@ -278,6 +289,11 @@ const KZ: AuthCopy = {
   subPerYear: "/ жыл",
   subDiscountOff: "жеңілдік",
   subFeaturesTitle: "Не кіреді",
+
+  accessTrial: "Сынақ кезеңі",
+  accessExpired: "Қолжетімділік бітті",
+  accessExpiredHint: "Мәзір қонақтарға қайта ашылуы үшін жазылым рәсімдеңіз.",
+  accessUnlimited: "Шектеусіз",
 
   venuesTitle: "Мекемелер",
   venuesEmpty: "Әзірге мекеме жоқ. Біріншісін қосыңыз — бір минут алады.",

@@ -238,6 +238,13 @@ export type Establishment = {
   cover_url: string | null;
   logo_url: string | null;
   created_at: string | null;
+  /** When the public menu stops working (ISO), or null for no limit. */
+  access_ends_at: string | null;
+  /** What governs the window: "trial" | "subscription" | null (unlimited). */
+  access_source: "trial" | "subscription" | null;
+  is_expired: boolean;
+  /** Whole days left; 0 if expired, null if unlimited. */
+  days_left: number | null;
 };
 
 /** The two image slots an owner can fill. */
@@ -505,6 +512,10 @@ export type Subscription = {
   status: string;
   starts_at: string | null;
   ends_at: string | null;
+  /** Live: active and not past its end date. */
+  is_active: boolean;
+  /** Whole days until it ends; 0 if past, null if open-ended. */
+  days_left: number | null;
   plan: Plan | null;
 };
 

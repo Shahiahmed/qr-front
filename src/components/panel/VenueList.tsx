@@ -7,6 +7,7 @@ import { VenueDialog } from "@/components/panel/VenueDialog";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
+import { daysLeftPhrase } from "@/lib/access";
 import { deleteEstablishment, type Establishment } from "@/lib/api";
 import { PUBLIC_MENU_HOST, VENUES_QUERY_KEY, useVenues } from "@/lib/venues";
 
@@ -56,6 +57,8 @@ export function VenueList({ locale }: { locale: Locale }) {
             <p className="mt-1 truncate text-sm text-muted-soft">
               {PUBLIC_MENU_HOST}/{venue.slug}
             </p>
+
+            <AccessBadge venue={venue} locale={locale} copy={copy} />
 
             <div className="mt-auto flex items-center gap-2 pt-5">
               <Button
@@ -120,5 +123,51 @@ export function VenueList({ locale }: { locale: Locale }) {
         />
       ) : null}
     </>
+  );
+}
+
+/**
+ * Per-venue access window. Expired venues 404 for guests, so the owner needs
+ * a loud warning; trial/subscription show the countdown. Grandfathered venues
+ * (access_source null — created before the limit) simply show «no limit».
+ */
+function AccessBadge({
+  venue,
+  locale,
+  copy,
+}: {
+  venue: Establishment;
+  locale: Locale;
+  copy: typeof authByLocale.ru;
+}) {
+  if (venue.is_expired) {
+    return (
+      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-1 text-[13px] font-semibold text-red-600">
+        {copy.accessExpired}
+      </span>
+    );
+  }
+
+  if (venue.access_source === null || venue.days_left === null) {
+    return (
+      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-surface-2 px-3 py-1 text-[13px] font-semibold text-muted">
+        {copy.accessUnlimited}
+      </span>
+    );
+  }
+
+  const trial = venue.access_source === "trial";
+  const text = trial
+    ? `${copy.accessTrial} · ${daysLeftPhrase(venue.days_left, locale)}`
+    : daysLeftPhrase(venue.days_left, locale);
+
+  return (
+    <span
+      className={`mt-3 inline-flex w-fit items-center rounded-full px-3 py-1 text-[13px] font-semibold ${
+        trial ? "bg-amber-50 text-amber-700" : "bg-accent-soft text-accent-hover"
+      }`}
+    >
+      {text}
+    </span>
   );
 }

@@ -7,6 +7,7 @@ import { Field } from "@/components/auth/Field";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
+import { daysLeftPhrase } from "@/lib/access";
 import {
   ApiError,
   createSubscriptionRequest,
@@ -121,8 +122,15 @@ export function SubscriptionCard({ locale }: { locale: Locale }) {
               {pickPlanName(activePlan, kz)}
             </p>
             {active?.ends_at ? (
-              <p className="mt-1.5 text-[15px] text-muted">
-                {copy.subActiveUntil} {formatDate(active.ends_at)}
+              <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px] text-muted">
+                <span>
+                  {copy.subActiveUntil} {formatDate(active.ends_at)}
+                </span>
+                {active.days_left !== null ? (
+                  <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[13px] font-semibold text-accent-hover">
+                    {daysLeftPhrase(active.days_left, locale)}
+                  </span>
+                ) : null}
               </p>
             ) : null}
           </>
