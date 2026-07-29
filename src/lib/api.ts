@@ -344,6 +344,8 @@ export type Dish = {
   position: number;
   is_visible: boolean;
   is_available: boolean;
+  /** Square WebP photo, or null. Cropped + optimized server-side. */
+  image_url: string | null;
 };
 
 export type MenuCategory = {
@@ -462,6 +464,40 @@ export async function deleteDish(establishmentId: number, dishId: number): Promi
   await apiFetch<void>(`/api/establishments/${establishmentId}/dishes/${dishId}`, {
     method: "DELETE",
   });
+}
+
+/**
+ * Upload (or replace) a dish photo. `file` is the already-cropped, WebP-encoded
+ * square blob from the client cropper — the server crops/optimizes again as a
+ * safety net. Returns the updated dish.
+ */
+export async function uploadDishImage(
+  establishmentId: number,
+  dishId: number,
+  file: Blob,
+  locale?: string,
+): Promise<Dish> {
+  const form = new FormData();
+  // A Blob has no filename; name it so the multipart part reads as a file.
+  form.append("file", file, "dish.webp");
+
+  const { data } = await apiFetch<Wrapped<Dish>>(
+    `/api/establishments/${establishmentId}/dishes/${dishId}/image`,
+    { method: "POST", body: form, locale },
+  );
+  return data;
+}
+
+export async function deleteDishImage(
+  establishmentId: number,
+  dishId: number,
+  locale?: string,
+): Promise<Dish> {
+  const { data } = await apiFetch<Wrapped<Dish>>(
+    `/api/establishments/${establishmentId}/dishes/${dishId}/image`,
+    { method: "DELETE", locale },
+  );
+  return data;
 }
 
 /* ---------- subscription plans ---------- */

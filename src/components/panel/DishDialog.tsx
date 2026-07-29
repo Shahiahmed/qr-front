@@ -1,8 +1,10 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { ImagePlus } from "lucide-react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Field } from "@/components/auth/Field";
+import { ImageCropper } from "@/components/panel/ImageCropper";
 import { Modal } from "@/components/panel/Modal";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
@@ -11,13 +13,18 @@ import { menuByLocale } from "@/content/menu";
 import {
   ApiError,
   createDish,
+  deleteDishImage,
   updateDish,
+  uploadDishImage,
   type Dish,
   type MenuCategory,
   type ValidationErrors,
 } from "@/lib/api";
 import { menuQueryKey } from "@/lib/menu";
 import { toMajorUnits, toMinorUnits } from "@/lib/money";
+
+/** Reject an oversized source before we try to decode it in the browser. */
+const MAX_SOURCE_BYTES = 8 * 1024 * 1024;
 
 export function DishDialog({
   locale,
@@ -52,11 +59,41 @@ export function DishDialog({
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Photo state. A staged blob is a freshly cropped image not yet uploaded (the
+  // upload waits until the dish is saved — a new dish has no id before then).
+  // `photoRemoved` marks an existing photo for deletion on save.
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [stagedBlob, setStagedBlob] = useState<Blob | null>(null);
+  const [stagedUrl, setStagedUrl] = useState<string | null>(null);
+  const [photoRemoved, setPhotoRemoved] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  // The preview URL is created in the handler that stages the blob; this just
+  // frees it when it is replaced or the dialog unmounts.
+  useEffect(() => {
+    if (!stagedUrl) return;
+    return () => URL.revokeObjectURL(stagedUrl);
+  }, [stagedUrl]);
+
+  const photoUrl = stagedUrl ?? (photoRemoved ? null : dish?.image_url ?? null);
+
   const mutation = useMutation({
-    mutationFn: (payload: Parameters<typeof createDish>[1]) =>
-      dish
-        ? updateDish(establishmentId, dish.id, payload, locale)
-        : createDish(establishmentId, payload, locale),
+    mutationFn: async (payload: Parameters<typeof createDish>[1]) => {
+      const saved = dish
+        ? await updateDish(establishmentId, dish.id, payload, locale)
+        : await createDish(establishmentId, payload, locale);
+
+      // Photo side-effects run against the saved dish's id (which a brand-new
+      // dish only gets here). A staged crop wins over a removal.
+      if (stagedBlob) {
+        await uploadDishImage(establishmentId, saved.id, stagedBlob, locale);
+      } else if (dish && photoRemoved && dish.image_url) {
+        await deleteDishImage(establishmentId, saved.id, locale);
+      }
+
+      return saved;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: menuQueryKey(establishmentId) });
       onClose();
@@ -70,6 +107,35 @@ export function DishDialog({
       setFormError(auth.networkError);
     },
   });
+
+  function onPickFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    // Reset so picking the same file twice still fires onChange.
+    event.target.value = "";
+    if (!file) return;
+
+    if (file.size > MAX_SOURCE_BYTES) {
+      setPhotoError(copy.imageTooBig);
+      return;
+    }
+
+    setPhotoError(null);
+    setCropFile(file);
+  }
+
+  function onCropped(blob: Blob) {
+    setStagedBlob(blob);
+    setStagedUrl(URL.createObjectURL(blob));
+    setPhotoRemoved(false);
+    setCropFile(null);
+  }
+
+  function removePhoto() {
+    setStagedBlob(null);
+    setStagedUrl(null);
+    setPhotoRemoved(true);
+    setPhotoError(null);
+  }
 
   function update(field: keyof typeof values, value: string | number) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -107,6 +173,23 @@ export function DishDialog({
 
   const title = dish ? copy.editDish : copy.addDish;
 
+  // While cropping, show only the cropper: the form's values live in component
+  // state, so they survive the swap and reappear when the crop is done.
+  if (cropFile) {
+    return (
+      <ImageCropper
+        file={cropFile}
+        title={copy.cropTitle}
+        hint={copy.cropHint}
+        zoomLabel={copy.cropZoom}
+        applyLabel={copy.cropApply}
+        cancelLabel={copy.cancel}
+        onCancel={() => setCropFile(null)}
+        onDone={onCropped}
+      />
+    );
+  }
+
   return (
     <Modal label={title} title={title} onClose={onClose}>
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
@@ -115,6 +198,51 @@ export function DishDialog({
             {formError}
           </p>
         ) : null}
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold">{copy.dishPhoto}</span>
+          <div className="flex items-center gap-3">
+            {photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- blob/remote preview, not an optimizable asset
+              <img
+                src={photoUrl}
+                alt=""
+                className="h-20 w-20 shrink-0 rounded-xl object-cover"
+              />
+            ) : (
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-ink/5 text-muted-soft">
+                <ImagePlus size={22} aria-hidden />
+              </div>
+            )}
+            <div className="flex flex-col items-start gap-1">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="rounded-lg px-2 py-1 text-sm font-semibold text-accent hover:bg-accent/10"
+              >
+                {photoUrl ? copy.changePhoto : copy.addPhoto}
+              </button>
+              {photoUrl ? (
+                <button
+                  type="button"
+                  onClick={removePhoto}
+                  className="rounded-lg px-2 py-1 text-sm font-semibold text-red-700 hover:bg-red-50"
+                >
+                  {copy.removePhoto}
+                </button>
+              ) : null}
+            </div>
+          </div>
+          <p className="text-sm text-muted-soft">{copy.dishPhotoHint}</p>
+          {photoError ? <p className="text-sm text-red-700">{photoError}</p> : null}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onPickFile}
+          />
+        </div>
 
         <Field
           label={copy.dishNameRu}

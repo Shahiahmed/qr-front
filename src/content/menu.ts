@@ -74,6 +74,17 @@ export type MenuCopy = {
   imageError: string;
   imageTooBig: string;
 
+  // Dish photo + cropper
+  dishPhoto: string;
+  dishPhotoHint: string;
+  addPhoto: string;
+  changePhoto: string;
+  removePhoto: string;
+  cropTitle: string;
+  cropHint: string;
+  cropZoom: string;
+  cropApply: string;
+
   // Section order
   moveUp: string;
   moveDown: string;
@@ -156,6 +167,16 @@ const RU: MenuCopy = {
   imageError: "Не удалось загрузить. Попробуйте другой файл.",
   imageTooBig: "Файл больше 8 МБ. Выберите фото поменьше.",
 
+  dishPhoto: "Фото блюда",
+  dishPhotoHint: "Квадрат. Сожмётся автоматически, чтобы меню не тормозило.",
+  addPhoto: "Добавить фото",
+  changePhoto: "Заменить фото",
+  removePhoto: "Удалить фото",
+  cropTitle: "Кадрируйте фото",
+  cropHint: "Потяните, чтобы сдвинуть · ползунком меняйте масштаб.",
+  cropZoom: "Масштаб",
+  cropApply: "Применить",
+
   moveUp: "Выше",
   moveDown: "Ниже",
 
@@ -236,6 +257,16 @@ const KZ: MenuCopy = {
   uploading: "Жүктелуде…",
   imageError: "Жүктеу мүмкін болмады. Басқа файлды таңдаңыз.",
   imageTooBig: "Файл 8 МБ-тан үлкен. Кішірек фото таңдаңыз.",
+
+  dishPhoto: "Тағам фотосы",
+  dishPhotoHint: "Шаршы. Мәзір баяу болмауы үшін автоматты қысылады.",
+  addPhoto: "Фото қосу",
+  changePhoto: "Фотоны ауыстыру",
+  removePhoto: "Фотоны жою",
+  cropTitle: "Фотоны кадрлаңыз",
+  cropHint: "Жылжыту үшін сүйреңіз · масштабты жүгірткімен өзгертіңіз.",
+  cropZoom: "Масштаб",
+  cropApply: "Қолдану",
 
   moveUp: "Жоғары",
   moveDown: "Төмен",
