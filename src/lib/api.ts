@@ -497,12 +497,16 @@ export async function getPlans(locale?: string): Promise<Plan[]> {
 
 export type SubscriptionRequestStatus = "new" | "approved" | "rejected";
 
+/** The menu a request/subscription is attached to (subscriptions are per menu). */
+export type SubscriptionMenuRef = { id: number; name: string; slug: string };
+
 export type SubscriptionRequest = {
   id: number;
   status: SubscriptionRequestStatus;
   contact_phone: string | null;
   note: string | null;
   plan: { id: number; name_ru: string; name_kk: string | null } | null;
+  establishment: SubscriptionMenuRef | null;
   created_at: string | null;
   reviewed_at: string | null;
 };
@@ -519,19 +523,39 @@ export type Subscription = {
   plan: Plan | null;
 };
 
-export type SubscriptionStatus = {
+/**
+ * One of the owner's menus with its own access window and subscription state.
+ * Billing is per menu: each row carries its own grant and pending request.
+ */
+export type MenuSubscription = {
+  id: number;
+  name: string;
+  slug: string;
+  access_source: "trial" | "subscription" | null;
+  access_ends_at: string | null;
+  days_left: number | null;
+  is_expired: boolean;
   subscription: Subscription | null;
   pending_request: SubscriptionRequest | null;
 };
 
-/** The owner's current plan + any request still awaiting a decision. */
+export type SubscriptionStatus = {
+  menus: MenuSubscription[];
+};
+
+/** Every menu the owner has, each with its plan + any request awaiting a decision. */
 export async function getSubscriptionStatus(locale?: string): Promise<SubscriptionStatus> {
   return apiFetch<SubscriptionStatus>("/api/subscription", { locale });
 }
 
-/** File a request for a plan. 409 if one is already pending. */
+/** File a request for a plan on one menu. 409 if that menu already has a pending one. */
 export async function createSubscriptionRequest(
-  payload: { plan_id: number; contact_phone?: string | null; note?: string | null },
+  payload: {
+    establishment_id: number;
+    plan_id: number;
+    contact_phone?: string | null;
+    note?: string | null;
+  },
   locale?: string,
 ): Promise<SubscriptionRequest> {
   const { data } = await apiFetch<Wrapped<SubscriptionRequest>>("/api/subscription-requests", {

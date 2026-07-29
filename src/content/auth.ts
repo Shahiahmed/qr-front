@@ -69,6 +69,11 @@ export type AuthCopy = {
   /** «−10 %» badge next to a discounted plan price. */
   subDiscountOff: string;
   subFeaturesTitle: string;
+  /** Per-menu subscription card (billing is per menu). */
+  subNoVenues: string;
+  subManage: string;
+  subRenew: string;
+  subMenuHint: string;
 
   /** Access-window labels shown on venue cards + the subscription card. */
   accessTrial: string;
@@ -180,6 +185,10 @@ const RU: AuthCopy = {
   subPerYear: "/ год",
   subDiscountOff: "скидка",
   subFeaturesTitle: "Что входит",
+  subNoVenues: "Сначала создайте меню — потом можно оформить подписку.",
+  subManage: "Оформить подписку",
+  subRenew: "Продлить или сменить тариф",
+  subMenuHint: "Подписка оформляется отдельно для каждого меню.",
 
   accessTrial: "Пробный период",
   accessExpired: "Доступ истёк",
@@ -289,6 +298,10 @@ const KZ: AuthCopy = {
   subPerYear: "/ жыл",
   subDiscountOff: "жеңілдік",
   subFeaturesTitle: "Не кіреді",
+  subNoVenues: "Алдымен мәзір жасаңыз — содан кейін жазылым рәсімдеуге болады.",
+  subManage: "Жазылым рәсімдеу",
+  subRenew: "Ұзарту немесе тарифті ауыстыру",
+  subMenuHint: "Жазылым әр мәзірге бөлек рәсімделеді.",
 
   accessTrial: "Сынақ кезеңі",
   accessExpired: "Қолжетімділік бітті",
