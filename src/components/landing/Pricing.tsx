@@ -55,10 +55,10 @@ export function Pricing() {
         <PlanCard plan={copy.planFree} href={href} />
       </Reveal>,
       <Reveal key="std" delay={90}>
-        <PlanCard plan={copy.planStd} popular={copy.popular} featured href={href} />
+        <PlanCard plan={copy.planStd} href={href} />
       </Reveal>,
       <Reveal key="prem" delay={180}>
-        <PlanCard plan={copy.planPrem} href={href} />
+        <PlanCard plan={copy.planPrem} popular={copy.popular} featured href={href} />
       </Reveal>,
     ];
   }
@@ -89,6 +89,7 @@ type Plan = LandingCopy["planFree"];
 function periodLabel(period: ApiPlan["period"], locale: string): string {
   const kz = locale === "kz";
   if (period === "year") return kz ? "/ жыл" : "/ год";
+  if (period === "halfyear") return kz ? "/ 6 ай" : "/ 6 мес";
   return kz ? "/ ай" : "/ мес";
 }
 

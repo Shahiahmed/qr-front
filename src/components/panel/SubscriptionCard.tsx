@@ -356,7 +356,9 @@ function AccessBadge({
 
 /** «/ мес» · «/ жыл» — recurring-price suffix for a plan's period. */
 function periodSuffix(period: Plan["period"], copy: Copy): string {
-  return period === "year" ? copy.subPerYear : copy.subPerMonth;
+  if (period === "year") return copy.subPerYear;
+  if (period === "halfyear") return copy.subPerHalfyear;
+  return copy.subPerMonth;
 }
 
 function PlanOption({

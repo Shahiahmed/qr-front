@@ -478,7 +478,7 @@ export type Plan = {
   /** Price after discount, in minor units. Equals `price` when no discount. */
   price_final: number;
   discount_percent: number;
-  period: "month" | "year";
+  period: "month" | "halfyear" | "year";
   features: { ru: string; kk: string | null }[];
   max_establishments: number | null;
   is_featured: boolean;

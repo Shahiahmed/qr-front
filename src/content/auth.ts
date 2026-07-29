@@ -65,6 +65,7 @@ export type AuthCopy = {
   subAlreadyPending: string;
   subNoPlans: string;
   subPerMonth: string;
+  subPerHalfyear: string;
   subPerYear: string;
   /** «−10 %» badge next to a discounted plan price. */
   subDiscountOff: string;
@@ -182,6 +183,7 @@ const RU: AuthCopy = {
   subAlreadyPending: "У вас уже есть заявка на рассмотрении.",
   subNoPlans: "Тарифы скоро появятся.",
   subPerMonth: "/ мес",
+  subPerHalfyear: "/ 6 мес",
   subPerYear: "/ год",
   subDiscountOff: "скидка",
   subFeaturesTitle: "Что входит",
@@ -295,6 +297,7 @@ const KZ: AuthCopy = {
   subAlreadyPending: "Сізде қарастырылып жатқан өтінім бар.",
   subNoPlans: "Тарифтер жақында пайда болады.",
   subPerMonth: "/ ай",
+  subPerHalfyear: "/ 6 ай",
   subPerYear: "/ жыл",
   subDiscountOff: "жеңілдік",
   subFeaturesTitle: "Не кіреді",
