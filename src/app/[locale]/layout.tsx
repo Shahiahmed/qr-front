@@ -8,8 +8,8 @@ import {
   HTML_LANG,
   LOCALES,
   isLocale,
-  siteUrl,
 } from "@/content/locales";
+import { canonicalBase, getSeo, seoFieldsFor } from "@/lib/seo";
 import "../globals.css";
 
 const onest = Onest({
@@ -30,12 +30,27 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
 
   const { meta } = landingByLocale[locale];
-  const base = siteUrl();
+
+  // Admin-managed overrides (title/description/keywords/OG image/robots), read
+  // from the API and revalidated hourly. Any empty field or a failed fetch
+  // falls back to the built-in copy in landing.ts — the page is never left bare.
+  const seo = await getSeo();
+  const fields = seo ? seoFieldsFor(seo, locale) : null;
+
+  const title = fields?.title ?? meta.title;
+  const description = fields?.description ?? meta.description;
+  const keywords = fields?.keywords ?? undefined;
+  const ogImage = seo?.og_image_url ?? undefined;
+
+  const base = canonicalBase(seo);
 
   return {
     metadataBase: new URL(base),
-    title: meta.title,
-    description: meta.description,
+    title,
+    description,
+    keywords,
+    // noindex is an admin kill-switch for keeping a draft out of search.
+    robots: seo?.noindex ? { index: false, follow: false } : undefined,
     alternates: {
       canonical: `/${locale}`,
       // hreflang lets Google serve the right language instead of guessing.
@@ -48,15 +63,17 @@ export async function generateMetadata({
     openGraph: {
       type: "website",
       siteName: "Qmenu",
-      title: meta.title,
-      description: meta.description,
+      title,
+      description,
       url: `/${locale}`,
       locale: HTML_LANG[locale].replace("-", "_"),
+      images: ogImage ? [ogImage] : undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title: meta.title,
-      description: meta.description,
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
     },
   };
 }

@@ -1,8 +1,11 @@
 import type { MetadataRoute } from "next";
-import { DEFAULT_LOCALE, LOCALES, siteUrl } from "@/content/locales";
+import { DEFAULT_LOCALE, LOCALES } from "@/content/locales";
+import { canonicalBase, getSeo } from "@/lib/seo";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const base = siteUrl();
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = canonicalBase(await getSeo());
   const lastModified = new Date();
 
   return LOCALES.map((locale) => ({

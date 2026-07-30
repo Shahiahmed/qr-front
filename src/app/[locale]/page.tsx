@@ -10,7 +10,10 @@ import { LandingLocaleProvider } from "@/components/landing/LandingLocaleProvide
 import { Pricing } from "@/components/landing/Pricing";
 import { isLocale } from "@/content/locales";
 
-export const dynamic = "force-static";
+// Hourly ISR (not force-static): the landing pulls admin-managed SEO and plans
+// from the API, so it must be free to refresh. Must be a literal — Next reads
+// segment config statically.
+export const revalidate = 3600;
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
