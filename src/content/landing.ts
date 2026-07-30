@@ -44,13 +44,10 @@ export type LandingCopy = {
   ctaTitle: string;
   ctaSub: string;
   ctaBtn: string;
-  footTag: string;
   footLinks: { label: string; href: string }[];
-  footContactLabel: string;
-  footEmail: string;
-  footPhone: string;
-  footCity: string;
   footRights: string;
+  waAria: string;
+  waMessage: string;
 };
 
 type PlanCopy = {
@@ -241,18 +238,15 @@ const RU: LandingCopy = {
   ctaTitle: "Запустите меню уже сегодня",
   ctaSub: "Регистрация занимает пару минут. Без карты и обязательств.",
   ctaBtn: "Начать бесплатно",
-  footTag: "QR-меню для ресторанов и кафе. Меню, заказы и оплата — в одном сервисе.",
   footLinks: [
     { label: "О сервисе", href: "#how" },
     { label: "Тарифы", href: "#pricing" },
+    { label: "Вопросы", href: "#faq" },
     { label: "Контакты", href: "#cta" },
-    { label: "Публичная оферта", href: "#cta" },
   ],
-  footContactLabel: "Контакты",
-  footEmail: "hello@qmenu.kz",
-  footPhone: "+7 700 000 00 00",
-  footCity: "Алматы, Казахстан",
   footRights: "© 2026 Qmenu. Все права защищены.",
+  waAria: "Написать в WhatsApp",
+  waMessage: "Здравствуйте! Хочу узнать про Qmenu.",
 };
 
 const KZ: LandingCopy = {
@@ -428,19 +422,15 @@ const KZ: LandingCopy = {
   ctaTitle: "Мәзірді бүгін іске қосыңыз",
   ctaSub: "Тіркелу бірнеше минут алады. Картасыз және міндеттемесіз.",
   ctaBtn: "Тегін бастау",
-  footTag:
-    "Мейрамханалар мен кафеге арналған QR-мәзір. Мәзір, тапсырыс және төлем — бір сервисте.",
   footLinks: [
     { label: "Сервис туралы", href: "#how" },
     { label: "Тарифтер", href: "#pricing" },
+    { label: "Сұрақтар", href: "#faq" },
     { label: "Байланыс", href: "#cta" },
-    { label: "Жария оферта", href: "#cta" },
   ],
-  footContactLabel: "Байланыс",
-  footEmail: "hello@qmenu.kz",
-  footPhone: "+7 700 000 00 00",
-  footCity: "Алматы, Қазақстан",
   footRights: "© 2026 Qmenu. Барлық құқықтар қорғалған.",
+  waAria: "WhatsApp-қа жазу",
+  waMessage: "Сәлеметсіз бе! Qmenu туралы білгім келеді.",
 };
 
 export const landingByLocale: Record<Locale, LandingCopy> = {
