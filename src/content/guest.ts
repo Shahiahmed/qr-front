@@ -36,6 +36,9 @@ export type GuestCopy = {
   showTicket: string;
   ticketEmpty: string;
   done: string;
+  /** Tiny brand credit under the menu. */
+  poweredBy: string;
+  poweredByAria: string;
 };
 
 export const guestByLocale: Record<GuestLocale, GuestCopy> = {
@@ -71,6 +74,8 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     showTicket: "Показать заказ",
     ticketEmpty: "В заказе ничего нет.",
     done: "Готово",
+    poweredBy: "Сделано на Qmenu",
+    poweredByAria: "Qmenu — QR-меню для ресторанов",
   },
   kk: {
     soldOut: "Бітті",
@@ -104,5 +109,7 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     showTicket: "Тапсырысты көрсету",
     ticketEmpty: "Тапсырыста ештеңе жоқ.",
     done: "Дайын",
+    poweredBy: "Qmenu-де жасалған",
+    poweredByAria: "Qmenu — мейрамханаларға арналған QR-мәзір",
   },
 };

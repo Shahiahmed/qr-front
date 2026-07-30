@@ -42,7 +42,7 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
           <div className="relative flex min-h-0 flex-[0_0_36%] items-end overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=480&q=72&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=360&q=70&auto=format&fit=crop"
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />
@@ -109,6 +109,7 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
           width={1339}
           height={2716}
           priority
+          sizes="(min-width: 640px) 300px, 260px"
           className="relative z-10 h-auto w-full select-none"
           draggable={false}
         />

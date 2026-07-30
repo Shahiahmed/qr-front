@@ -256,7 +256,7 @@ export function GuestMenu({
     // `text-accent` below inherits them, so the whole menu recolours at once.
     <div
       style={themeVars(menu.theme)}
-      className={`min-h-dvh bg-surface ${barVisible ? "pb-28" : "pb-16"}`}
+      className={`min-h-dvh bg-surface ${barVisible ? "pb-28" : "pb-8"}`}
     >
       <GuestVenueCover menu={menu} copy={copy} />
 
@@ -348,12 +348,10 @@ export function GuestMenu({
               if (node) sectionRefs.current.set(category.id, node);
               else sectionRefs.current.delete(category.id);
             }}
-            // Last section stretches so its heading can reach the sticky header.
-            className={
-              category.id === lastSectionId
-                ? "min-h-[calc(100dvh-7.5rem)] pt-7"
-                : "pt-7"
-            }
+            // No min-height stretch: it left a huge empty band under short
+            // trailing sections (and under the Qmenu credit). Last-tab
+            // highlighting uses the at-bottom scroll-spy instead.
+            className="pt-7"
           >
             <h2 className="mb-3 text-[17px] font-extrabold uppercase tracking-[0.06em] text-muted">
               {pick(locale, category.name_ru, category.name_kk)}
@@ -446,8 +444,20 @@ export function GuestMenu({
                 );
               })}
             </ul>
+
+            {category.id === lastSectionId ? (
+              <div className="pt-8">
+                <PoweredByFooter locale={locale} copy={copy} />
+              </div>
+            ) : null}
           </section>
         ))}
+
+        {sections.length === 0 ? (
+          <div className="pt-6">
+            <PoweredByFooter locale={locale} copy={copy} />
+          </div>
+        ) : null}
       </main>
 
       {/* Floating order bar — cart in progress, or reopen the waiter ticket. */}
@@ -665,5 +675,35 @@ export function GuestMenu({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function PoweredByFooter({
+  locale,
+  copy,
+}: {
+  locale: GuestLocale;
+  copy: (typeof guestByLocale)[GuestLocale];
+}) {
+  return (
+    <footer className="border-t border-border/70 pt-5">
+      <a
+        href={`/${locale === "kk" ? "kz" : "ru"}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={copy.poweredByAria}
+        className="mx-auto flex w-fit items-center gap-1.5 text-muted-soft no-underline transition-colors hover:text-muted"
+      >
+        <span
+          className="grid h-4 w-4 place-items-center rounded-[5px] bg-[linear-gradient(140deg,#ff8a70,#ff6a4d_55%,#f0a83c)] text-[9px] font-extrabold leading-none text-white"
+          aria-hidden
+        >
+          Q
+        </span>
+        <span className="text-[11px] font-medium tracking-[0.02em]">
+          {copy.poweredBy}
+        </span>
+      </a>
+    </footer>
   );
 }
