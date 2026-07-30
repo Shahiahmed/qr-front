@@ -461,10 +461,14 @@ function MenuSections({
                 <Button
                   variant="secondary"
                   onClick={() => onAddDish(category.id)}
-                  className="px-3 py-2 text-sm"
+                  aria-label={copy.addDish}
+                  className="px-2.5 py-2 text-sm sm:px-3"
                 >
                   <Plus size={15} />
-                  {copy.addDish}
+                  {/* Label collapses to a bare "+" on phones so the header
+                      stays one line; child span, so the §7 hidden-on-Button
+                      quirk doesn't apply. */}
+                  <span className="hidden sm:inline">{copy.addDish}</span>
                 </Button>
 
                 <IconButton
