@@ -8,12 +8,37 @@ import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
 export function Faq() {
   const copy = useLandingCopy();
 
+  // FAQPage structured data: tells Google and AI search engines (Perplexity,
+  // AI Overviews, ChatGPT Search) these are Q&A pairs, so they can quote the
+  // answers directly instead of inferring structure from markup. Built from the
+  // same copy the section renders, so it always matches the visible text and is
+  // localised per page (/ru vs /kz). Deterministic → no hydration mismatch.
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: copy.faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+  };
+
   return (
     <section
       id="faq"
       aria-labelledby="faq-title"
       className="bg-surface py-20 lg:py-24"
     >
+      <script
+        type="application/ld+json"
+        // Google reads JSON-LD anywhere in the document; the section is a
+        // natural home for it and keeps schema next to the content it describes.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+
       <div className="mx-auto max-w-[820px] px-4 sm:px-6">
         <SectionHeading
           kicker={copy.faqKicker}
