@@ -213,33 +213,35 @@ export function MenuEditor({
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
-        <Link
-          href={`/${locale}/dashboard`}
-          className="text-[14px] font-semibold text-muted transition-colors hover:text-foreground"
-        >
-          ← {copy.backToVenues}
-        </Link>
+      {/* One header row: which venue on the left, the two real actions on the
+          right. The "back" link is dropped — the global "Venues" tab above
+          already goes there, and the section is named by the tabs below. */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-[24px] font-extrabold tracking-[-0.03em] sm:text-[26px]">
+          {venue?.name ?? copy.title}
+        </h1>
 
-        {slug ? (
-          <a
-            href={`/m/${slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="flex items-center gap-2">
+          {slug ? (
+            <a
+              href={`/m/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-1.5 text-[13px] font-bold transition-colors hover:border-foreground"
+            >
+              {copy.openGuestMenu}
+              <ExternalLink size={14} className="text-accent-hover" />
+            </a>
+          ) : null}
+
+          <Link
+            href={`/${locale}/dashboard/venues/${establishmentId}/qr`}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-1.5 text-[13px] font-bold transition-colors hover:border-foreground"
           >
-            {copy.openGuestMenu}
-            <ExternalLink size={14} className="text-accent-hover" />
-          </a>
-        ) : null}
-
-        <Link
-          href={`/${locale}/dashboard/venues/${establishmentId}/qr`}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-1.5 text-[13px] font-bold transition-colors hover:border-foreground"
-        >
-          <QrCode size={14} className="text-accent-hover" />
-          {copy.openQr}
-        </Link>
+            <QrCode size={14} className="text-accent-hover" />
+            {copy.openQr}
+          </Link>
+        </div>
       </div>
 
       <nav
