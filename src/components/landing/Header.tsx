@@ -46,7 +46,7 @@ export function Header() {
   const navLinks = [
     { label: copy.hiwKicker, href: "#how" },
     { label: copy.advKicker, href: "#benefits" },
-    { label: copy.demoKicker, href: "#demo" },
+    { label: copy.faqKicker, href: "#faq" },
     { label: copy.priceKicker, href: "#pricing" },
   ];
 

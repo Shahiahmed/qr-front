@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Benefits } from "@/components/landing/Benefits";
 import { CtaBanner } from "@/components/landing/CtaBanner";
-import { Demo } from "@/components/landing/Demo";
+import { Faq } from "@/components/landing/Faq";
 import { Footer } from "@/components/landing/Footer";
 import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
@@ -24,7 +24,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <Hero />
         <HowItWorks />
         <Benefits />
-        <Demo />
+        <Faq />
         <Pricing />
         <CtaBanner />
       </main>
