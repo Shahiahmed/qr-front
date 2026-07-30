@@ -49,8 +49,6 @@ export async function generateMetadata({
     title,
     description,
     keywords,
-    // noindex is an admin kill-switch for keeping a draft out of search.
-    robots: seo?.noindex ? { index: false, follow: false } : undefined,
     alternates: {
       canonical: `/${locale}`,
       // hreflang lets Google serve the right language instead of guessing.

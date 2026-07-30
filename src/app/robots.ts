@@ -4,17 +4,12 @@ import { canonicalBase, getSeo } from "@/lib/seo";
 export const revalidate = 3600;
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
-  const seo = await getSeo();
-  const base = canonicalBase(seo);
+  const base = canonicalBase(await getSeo());
 
-  // The admin noindex switch disallows crawling wholesale — same intent as the
-  // per-page robots meta, applied at the site level.
-  const rules = seo?.noindex
-    ? { userAgent: "*", disallow: "/" }
-    : { userAgent: "*", allow: "/" };
-
+  // The site is always crawlable — there is deliberately no noindex switch, so
+  // the live landing can never be hidden from search by an admin mistake.
   return {
-    rules,
+    rules: { userAgent: "*", allow: "/" },
     sitemap: `${base}/sitemap.xml`,
     host: base,
   };

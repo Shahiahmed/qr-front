@@ -18,7 +18,6 @@ type SeoFields = {
 };
 
 export type SeoPayload = {
-  noindex: boolean;
   canonical_host: string | null;
   og_image_url: string | null;
   ru: SeoFields;
