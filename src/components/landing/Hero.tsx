@@ -32,7 +32,10 @@ export function Hero() {
               id="hero-title"
               className="text-balance text-[34px] font-extrabold leading-[1.06] tracking-[-0.038em] min-[400px]:text-[42px] sm:text-[52px] sm:leading-[1.04] sm:tracking-[-0.042em] lg:text-[60px]"
             >
-              {copy.heroTitle}
+              {copy.heroTitle}{" "}
+              <span className="bg-linear-to-r from-accent to-gold bg-clip-text text-transparent">
+                {copy.heroTitleAccent}
+              </span>
             </h1>
           </Reveal>
 
@@ -81,6 +84,12 @@ export function Hero() {
 
         <Reveal delay={180} className="flex justify-center lg:justify-self-center">
           <div className="relative">
+            {/* Soft accent glow anchoring the device — adds depth behind it. */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-[90px]"
+              aria-hidden="true"
+            />
+
             <PhoneMockup />
 
             {/* Floating QR card — what the guest actually scans. */}

@@ -8,11 +8,17 @@ import { Logo } from "@/components/landing/ui/Logo";
 import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 import { authByLocale } from "@/content/auth";
 import { useAuth } from "@/lib/useAuth";
+import { useHydrated } from "@/lib/useHydrated";
 
 export function Header() {
   const { copy, locale } = useLandingLocale();
   const auth = authByLocale[locale];
   const { isAuthenticated } = useAuth();
+  // The landing is statically rendered with no session, so the server always
+  // emits the guest header. Reflect the signed-in state only after hydration —
+  // otherwise the first client paint (which reads the user from session
+  // storage) diverges from the server HTML and React throws a hydration error.
+  const authed = useHydrated() && isAuthenticated;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -89,7 +95,7 @@ export function Header() {
             `hidden` in Tailwind's output and would win — so `hidden` passed
             through `className` silently does nothing.
           */}
-          {isAuthenticated ? (
+          {authed ? (
             <span className="hidden shrink-0 sm:inline-flex">
               <Button
                 variant="primary"
@@ -158,7 +164,7 @@ export function Header() {
             ))}
           </ul>
           <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-4 sm:flex-row">
-            {isAuthenticated ? (
+            {authed ? (
               <Button
                 variant="primary"
                 href={`/${locale}/dashboard`}

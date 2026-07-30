@@ -9,6 +9,8 @@ export type LandingCopy = {
   languageAria: string;
   heroBadge: string;
   heroTitle: string;
+  /** Highlighted tail of the headline, rendered with the accent gradient. */
+  heroTitleAccent: string;
   heroSub: string;
   heroCta1: string;
   heroCta2: string;
@@ -76,7 +78,8 @@ const RU: LandingCopy = {
   navMenuClose: "Закрыть меню",
   languageAria: "Выбор языка",
   heroBadge: "Без установки приложения",
-  heroTitle: "Меню по QR за 2 минуты",
+  heroTitle: "Меню по QR",
+  heroTitleAccent: "за 2 минуты",
   heroSub:
     "Гости сканируют код и видят ваше меню без установки приложения — на русском и казахском.",
   heroCta1: "Попробовать бесплатно",
@@ -261,7 +264,8 @@ const KZ: LandingCopy = {
   navMenuClose: "Мәзірді жабу",
   languageAria: "Тілді таңдау",
   heroBadge: "Қосымшасыз",
-  heroTitle: "QR арқылы мәзір 2 минутта",
+  heroTitle: "QR арқылы мәзір",
+  heroTitleAccent: "2 минутта",
   heroSub:
     "Қонақтар кодты сканерлеп, қосымшасыз мәзіріңізді көреді — орысша және қазақша.",
   heroCta1: "Тегін тіркелу",

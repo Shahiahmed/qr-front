@@ -29,8 +29,8 @@ export function Footer() {
           </nav>
         </div>
 
-        {/* Thin baseline: copyright only. */}
-        <div className="mt-8 border-t border-border pt-6 text-sm text-muted-soft">
+        {/* Thin baseline: centered copyright. */}
+        <div className="mt-8 border-t border-border pt-6 text-center text-sm text-muted-soft">
           {copy.footRights}
         </div>
       </div>
