@@ -19,6 +19,9 @@
 }
 
 @theme inline {
+  /* Extra-small breakpoint for tight in-row controls (e.g. dish status pill). */
+  --breakpoint-xs: 400px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);

@@ -44,6 +44,11 @@ export type MenuCopy = {
   hidden: string;
   hiddenBadge: string;
   visibility: string;
+  hideDish: string;
+  showDish: string;
+  moreActions: string;
+  toStop: string;
+  fromStop: string;
 
   // Design / venue header
   design: string;
@@ -139,6 +144,11 @@ const RU: MenuCopy = {
   hidden: "Скрыто",
   hiddenBadge: "Скрыто",
   visibility: "Показывать гостям",
+  hideDish: "Скрыть от гостей",
+  showDish: "Показать гостям",
+  moreActions: "Действия",
+  toStop: "Убрать в стоп-лист",
+  fromStop: "Вернуть в наличие",
 
   design: "Оформление",
   designSub: "Как меню выглядит у гостя.",
@@ -230,6 +240,11 @@ const KZ: MenuCopy = {
   hidden: "Жасырылған",
   hiddenBadge: "Жасырылған",
   visibility: "Қонақтарға көрсету",
+  hideDish: "Қонақтардан жасыру",
+  showDish: "Қонақтарға көрсету",
+  moreActions: "Әрекеттер",
+  toStop: "Стоп-параққа қою",
+  fromStop: "Қайта қолжетімді ету",
 
   design: "Безендіру",
   designSub: "Қонақ мәзірді қалай көреді.",

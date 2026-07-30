@@ -4,8 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDown,
   ArrowUp,
-  Ban,
-  Check,
   Eye,
   EyeOff,
   ExternalLink,
@@ -24,6 +22,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import { CategoryDialog } from "@/components/panel/CategoryDialog";
 import { DishDialog } from "@/components/panel/DishDialog";
+import { RowMenu } from "@/components/panel/RowMenu";
 import { VenueDesignPanel } from "@/components/panel/VenueDesignPanel";
 import type { Locale } from "@/content/landing";
 import { menuByLocale, type MenuCopy } from "@/content/menu";
@@ -492,66 +491,96 @@ function MenuSections({
                 {(category.dishes ?? []).map((dish) => (
                   <li
                     key={dish.id}
-                    className={`flex flex-wrap items-center gap-3 py-3 ${
+                    className={`flex items-center gap-2 py-2.5 ${
                       dish.is_available && dish.is_visible ? "" : "opacity-60"
                     }`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold">{dish.name_ru}</span>
-                        {dish.name_kk ? (
-                          <span className="text-sm text-muted-soft">· {dish.name_kk}</span>
-                        ) : null}
-                        {!dish.is_available ? (
-                          <span className="rounded-md bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600">
-                            {copy.outOfStockBadge}
-                          </span>
-                        ) : null}
-                        {!dish.is_visible ? (
-                          <span className="rounded-md bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted">
-                            {copy.hiddenBadge}
-                          </span>
-                        ) : null}
-                      </div>
-                      {dish.description_ru ? (
-                        <p className="truncate text-sm text-muted-soft">
-                          {dish.description_ru}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <span className="whitespace-nowrap font-extrabold text-accent-hover">
-                      {formatPrice(dish.price, currency)}
-                    </span>
-
-                    <IconButton
-                      label={dish.is_visible ? copy.hidden : copy.visibility}
-                      onClick={() => onToggleVisible(dish)}
-                    >
-                      {dish.is_visible ? <Eye size={15} /> : <EyeOff size={15} />}
-                    </IconButton>
-
-                    <IconButton
-                      label={dish.is_available ? copy.outOfStock : copy.inStock}
-                      onClick={() => onToggleStop(dish)}
-                    >
-                      {dish.is_available ? <Ban size={15} /> : <Check size={15} />}
-                    </IconButton>
-
-                    <IconButton
-                      label={copy.editDish}
+                    {/* Tap the row to edit — the primary, most frequent action. */}
+                    <button
+                      type="button"
                       onClick={() => onEditDish(category.id, dish)}
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-xl py-1 pr-1 text-left transition-colors hover:bg-surface"
                     >
-                      <Pencil size={15} />
-                    </IconButton>
+                      {dish.image_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- remote thumbnail, not an optimizable asset
+                        <img
+                          src={dish.image_url}
+                          alt=""
+                          className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-ink/5 text-muted-soft">
+                          <UtensilsCrossed size={18} aria-hidden />
+                        </span>
+                      )}
 
-                    <IconButton
-                      label={copy.deleteDish}
-                      danger
-                      onClick={() => onDeleteDish(dish.id)}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="font-bold">{dish.name_ru}</span>
+                          {dish.name_kk ? (
+                            <span className="text-sm text-muted-soft">· {dish.name_kk}</span>
+                          ) : null}
+                          {!dish.is_visible ? (
+                            <span className="rounded-md bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted">
+                              {copy.hiddenBadge}
+                            </span>
+                          ) : null}
+                        </span>
+                        {dish.description_ru ? (
+                          <span className="mt-0.5 block truncate text-sm text-muted-soft">
+                            {dish.description_ru}
+                          </span>
+                        ) : null}
+                      </span>
+
+                      <span className="whitespace-nowrap font-extrabold text-accent-hover">
+                        {formatPrice(dish.price, currency)}
+                      </span>
+                    </button>
+
+                    {/* One-tap stop-list toggle — the second action worth surfacing. */}
+                    <button
+                      type="button"
+                      onClick={() => onToggleStop(dish)}
+                      aria-label={dish.is_available ? copy.toStop : copy.fromStop}
+                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-bold transition-colors ${
+                        dish.is_available
+                          ? "bg-green-50 text-green-700 hover:bg-green-100"
+                          : "bg-red-50 text-red-600 hover:bg-red-100"
+                      }`}
                     >
-                      <Trash2 size={15} />
-                    </IconButton>
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          dish.is_available ? "bg-green-500" : "bg-red-500"
+                        }`}
+                        aria-hidden
+                      />
+                      <span className="hidden xs:inline">
+                        {dish.is_available ? copy.inStock : copy.outOfStock}
+                      </span>
+                    </button>
+
+                    <RowMenu
+                      label={copy.moreActions}
+                      items={[
+                        {
+                          label: copy.editDish,
+                          icon: <Pencil size={16} />,
+                          onClick: () => onEditDish(category.id, dish),
+                        },
+                        {
+                          label: dish.is_visible ? copy.hideDish : copy.showDish,
+                          icon: dish.is_visible ? <EyeOff size={16} /> : <Eye size={16} />,
+                          onClick: () => onToggleVisible(dish),
+                        },
+                        {
+                          label: copy.deleteDish,
+                          icon: <Trash2 size={16} />,
+                          onClick: () => onDeleteDish(dish.id),
+                          danger: true,
+                        },
+                      ]}
+                    />
                   </li>
                 ))}
               </ul>
