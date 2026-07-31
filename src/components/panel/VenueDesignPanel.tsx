@@ -3,12 +3,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
+  Eye,
+  EyeOff,
   ImageIcon,
   Loader2,
   Trash2,
   Upload,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import type { Locale } from "@/content/landing";
 import { menuByLocale, type MenuCopy } from "@/content/menu";
@@ -22,6 +24,7 @@ import {
   type VenueImageKind,
 } from "@/lib/api";
 import { DEFAULT_VENUE_COVER_URL } from "@/lib/defaultCover";
+import { initialLogoDataUrl } from "@/lib/initialLogo";
 import { VENUES_QUERY_KEY } from "@/lib/venues";
 
 export type VenueDesignSection = "look" | "contacts";
@@ -84,6 +87,33 @@ export function VenueDesignPanel({
     },
   });
 
+  // One-tap like the stop-list: the logo stays on disk, guests just stop seeing it.
+  const toggleLogo = useMutation({
+    mutationFn: (showLogo: boolean) =>
+      updateEstablishment(venue.id, { show_logo: showLogo }, locale),
+    onMutate: async (showLogo) => {
+      await queryClient.cancelQueries({ queryKey: VENUES_QUERY_KEY });
+      const previous =
+        queryClient.getQueryData<Establishment[]>(VENUES_QUERY_KEY);
+      queryClient.setQueryData<Establishment[]>(VENUES_QUERY_KEY, (current) =>
+        current?.map((item) =>
+          item.id === venue.id ? { ...item, show_logo: showLogo } : item,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_error, _showLogo, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(VENUES_QUERY_KEY, context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY });
+    },
+  });
+
+  const showLogo = venue.show_logo !== false;
+
   const saveBar = (
     <div className="mt-5 flex flex-wrap items-center gap-3">
       <Button
@@ -137,11 +167,33 @@ export function VenueDesignPanel({
             venue={venue}
             kind="logo"
             currentUrl={venue.logo_url}
+            previewFallback={initialLogoDataUrl(venue.name)}
             label={copy.logoLabel}
             hint={copy.logoHint}
             shape="square"
             copy={copy}
             locale={locale}
+            dimmed={!showLogo}
+            trailing={
+              <button
+                type="button"
+                onClick={() => toggleLogo.mutate(!showLogo)}
+                disabled={toggleLogo.isPending}
+                aria-pressed={showLogo}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-bold transition-colors disabled:opacity-40 ${
+                  showLogo
+                    ? "text-muted hover:bg-surface hover:text-foreground"
+                    : "bg-surface text-foreground hover:bg-surface-2"
+                }`}
+              >
+                {showLogo ? (
+                  <EyeOff size={14} strokeWidth={2.25} />
+                ) : (
+                  <Eye size={14} strokeWidth={2.25} />
+                )}
+                {showLogo ? copy.hideLogo : copy.showLogo}
+              </button>
+            }
           />
         </div>
 
@@ -277,6 +329,8 @@ function ImageUploader({
   shape,
   copy,
   locale,
+  trailing,
+  dimmed = false,
 }: {
   venue: Establishment;
   kind: VenueImageKind;
@@ -288,6 +342,9 @@ function ImageUploader({
   shape: "wide" | "square";
   copy: MenuCopy;
   locale: Locale;
+  trailing?: ReactNode;
+  /** Soften the preview when the asset is hidden from guests. */
+  dimmed?: boolean;
 }) {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -332,7 +389,9 @@ function ImageUploader({
   return (
     <div className="flex items-start gap-3.5">
       <div
-        className={`relative shrink-0 overflow-hidden border border-border-strong bg-surface ${frame}`}
+        className={`relative shrink-0 overflow-hidden border border-border-strong bg-surface ${frame} ${
+          dimmed ? "opacity-40" : ""
+        }`}
       >
         {displayUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -375,6 +434,8 @@ function ImageUploader({
               {copy.removeImage}
             </button>
           ) : null}
+
+          {trailing}
         </div>
 
         {error ? (

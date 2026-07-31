@@ -40,6 +40,8 @@ export type PublicMenu = {
   // logo is a small badge centred over it.
   cover_url?: string | null;
   logo_url?: string | null;
+  /** false hides the logo on the cover; omit/true shows it (letter fallback if no file). */
+  show_logo?: boolean;
   wifi_ssid?: string | null;
   wifi_password?: string | null;
   instagram_url?: string | null;

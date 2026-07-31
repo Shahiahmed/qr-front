@@ -239,6 +239,8 @@ export type Establishment = {
   /** Owner-uploaded imagery; null until set. Absolute URLs. */
   cover_url: string | null;
   logo_url: string | null;
+  /** When false, the guest cover hides the logo (file stays). Default true. */
+  show_logo: boolean;
   created_at: string | null;
   /** When the public menu stops working (ISO), or null for no limit. */
   access_ends_at: string | null;
@@ -266,6 +268,7 @@ export type EstablishmentPayload = {
   tiktok_url?: string | null;
   theme?: string;
   layout?: string;
+  show_logo?: boolean;
 };
 
 export async function listEstablishments(): Promise<Establishment[]> {

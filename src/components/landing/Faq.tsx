@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { SectionHeading } from "@/components/landing/ui/SectionHeading";
 import { Reveal } from "@/components/landing/ui/Reveal";
@@ -7,6 +8,8 @@ import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
 
 export function Faq() {
   const copy = useLandingCopy();
+  // Accordion: only one answer open at a time.
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   // FAQPage structured data: tells Google and AI search engines (Perplexity,
   // AI Overviews, ChatGPT Search) these are Q&A pairs, so they can quote the
@@ -49,14 +52,22 @@ export function Faq() {
 
         <Reveal>
           <div className="flex flex-col gap-3">
-            {copy.faqItems.map((item) => (
-              // Native <details>: accessible and works without JS, so it stays
-              // correct on the force-static landing.
+            {copy.faqItems.map((item, index) => (
               <details
                 key={item.q}
+                open={openIndex === index}
                 className="group rounded-2xl border border-border bg-white px-5 transition-colors open:border-border-strong"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[16px] font-bold [&::-webkit-details-marker]:hidden">
+                <summary
+                  className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[16px] font-bold [&::-webkit-details-marker]:hidden"
+                  onClick={(event) => {
+                    // Own the toggle so opening one closes the rest.
+                    event.preventDefault();
+                    setOpenIndex((current) =>
+                      current === index ? null : index,
+                    );
+                  }}
+                >
                   {item.q}
                   <ChevronDown
                     size={18}

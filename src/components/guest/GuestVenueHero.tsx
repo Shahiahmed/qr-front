@@ -4,14 +4,16 @@ import { useState, type ReactNode } from "react";
 import { Check, KeyRound, MapPin, Phone, Wifi } from "lucide-react";
 import type { GuestCopy } from "@/content/guest";
 import { DEFAULT_VENUE_COVER_URL } from "@/lib/defaultCover";
+import { initialLogoDataUrl } from "@/lib/initialLogo";
 import type { PublicMenu } from "@/lib/guestMenuTypes";
 
 /**
  * Venue cover with contact chips overlaid on the photo.
  *
  * Chips sit on a bottom gradient so white pills stay readable. A brand-new
- * venue has no upload yet — we fall back to the stock demo cover so the
- * header never looks empty. Empty contact fields are skipped.
+ * venue has no uploads yet — stock cover + letter logo (first letter of the
+ * name, same as `/m/demo`) so the header never looks empty. `show_logo: false`
+ * hides the badge without deleting the file. Empty contact fields are skipped.
  */
 export function GuestVenueCover({
   menu,
@@ -21,7 +23,11 @@ export function GuestVenueCover({
   copy: GuestCopy;
 }) {
   const cover = menu.cover_url?.trim() || DEFAULT_VENUE_COVER_URL;
-  const logo = menu.logo_url?.trim() || null;
+  // Default true: older cached payloads and the static demo omit the flag.
+  const showLogo = menu.show_logo !== false;
+  const logo = showLogo
+    ? menu.logo_url?.trim() || initialLogoDataUrl(menu.name)
+    : null;
   const chips = <VenueChips menu={menu} copy={copy} />;
 
   return (
@@ -37,7 +43,6 @@ export function GuestVenueCover({
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black/65 via-black/25 to-transparent"
       />
 
-      {/* Logo centred over the cover, clear of the bottom chips. */}
       {logo ? (
         <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[52px] grid place-items-center px-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}

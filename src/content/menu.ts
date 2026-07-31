@@ -74,6 +74,8 @@ export type MenuCopy = {
   coverHint: string;
   logoLabel: string;
   logoHint: string;
+  showLogo: string;
+  hideLogo: string;
   uploadImage: string;
   changeImage: string;
   removeImage: string;
@@ -174,7 +176,10 @@ const RU: MenuCopy = {
   coverHint:
     "По умолчанию — фото из демо. Замените своим: JPG или PNG, до 8 МБ.",
   logoLabel: "Логотип",
-  logoHint: "Показывается в центре обложки. PNG с прозрачным фоном — лучше всего.",
+  logoHint:
+    "По умолчанию — первая буква названия. Замените своим PNG (лучше с прозрачным фоном).",
+  showLogo: "Показать на меню",
+  hideLogo: "Скрыть с меню",
   uploadImage: "Загрузить",
   changeImage: "Заменить",
   removeImage: "Удалить",
@@ -273,7 +278,10 @@ const KZ: MenuCopy = {
   coverHint:
     "Әдепкі — демо фотосы. Өзіңіздікімен ауыстырыңыз: JPG немесе PNG, 8 МБ дейін.",
   logoLabel: "Логотип",
-  logoHint: "Мұқабаның ортасында көрсетіледі. Мөлдір фоны бар PNG — ең жақсысы.",
+  logoHint:
+    "Әдепкі — атаудың бірінші әрпі. Өзіңіздікімен ауыстырыңыз (мөлдір PNG жақсырақ).",
+  showLogo: "Мәзірде көрсету",
+  hideLogo: "Мәзірден жасыру",
   uploadImage: "Жүктеу",
   changeImage: "Ауыстыру",
   removeImage: "Жою",
