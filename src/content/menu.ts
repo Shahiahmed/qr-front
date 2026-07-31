@@ -171,7 +171,8 @@ const RU: MenuCopy = {
 
   imagesLabel: "Фото заведения",
   coverLabel: "Обложка",
-  coverHint: "Широкое фото над меню. JPG или PNG, до 8 МБ.",
+  coverHint:
+    "По умолчанию — фото из демо. Замените своим: JPG или PNG, до 8 МБ.",
   logoLabel: "Логотип",
   logoHint: "Показывается в центре обложки. PNG с прозрачным фоном — лучше всего.",
   uploadImage: "Загрузить",
@@ -269,7 +270,8 @@ const KZ: MenuCopy = {
 
   imagesLabel: "Мекеме фотосы",
   coverLabel: "Мұқаба",
-  coverHint: "Мәзір үстіндегі кең фото. JPG немесе PNG, 8 МБ дейін.",
+  coverHint:
+    "Әдепкі — демо фотосы. Өзіңіздікімен ауыстырыңыз: JPG немесе PNG, 8 МБ дейін.",
   logoLabel: "Логотип",
   logoHint: "Мұқабаның ортасында көрсетіледі. Мөлдір фоны бар PNG — ең жақсысы.",
   uploadImage: "Жүктеу",

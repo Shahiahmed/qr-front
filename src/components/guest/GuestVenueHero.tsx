@@ -3,14 +3,15 @@
 import { useState, type ReactNode } from "react";
 import { Check, KeyRound, MapPin, Phone, Wifi } from "lucide-react";
 import type { GuestCopy } from "@/content/guest";
+import { DEFAULT_VENUE_COVER_URL } from "@/lib/defaultCover";
 import type { PublicMenu } from "@/lib/guestMenuTypes";
 
 /**
  * Venue cover with contact chips overlaid on the photo.
  *
- * Chips sit on a bottom gradient so white pills stay readable. Without a cover
- * the same chips render as a plain strip (real venues may have address/phone
- * before a cover upload exists). Empty fields are skipped.
+ * Chips sit on a bottom gradient so white pills stay readable. A brand-new
+ * venue has no upload yet — we fall back to the stock demo cover so the
+ * header never looks empty. Empty contact fields are skipped.
  */
 export function GuestVenueCover({
   menu,
@@ -19,29 +20,9 @@ export function GuestVenueCover({
   menu: PublicMenu;
   copy: GuestCopy;
 }) {
-  const cover = menu.cover_url?.trim() || null;
+  const cover = menu.cover_url?.trim() || DEFAULT_VENUE_COVER_URL;
   const logo = menu.logo_url?.trim() || null;
   const chips = <VenueChips menu={menu} copy={copy} />;
-
-  if (!cover) {
-    // Nothing to show at all: no cover, no logo, no contact info.
-    if (!logo && !hasVenueInfo(menu)) return null;
-
-    // A plain strip: logo as a small badge beside the chips.
-    return (
-      <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-3">
-        {logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={logo}
-            alt={menu.name}
-            className="h-11 w-11 shrink-0 rounded-full border border-border object-cover"
-          />
-        ) : null}
-        {hasVenueInfo(menu) ? <div className="min-w-0 flex-1">{chips}</div> : null}
-      </div>
-    );
-  }
 
   return (
     <div className="relative aspect-[2/1] max-h-[260px] w-full overflow-hidden bg-surface-2 sm:aspect-[21/9] sm:max-h-[300px]">

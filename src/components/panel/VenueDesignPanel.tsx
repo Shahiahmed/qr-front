@@ -21,6 +21,7 @@ import {
   type Establishment,
   type VenueImageKind,
 } from "@/lib/api";
+import { DEFAULT_VENUE_COVER_URL } from "@/lib/defaultCover";
 import { VENUES_QUERY_KEY } from "@/lib/venues";
 
 export type VenueDesignSection = "look" | "contacts";
@@ -125,6 +126,7 @@ export function VenueDesignPanel({
             venue={venue}
             kind="cover"
             currentUrl={venue.cover_url}
+            previewFallback={DEFAULT_VENUE_COVER_URL}
             label={copy.coverLabel}
             hint={copy.coverHint}
             shape="wide"
@@ -269,6 +271,7 @@ function ImageUploader({
   venue,
   kind,
   currentUrl,
+  previewFallback,
   label,
   hint,
   shape,
@@ -278,6 +281,8 @@ function ImageUploader({
   venue: Establishment;
   kind: VenueImageKind;
   currentUrl: string | null;
+  /** Shown in the thumb when nothing uploaded yet (stock cover for guests). */
+  previewFallback?: string;
   label: string;
   hint: string;
   shape: "wide" | "square";
@@ -304,6 +309,7 @@ function ImageUploader({
   });
 
   const busy = upload.isPending || remove.isPending;
+  const displayUrl = currentUrl ?? previewFallback ?? null;
 
   const onFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -328,9 +334,9 @@ function ImageUploader({
       <div
         className={`relative shrink-0 overflow-hidden border border-border-strong bg-surface ${frame}`}
       >
-        {currentUrl ? (
+        {displayUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={currentUrl} alt={label} className="h-full w-full object-cover" />
+          <img src={displayUrl} alt={label} className="h-full w-full object-cover" />
         ) : (
           <span className="grid h-full w-full place-items-center text-muted-soft">
             <ImageIcon size={20} />
