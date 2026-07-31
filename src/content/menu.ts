@@ -3,6 +3,7 @@ import type { Locale } from "@/content/landing";
 export type MenuCopy = {
   title: string;
   backToVenues: string;
+  venueNotFound: string;
 
   empty: string;
   emptyHint: string;
@@ -105,6 +106,7 @@ export type MenuCopy = {
 const RU: MenuCopy = {
   title: "Меню",
   backToVenues: "Заведения",
+  venueNotFound: "Заведение не найдено",
 
   empty: "В меню пока пусто.",
   emptyHint: "Заполните примером — три раздела с блюдами, потом правите под себя.",
@@ -202,6 +204,7 @@ const RU: MenuCopy = {
 const KZ: MenuCopy = {
   title: "Мәзір",
   backToVenues: "Мекемелер",
+  venueNotFound: "Мекеме табылмады",
 
   empty: "Мәзір әзірге бос.",
   emptyHint: "Үлгімен толтырыңыз — үш бөлім тағамдармен, кейін өзіңізге бейімдеңіз.",

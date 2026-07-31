@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Download, ImagePlus, RotateCcw, Trash2 } from "lucide-react";
+import { Copy, Download, ImagePlus, QrCode, RotateCcw, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/landing/ui/Button";
@@ -188,9 +188,18 @@ export function VenueQr({
 
   if (!venue) {
     return (
-      <p className="rounded-[20px] border border-border bg-white p-6 text-muted">
-        404
-      </p>
+      <div className="flex flex-col items-center gap-4 rounded-[20px] border border-border bg-white px-6 py-14 text-center">
+        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+          <QrCode size={30} strokeWidth={1.75} />
+        </span>
+        <p className="text-[17px] font-bold">{menuCopy.venueNotFound}</p>
+        <Link
+          href={`/${locale}/dashboard`}
+          className="text-[15px] font-semibold text-accent transition-colors hover:text-accent-hover"
+        >
+          ← {menuCopy.backToVenues}
+        </Link>
+      </div>
     );
   }
 
