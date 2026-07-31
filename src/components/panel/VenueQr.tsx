@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Download, ImagePlus, Printer, RotateCcw, Trash2 } from "lucide-react";
+import { Copy, Download, ImagePlus, RotateCcw, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/landing/ui/Button";
@@ -198,17 +198,6 @@ export function VenueQr({
     await qrRef.current?.download({ name: `qmenu-${venue!.slug}`, extension: "png" });
   }
 
-  async function downloadCodeSvg() {
-    // A throwaway SVG-typed instance: the on-screen one draws to canvas, and a
-    // canvas cannot export vector.
-    const { default: QRCodeStyling } = await import("qr-code-styling");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const svgQr = new QRCodeStyling({ ...(options as any), type: "svg" }) as {
-      download: (o: { name: string; extension: string }) => Promise<void>;
-    };
-    await svgQr.download({ name: `qmenu-${venue!.slug}`, extension: "svg" });
-  }
-
   // Composes the finished table tent — heading, code, name, caption, url — onto
   // one canvas and downloads it as a shareable PNG (print-shop ready).
   async function downloadTent() {
@@ -369,10 +358,8 @@ export function VenueQr({
   }
 
   return (
-    <>
-      {/* On screen: the constructor. Hidden when printing. */}
-      <div className="print:hidden">
-        <div className="mb-5 flex flex-wrap items-center gap-3">
+    <div>
+      <div className="mb-5 flex flex-wrap items-center gap-3">
           <Link
             href={`/${locale}/dashboard`}
             className="text-[15px] font-semibold text-muted transition-colors hover:text-foreground"
@@ -455,27 +442,11 @@ export function VenueQr({
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => window.print()}
-                className="py-2.5 text-[15px]"
-              >
-                <Printer size={16} />
-                {copy.qrPrint}
-              </Button>
-              <Button
-                variant="secondary"
                 onClick={downloadCodePng}
                 className="py-2.5 text-[15px]"
               >
                 <Download size={16} />
                 {copy.qrDownloadPng}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={downloadCodeSvg}
-                className="py-2.5 text-[15px]"
-              >
-                <Download size={16} />
-                {copy.qrDownloadSvg}
               </Button>
             </div>
 
@@ -643,31 +614,7 @@ export function VenueQr({
             </section>
           </div>
         </div>
-      </div>
-
-      {/*
-        The table tent. Off-screen normally, and the only thing on the page
-        when printing — see the `print:` rules in globals.css.
-      */}
-      <div className="hidden print:block">
-        <div className="mx-auto flex max-w-[420px] flex-col items-center gap-6 py-10 text-center">
-          {heading.trim() ? (
-            <p className="text-[34px] font-extrabold tracking-[-0.03em]">{heading}</p>
-          ) : null}
-
-          {pngUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={pngUrl} alt="" className="w-[300px]" />
-          ) : null}
-
-          {showName && venue.name ? (
-            <p className="text-[19px] font-bold">{venue.name}</p>
-          ) : null}
-          {caption.trim() ? <p className="text-[15px]">{caption}</p> : null}
-          {showUrl ? <p className="text-sm">{menuUrl}</p> : null}
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -721,6 +668,8 @@ function StyleTile({
   onClick,
   children,
 }: {
+  // The name is a hover/`aria` hint only — the schematic already shows the
+  // shape, so the tiles read cleaner without a text caption under each.
   label: string;
   active: boolean;
   onClick: () => void;
@@ -730,14 +679,15 @@ function StyleTile({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-2.5 text-[12px] font-semibold transition-colors ${
+      title={label}
+      aria-label={label}
+      className={`flex items-center justify-center rounded-xl border px-2 py-3 transition-colors ${
         active
-          ? "border-foreground bg-surface-2"
-          : "border-border text-muted hover:border-border-strong"
+          ? "border-foreground bg-surface-2 text-foreground"
+          : "border-border text-muted hover:border-border-strong hover:text-foreground"
       }`}
     >
-      <span className="text-foreground">{children}</span>
-      {label}
+      {children}
     </button>
   );
 }
