@@ -37,7 +37,7 @@
   --color-border-strong: var(--border-strong);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
-  --font-sans: var(--font-onest);
+  --font-sans: var(--font-inter);
 }
 
 body {

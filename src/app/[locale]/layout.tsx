@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Onest } from "next/font/google";
 import { notFound } from "next/navigation";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { landingByLocale } from "@/content/landing";
@@ -9,14 +8,9 @@ import {
   LOCALES,
   isLocale,
 } from "@/content/locales";
+import { siteFont } from "@/lib/fonts";
 import { canonicalBase, getSeo, seoFieldsFor } from "@/lib/seo";
 import "../globals.css";
-
-const onest = Onest({
-  variable: "--font-onest",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -87,7 +81,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={HTML_LANG[locale]}
-      className={`${onest.variable} h-full antialiased`}
+      className={`${siteFont.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
         <QueryProvider>{children}</QueryProvider>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Onest } from "next/font/google";
 import Link from "next/link";
+import { siteFont } from "@/lib/fonts";
 import "./globals.css";
 
 /**
@@ -14,19 +14,13 @@ import "./globals.css";
  *
  * The visitor's language is unknown here, so both are shown (RU lead, KZ below).
  */
-const onest = Onest({
-  variable: "--font-onest",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
 export const metadata: Metadata = {
   title: "Страница не найдена — Qmenu",
 };
 
 export default function GlobalNotFound() {
   return (
-    <html lang="ru" className={`${onest.variable} h-full antialiased`}>
+    <html lang="ru" className={`${siteFont.variable} h-full antialiased`}>
       <body className="font-sans">
         <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-surface px-6 py-16 text-center">
           {/* Soft brand glow behind the card. */}
