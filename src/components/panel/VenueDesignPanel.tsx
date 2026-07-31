@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import type { Locale } from "@/content/landing";
 import { menuByLocale, type MenuCopy } from "@/content/menu";
+import { MENU_LAYOUTS, type LayoutKey } from "@/content/layouts";
 import { MENU_THEMES } from "@/content/themes";
 import {
   deleteVenueImage,
@@ -43,6 +44,9 @@ export function VenueDesignPanel({
   const themeLang = locale === "kz" ? "kk" : "ru";
 
   const [theme, setTheme] = useState(venue.theme || "classic");
+  const [layout, setLayout] = useState<LayoutKey>(
+    (venue.layout as LayoutKey) || "classic",
+  );
   const [fields, setFields] = useState({
     address: venue.address ?? "",
     phone: venue.phone ?? "",
@@ -56,6 +60,7 @@ export function VenueDesignPanel({
   // Keep local form in sync when the venue list refreshes after an image upload.
   useEffect(() => {
     setTheme(venue.theme || "classic");
+    setLayout((venue.layout as LayoutKey) || "classic");
     setFields({
       address: venue.address ?? "",
       phone: venue.phone ?? "",
@@ -72,7 +77,7 @@ export function VenueDesignPanel({
 
   const save = useMutation({
     mutationFn: () =>
-      updateEstablishment(venue.id, { theme, ...fields }, locale),
+      updateEstablishment(venue.id, { theme, layout, ...fields }, locale),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY });
     },
@@ -136,6 +141,45 @@ export function VenueDesignPanel({
             copy={copy}
             locale={locale}
           />
+        </div>
+
+        <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.layoutLabel}</p>
+        <div className="mb-6 grid grid-cols-3 gap-2.5">
+          {MENU_LAYOUTS.map((preset) => {
+            const selected = layout === preset.key;
+            return (
+              <button
+                key={preset.key}
+                type="button"
+                onClick={() => setLayout(preset.key)}
+                aria-pressed={selected}
+                className={`flex flex-col gap-2 rounded-2xl border p-2.5 text-left transition-colors ${
+                  selected
+                    ? "border-foreground bg-surface"
+                    : "border-border-strong hover:bg-surface"
+                }`}
+              >
+                <LayoutPreview layout={preset.key} />
+                <span className="flex items-start gap-1">
+                  <span className="min-w-0">
+                    <span className="block text-[13px] font-bold leading-tight">
+                      {themeLang === "kk" ? preset.labelKk : preset.labelRu}
+                    </span>
+                    <span className="mt-0.5 block text-[11px] leading-tight text-muted-soft">
+                      {themeLang === "kk" ? preset.descKk : preset.descRu}
+                    </span>
+                  </span>
+                  {selected ? (
+                    <Check
+                      size={15}
+                      strokeWidth={3}
+                      className="ml-auto shrink-0 text-accent-hover"
+                    />
+                  ) : null}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.themeLabel}</p>
@@ -339,6 +383,55 @@ function ImageUploader({
         onChange={onFile}
         className="hidden"
       />
+    </div>
+  );
+}
+
+/**
+ * Tiny schematic of a menu layout — bars stand in for photos and text so the
+ * owner recognises the arrangement at a glance. Deliberately colour-neutral:
+ * colour is the separate theme picker; this only shows structure.
+ */
+function LayoutPreview({ layout }: { layout: LayoutKey }) {
+  if (layout === "grid") {
+    return (
+      <div className="grid h-16 grid-cols-2 grid-rows-2 gap-1.5 rounded-lg border border-border bg-white p-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex flex-col gap-1">
+            <div className="flex-1 rounded bg-border-strong" />
+            <div className="h-1 w-3/4 rounded bg-border" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (layout === "compact") {
+    return (
+      <div className="flex h-16 flex-col justify-center gap-2 rounded-lg border border-border bg-white px-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div className="h-2.5 w-2.5 shrink-0 rounded bg-border-strong" />
+            <div className="h-1.5 flex-1 rounded bg-border" />
+            <div className="h-1.5 w-3 shrink-0 rounded bg-border-strong" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // classic
+  return (
+    <div className="flex h-16 flex-col gap-1.5 rounded-lg border border-border bg-white p-2">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <div key={i} className="flex flex-1 items-center gap-1.5">
+          <div className="h-full w-1/4 shrink-0 rounded bg-border-strong" />
+          <div className="flex flex-1 flex-col gap-1">
+            <div className="h-1.5 w-3/4 rounded bg-border-strong" />
+            <div className="h-1.5 w-1/2 rounded bg-border" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

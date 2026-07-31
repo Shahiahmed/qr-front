@@ -234,6 +234,8 @@ export type Establishment = {
   tiktok_url: string | null;
   /** Colour preset key — see content/themes.ts. */
   theme: string;
+  /** Menu layout preset key — see content/layouts.ts. */
+  layout: string;
   /** Owner-uploaded imagery; null until set. Absolute URLs. */
   cover_url: string | null;
   logo_url: string | null;
@@ -263,6 +265,7 @@ export type EstablishmentPayload = {
   facebook_url?: string | null;
   tiktok_url?: string | null;
   theme?: string;
+  layout?: string;
 };
 
 export async function listEstablishments(): Promise<Establishment[]> {

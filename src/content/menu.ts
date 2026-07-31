@@ -54,6 +54,7 @@ export type MenuCopy = {
   design: string;
   designSub: string;
   themeLabel: string;
+  layoutLabel: string;
   headerFieldsLabel: string;
   fAddress: string;
   fPhone: string;
@@ -153,6 +154,7 @@ const RU: MenuCopy = {
   design: "Оформление",
   designSub: "Как меню выглядит у гостя.",
   themeLabel: "Цвет меню",
+  layoutLabel: "Дизайн меню",
   headerFieldsLabel: "Контакты и Wi‑Fi",
   fAddress: "Адрес",
   fPhone: "Телефон",
@@ -249,6 +251,7 @@ const KZ: MenuCopy = {
   design: "Безендіру",
   designSub: "Қонақ мәзірді қалай көреді.",
   themeLabel: "Мәзір түсі",
+  layoutLabel: "Мәзір дизайны",
   headerFieldsLabel: "Байланыс және Wi‑Fi",
   fAddress: "Мекенжай",
   fPhone: "Телефон",

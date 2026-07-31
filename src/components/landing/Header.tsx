@@ -144,12 +144,28 @@ export function Header() {
         </div>
       </div>
 
-      {open ? (
-        <nav
-          id="mobile-nav"
-          aria-label={copy.navMenuOpen}
-          className="max-h-[calc(100dvh-68px)] overflow-y-auto border-t border-border bg-white px-4 pb-6 pt-3 sm:px-6 xl:hidden"
-        >
+      {/*
+        Absolutely positioned under the header row so opening/closing the panel
+        overlays the page instead of growing the sticky header and shoving the
+        content below it. The sticky header is the positioning context; the
+        shadow lifts the panel off the content it covers. It stays mounted and
+        animates opacity + slide, so both open AND close are smooth; when closed
+        it is click-through (`pointer-events-none`) and hidden from screen
+        readers (`aria-hidden`). `visibility` is left out of the closed state on
+        purpose: it is not part of the `transition` group, so toggling it would
+        cut the fade-out short. `motion-reduce` drops the animation for users
+        who ask for less motion.
+      */}
+      <nav
+        id="mobile-nav"
+        aria-label={copy.navMenuOpen}
+        aria-hidden={!open}
+        className={`absolute inset-x-0 top-full max-h-[calc(100dvh-68px)] origin-top overflow-y-auto border-t border-border bg-white px-4 pb-6 pt-3 shadow-[0_18px_30px_-16px_rgba(20,18,16,0.28)] transition duration-200 ease-out motion-reduce:transition-none sm:px-6 xl:hidden ${
+          open
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-2 opacity-0"
+        }`}
+      >
           <ul className="flex flex-col">
             {navLinks.map((link) => (
               <li key={link.href}>
@@ -196,7 +212,6 @@ export function Header() {
             )}
           </div>
         </nav>
-      ) : null}
     </header>
   );
 }

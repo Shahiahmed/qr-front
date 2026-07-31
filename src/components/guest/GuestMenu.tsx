@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Minus, Plus, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
+import { getLayout, type LayoutKey } from "@/content/layouts";
 import { themeVars } from "@/content/themes";
 import {
   clearGuestOrder,
@@ -36,6 +37,7 @@ export function GuestMenu({
     menu.default_locale === "kk" ? "kk" : "ru",
   );
   const copy = guestByLocale[locale];
+  const layout = getLayout(menu.layout);
 
   const sections = menu.categories.filter((category) => category.dishes.length > 0);
   const [active, setActive] = useState<number | null>(sections[0]?.id ?? null);
@@ -357,93 +359,17 @@ export function GuestMenu({
               {pick(locale, category.name_ru, category.name_kk)}
             </h2>
 
-            <ul className="flex flex-col gap-2.5">
-              {category.dishes.map((dish) => {
-                const description = pick(
-                  locale,
-                  dish.description_ru,
-                  dish.description_kk,
-                );
-                const name = pick(locale, dish.name_ru, dish.name_kk) ?? "";
-                const qty = cart[dish.id] ?? 0;
-
-                return (
-                  <li
-                    key={dish.id}
-                    className={`overflow-hidden rounded-[18px] border border-border bg-white ${
-                      dish.is_available ? "" : "opacity-55"
-                    }`}
-                  >
-                    <div className="flex gap-3 p-3">
-                      {dish.image_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={dish.image_url}
-                          alt={name}
-                          loading="lazy"
-                          className="h-24 w-24 shrink-0 rounded-[13px] bg-surface-2 object-cover"
-                        />
-                      ) : null}
-
-                      <div className="flex min-w-0 flex-1 flex-col">
-                        <h3 className="text-[16px] font-bold leading-snug">{name}</h3>
-                        {description ? (
-                          <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted-soft">
-                            {description}
-                          </p>
-                        ) : null}
-                        {!dish.is_available ? (
-                          <span className="mt-1.5 inline-block w-fit rounded-md bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted">
-                            {copy.soldOut}
-                          </span>
-                        ) : null}
-
-                        <div className="mt-auto flex items-center justify-between gap-2 pt-2.5">
-                          <span className="whitespace-nowrap text-[16px] font-extrabold text-accent-hover">
-                            {formatPrice(dish.price, menu.currency)}
-                          </span>
-
-                          {ordering && dish.is_available ? (
-                            qty > 0 ? (
-                              <div className="flex items-center gap-1 rounded-full bg-accent p-1 text-white">
-                                <button
-                                  type="button"
-                                  onClick={() => removeOne(dish.id)}
-                                  aria-label={copy.removeAria}
-                                  className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-white/15"
-                                >
-                                  <Minus size={16} strokeWidth={2.5} />
-                                </button>
-                                <span className="min-w-5 text-center text-sm font-extrabold tabular-nums">
-                                  {qty}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => addOne(dish.id)}
-                                  aria-label={copy.addAria}
-                                  className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-white/15"
-                                >
-                                  <Plus size={16} strokeWidth={2.5} />
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => addOne(dish.id)}
-                                className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-3.5 py-1.5 text-[13px] font-bold text-accent-hover transition-colors hover:bg-accent hover:text-white"
-                              >
-                                <Plus size={15} strokeWidth={2.5} />
-                                {copy.add}
-                              </button>
-                            )
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <DishList
+              dishes={category.dishes}
+              layout={layout}
+              locale={locale}
+              currency={menu.currency}
+              ordering={ordering}
+              cart={cart}
+              onAdd={addOne}
+              onRemove={removeOne}
+              copy={copy}
+            />
 
             {category.id === lastSectionId ? (
               <div className="pt-8">
@@ -675,6 +601,259 @@ export function GuestMenu({
         </div>
       ) : null}
     </div>
+  );
+}
+
+type GuestCopy = (typeof guestByLocale)[GuestLocale];
+
+/**
+ * Renders a category's dishes in the venue's chosen layout. Only the wrapper
+ * and card shape change — the data, ordering and theme are identical across
+ * layouts, so switching preset never touches behaviour.
+ */
+function DishList({
+  dishes,
+  layout,
+  locale,
+  currency,
+  ordering,
+  cart,
+  onAdd,
+  onRemove,
+  copy,
+}: {
+  dishes: PublicDish[];
+  layout: LayoutKey;
+  locale: GuestLocale;
+  currency: string;
+  ordering: boolean;
+  cart: Record<number, number>;
+  onAdd: (id: number) => void;
+  onRemove: (id: number) => void;
+  copy: GuestCopy;
+}) {
+  const containerClass =
+    layout === "grid"
+      ? "grid grid-cols-2 gap-2.5"
+      : layout === "compact"
+        ? "flex flex-col divide-y divide-border overflow-hidden rounded-[18px] border border-border bg-white"
+        : "flex flex-col gap-2.5";
+
+  return (
+    <ul className={containerClass}>
+      {dishes.map((dish) => (
+        <DishCard
+          key={dish.id}
+          dish={dish}
+          layout={layout}
+          locale={locale}
+          currency={currency}
+          ordering={ordering}
+          qty={cart[dish.id] ?? 0}
+          onAdd={onAdd}
+          onRemove={onRemove}
+          copy={copy}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function DishCard({
+  dish,
+  layout,
+  locale,
+  currency,
+  ordering,
+  qty,
+  onAdd,
+  onRemove,
+  copy,
+}: {
+  dish: PublicDish;
+  layout: LayoutKey;
+  locale: GuestLocale;
+  currency: string;
+  ordering: boolean;
+  qty: number;
+  onAdd: (id: number) => void;
+  onRemove: (id: number) => void;
+  copy: GuestCopy;
+}) {
+  const name = pick(locale, dish.name_ru, dish.name_kk) ?? "";
+  const description = pick(locale, dish.description_ru, dish.description_kk);
+  const dim = dish.is_available ? "" : "opacity-55";
+
+  const price = (
+    <span className="whitespace-nowrap text-[16px] font-extrabold text-accent-hover">
+      {formatPrice(dish.price, currency)}
+    </span>
+  );
+
+  const soldOut = !dish.is_available ? (
+    <span className="mt-1.5 inline-block w-fit rounded-md bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted">
+      {copy.soldOut}
+    </span>
+  ) : null;
+
+  const controls =
+    ordering && dish.is_available ? (
+      <OrderControls
+        dish={dish}
+        qty={qty}
+        onAdd={onAdd}
+        onRemove={onRemove}
+        copy={copy}
+      />
+    ) : null;
+
+  if (layout === "grid") {
+    // Photo-forward: image on top, details below. Two per row (set on the ul).
+    return (
+      <li
+        className={`flex flex-col overflow-hidden rounded-[18px] border border-border bg-white ${dim}`}
+      >
+        {dish.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={dish.image_url}
+            alt={name}
+            loading="lazy"
+            className="aspect-square w-full bg-surface-2 object-cover"
+          />
+        ) : null}
+        <div className="flex flex-1 flex-col p-3">
+          <h3 className="text-[15px] font-bold leading-snug">{name}</h3>
+          {description ? (
+            <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-muted-soft">
+              {description}
+            </p>
+          ) : null}
+          {soldOut}
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2.5">
+            {price}
+            {controls}
+          </div>
+        </div>
+      </li>
+    );
+  }
+
+  if (layout === "compact") {
+    // Dense text-first row: small thumbnail, price on the right, hairline
+    // dividers (set on the ul) instead of separate cards.
+    return (
+      <li className={`flex items-center gap-3 px-3.5 py-3 ${dim}`}>
+        {dish.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={dish.image_url}
+            alt={name}
+            loading="lazy"
+            className="h-12 w-12 shrink-0 rounded-xl bg-surface-2 object-cover"
+          />
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <h3 className="text-[15px] font-bold leading-snug">{name}</h3>
+          {description ? (
+            <p className="mt-0.5 line-clamp-1 text-[12px] leading-snug text-muted-soft">
+              {description}
+            </p>
+          ) : null}
+          {soldOut}
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          {price}
+          {controls}
+        </div>
+      </li>
+    );
+  }
+
+  // classic — photo-left card, one per row.
+  return (
+    <li
+      className={`overflow-hidden rounded-[18px] border border-border bg-white ${dim}`}
+    >
+      <div className="flex gap-3 p-3">
+        {dish.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={dish.image_url}
+            alt={name}
+            loading="lazy"
+            className="h-24 w-24 shrink-0 rounded-[13px] bg-surface-2 object-cover"
+          />
+        ) : null}
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <h3 className="text-[16px] font-bold leading-snug">{name}</h3>
+          {description ? (
+            <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted-soft">
+              {description}
+            </p>
+          ) : null}
+          {soldOut}
+
+          <div className="mt-auto flex items-center justify-between gap-2 pt-2.5">
+            {price}
+            {controls}
+          </div>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+/** Quantity stepper / add button — identical in every layout. */
+function OrderControls({
+  dish,
+  qty,
+  onAdd,
+  onRemove,
+  copy,
+}: {
+  dish: PublicDish;
+  qty: number;
+  onAdd: (id: number) => void;
+  onRemove: (id: number) => void;
+  copy: GuestCopy;
+}) {
+  if (qty > 0) {
+    return (
+      <div className="flex items-center gap-1 rounded-full bg-accent p-1 text-white">
+        <button
+          type="button"
+          onClick={() => onRemove(dish.id)}
+          aria-label={copy.removeAria}
+          className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-white/15"
+        >
+          <Minus size={16} strokeWidth={2.5} />
+        </button>
+        <span className="min-w-5 text-center text-sm font-extrabold tabular-nums">
+          {qty}
+        </span>
+        <button
+          type="button"
+          onClick={() => onAdd(dish.id)}
+          aria-label={copy.addAria}
+          className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-white/15"
+        >
+          <Plus size={16} strokeWidth={2.5} />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onAdd(dish.id)}
+      className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-3.5 py-1.5 text-[13px] font-bold text-accent-hover transition-colors hover:bg-accent hover:text-white"
+    >
+      <Plus size={15} strokeWidth={2.5} />
+      {copy.add}
+    </button>
   );
 }
 
