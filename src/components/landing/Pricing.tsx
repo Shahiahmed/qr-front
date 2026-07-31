@@ -37,7 +37,7 @@ export function Pricing() {
     // like the page changed its mind; a placeholder doesn't.
     cards = [0, 1, 2].map((i) => <PlanSkeleton key={i} />);
   } else if (plans.length > 0) {
-    cards = plans.map((plan, i) => (
+    cards = withFeaturedInCenter(plans).map((plan, i) => (
       <Reveal key={plan.id} delay={i * 90}>
         <PlanCard
           plan={toCardPlan(plan, locale, copy)}
@@ -50,15 +50,16 @@ export function Pricing() {
   } else {
     // Loaded but empty — the API is unreachable or no plans exist yet. Fall back
     // to the hand-written copy so the marketing section is never blank.
+    // Featured (year) stays in the middle, same as the live API layout.
     cards = [
       <Reveal key="free">
         <PlanCard plan={copy.planFree} href={href} />
       </Reveal>,
-      <Reveal key="std" delay={90}>
-        <PlanCard plan={copy.planStd} href={href} />
-      </Reveal>,
-      <Reveal key="prem" delay={180}>
+      <Reveal key="prem" delay={90}>
         <PlanCard plan={copy.planPrem} popular={copy.popular} featured href={href} />
+      </Reveal>,
+      <Reveal key="std" delay={180}>
+        <PlanCard plan={copy.planStd} href={href} />
       </Reveal>,
     ];
   }
@@ -84,6 +85,21 @@ export function Pricing() {
 }
 
 type Plan = LandingCopy["planFree"];
+
+/**
+ * Marketing grid: the featured plan must sit in the centre column so the
+ * "popular" card reads as the hero of the row, not as an afterthought on the right.
+ */
+function withFeaturedInCenter(plans: ApiPlan[]): ApiPlan[] {
+  const featuredIndex = plans.findIndex((plan) => plan.is_featured);
+  if (featuredIndex < 0 || plans.length < 3) return plans;
+
+  const ordered = [...plans];
+  const [featured] = ordered.splice(featuredIndex, 1);
+  const center = Math.floor(ordered.length / 2);
+  ordered.splice(center, 0, featured);
+  return ordered;
+}
 
 /** «/ мес» · «/ жыл» etc. — the suffix shown next to a recurring price. */
 function periodLabel(period: ApiPlan["period"], locale: string): string {
