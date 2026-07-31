@@ -12,12 +12,10 @@ import {
   Palette,
   Pencil,
   Plus,
-  QrCode,
   Sparkles,
   Trash2,
   UtensilsCrossed,
 } from "lucide-react";
-import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import { CategoryDialog } from "@/components/panel/CategoryDialog";
@@ -233,14 +231,6 @@ export function MenuEditor({
               <ExternalLink size={14} className="text-accent-hover" />
             </a>
           ) : null}
-
-          <Link
-            href={`/${locale}/dashboard/venues/${establishmentId}/qr`}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-1.5 text-[13px] font-bold transition-colors hover:border-foreground"
-          >
-            <QrCode size={14} className="text-accent-hover" />
-            {copy.openQr}
-          </Link>
         </div>
       </div>
 

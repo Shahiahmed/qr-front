@@ -1,29 +1,38 @@
 "use client";
 
-import { Copy, Download, Printer } from "lucide-react";
+import { Copy, Download, ImagePlus, Printer, RotateCcw, Trash2 } from "lucide-react";
 import Link from "next/link";
-import QRCode from "qrcode";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
 import { menuByLocale } from "@/content/menu";
+import {
+  DEFAULT_QR_STYLE,
+  optionLabel,
+  QR_COLOR_PRESETS,
+  QR_CORNER_STYLES,
+  QR_DOT_STYLES,
+  type QrCornerStyle,
+  type QrDotStyle,
+} from "@/content/qr";
 import { useVenues } from "@/lib/venues";
 
-/**
- * Options shared by every rendering, so the downloaded file and the printed
- * tent carry the same code.
- *
- * Error correction `M` recovers ~15% of a damaged code — the right trade for
- * something that will sit on a restaurant table collecting fingerprints and
- * splashes. `H` would survive more but pack the modules tighter, which costs
- * more than it gains at this size.
- */
-const QR_OPTIONS = {
-  errorCorrectionLevel: "M" as const,
-  margin: 1,
-  color: { dark: "#141210", light: "#ffffff" },
-};
+// Rendered large so a downloaded/printed code stays crisp; the preview is
+// scaled down with CSS. Logo pushes error correction to H — the extra
+// redundancy is what lets the code survive a picture punched into its middle.
+const CANVAS_SIZE = 1000;
+
+type LogoKind = "none" | "venue" | "custom";
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 export function VenueQr({
   locale,
@@ -38,9 +47,28 @@ export function VenueQr({
 
   const venue = venues?.find((item) => item.id === establishmentId);
 
-  const [svg, setSvg] = useState<string | null>(null);
-  const [pngUrl, setPngUrl] = useState<string | null>(null);
+  const [dotStyle, setDotStyle] = useState<QrDotStyle>(DEFAULT_QR_STYLE.dotStyle);
+  const [cornerStyle, setCornerStyle] = useState<QrCornerStyle>(
+    DEFAULT_QR_STYLE.cornerStyle,
+  );
+  const [dotColor, setDotColor] = useState(DEFAULT_QR_STYLE.dotColor);
+  const [bgColor, setBgColor] = useState(DEFAULT_QR_STYLE.bgColor);
+  const [logo, setLogo] = useState<string | null>(null);
+  const [logoKind, setLogoKind] = useState<LogoKind>("none");
+  const [logoError, setLogoError] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [tentPng, setTentPng] = useState<string | null>(null);
+
+  const previewRef = useRef<HTMLDivElement>(null);
+  // The QRCodeStyling instance. `unknown`-typed to avoid importing the library's
+  // node-only (jsdom/canvas) type surface into this bundle.
+  const qrRef = useRef<{
+    append: (el: HTMLElement) => void;
+    update: (options: Record<string, unknown>) => void;
+    download: (options: { name: string; extension: string }) => Promise<void>;
+    getRawData: (extension: string) => Promise<Blob | null>;
+  } | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   /*
    * Built from the live origin rather than a constant: on a preview deploy or
@@ -51,25 +79,80 @@ export function VenueQr({
     ? `${typeof window === "undefined" ? "" : window.location.origin}/m/${venue.slug}`
     : "";
 
+  const options = useMemo(
+    () => ({
+      width: CANVAS_SIZE,
+      height: CANVAS_SIZE,
+      type: "canvas" as const,
+      data: menuUrl,
+      margin: 24,
+      qrOptions: { errorCorrectionLevel: logo ? "H" : "M" },
+      // Empty string (not undefined) reliably clears a previously set logo —
+      // the library guards drawing behind `if (options.image)`, and `update`
+      // merges rather than replaces, so `undefined` would keep the old image.
+      image: logo ?? "",
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: 8,
+        imageSize: 0.3,
+        hideBackgroundDots: true,
+        saveAsBlob: true,
+      },
+      dotsOptions: { type: dotStyle, color: dotColor },
+      cornersSquareOptions: { type: cornerStyle, color: dotColor },
+      cornersDotOptions: { type: cornerStyle, color: dotColor },
+      backgroundOptions: { color: bgColor },
+    }),
+    [menuUrl, dotStyle, cornerStyle, dotColor, bgColor, logo],
+  );
+
+  // Create the instance once, then feed it every option change. Dynamic import
+  // keeps the DOM-only library out of the server prerender.
   useEffect(() => {
     if (!menuUrl) return;
+    let alive = true;
 
-    let cancelled = false;
-
-    Promise.all([
-      QRCode.toString(menuUrl, { ...QR_OPTIONS, type: "svg", width: 512 }),
-      // 1024px so a printed code stays crisp at table-tent size.
-      QRCode.toDataURL(menuUrl, { ...QR_OPTIONS, width: 1024 }),
-    ]).then(([svgText, dataUrl]) => {
-      if (cancelled) return;
-      setSvg(svgText);
-      setPngUrl(dataUrl);
+    import("qr-code-styling").then(({ default: QRCodeStyling }) => {
+      if (!alive || !previewRef.current) return;
+      if (!qrRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        qrRef.current = new QRCodeStyling(options as any) as any;
+        previewRef.current.innerHTML = "";
+        qrRef.current!.append(previewRef.current);
+      } else {
+        qrRef.current.update(options);
+      }
     });
 
     return () => {
-      cancelled = true;
+      alive = false;
     };
-  }, [menuUrl]);
+  }, [options, menuUrl]);
+
+  // A rasterised copy for the printed tent: an <img> prints reliably where a
+  // live <canvas> can come out blank.
+  useEffect(() => {
+    if (!menuUrl) return;
+    let alive = true;
+    let url: string | null = null;
+
+    const timer = setTimeout(() => {
+      qrRef.current
+        ?.getRawData("png")
+        .then((blob) => {
+          if (!alive || !blob) return;
+          url = URL.createObjectURL(blob);
+          setTentPng(url);
+        })
+        .catch(() => {});
+    }, 120);
+
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [options, menuUrl]);
 
   if (isPending) {
     return <div className="h-96 animate-pulse rounded-[20px] bg-surface-2" />;
@@ -83,16 +166,63 @@ export function VenueQr({
     );
   }
 
-  function download(href: string, extension: string) {
-    const link = document.createElement("a");
-    link.href = href;
-    link.download = `qmenu-${venue!.slug}.${extension}`;
-    link.click();
+  async function downloadPng() {
+    await qrRef.current?.download({ name: `qmenu-${venue!.slug}`, extension: "png" });
+  }
+
+  async function downloadSvg() {
+    // A throwaway SVG-typed instance: the on-screen one draws to canvas, and a
+    // canvas cannot export vector.
+    const { default: QRCodeStyling } = await import("qr-code-styling");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const svgQr = new QRCodeStyling({ ...(options as any), type: "svg" }) as {
+      download: (o: { name: string; extension: string }) => Promise<void>;
+    };
+    await svgQr.download({ name: `qmenu-${venue!.slug}`, extension: "svg" });
+  }
+
+  async function useVenueLogo() {
+    if (!venue!.logo_url) return;
+    setLogoError(false);
+    try {
+      const response = await fetch(venue!.logo_url, { mode: "cors" });
+      if (!response.ok) throw new Error("fetch failed");
+      const dataUrl = await blobToDataUrl(await response.blob());
+      setLogo(dataUrl);
+      setLogoKind("venue");
+    } catch {
+      // Cross-origin storage can refuse the read — the owner can still upload
+      // the same file by hand.
+      setLogoError(true);
+    }
+  }
+
+  async function onUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setLogoError(false);
+    setLogo(await blobToDataUrl(file));
+    setLogoKind("custom");
+  }
+
+  function clearLogo() {
+    setLogo(null);
+    setLogoKind("none");
+    setLogoError(false);
+  }
+
+  function resetStyle() {
+    setDotStyle(DEFAULT_QR_STYLE.dotStyle);
+    setCornerStyle(DEFAULT_QR_STYLE.cornerStyle);
+    setDotColor(DEFAULT_QR_STYLE.dotColor);
+    setBgColor(DEFAULT_QR_STYLE.bgColor);
+    clearLogo();
   }
 
   return (
     <>
-      {/* On screen: the controls. Hidden when printing. */}
+      {/* On screen: the constructor. Hidden when printing. */}
       <div className="print:hidden">
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <Link
@@ -103,18 +233,8 @@ export function VenueQr({
           </Link>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <div className="rounded-[20px] border border-border bg-white p-5 text-center">
-            {svg ? (
-              <div
-                className="mx-auto aspect-square w-full max-w-[260px] [&>svg]:h-full [&>svg]:w-full"
-                dangerouslySetInnerHTML={{ __html: svg }}
-              />
-            ) : (
-              <div className="mx-auto aspect-square w-full max-w-[260px] animate-pulse rounded-xl bg-surface-2" />
-            )}
-          </div>
-
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+          {/* Preview + link + downloads */}
           <div className="flex flex-col gap-4 rounded-[20px] border border-border bg-white p-5">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-[-0.02em]">
@@ -122,6 +242,11 @@ export function VenueQr({
               </h2>
               <p className="mt-1 text-[15px] text-muted">{copy.qrSubtitle}</p>
             </div>
+
+            <div
+              ref={previewRef}
+              className="mx-auto aspect-square w-full max-w-[260px] overflow-hidden rounded-2xl [&>canvas]:h-full [&>canvas]:w-full"
+            />
 
             <div>
               <p className="mb-1.5 text-sm font-semibold">{copy.qrLinkLabel}</p>
@@ -147,7 +272,7 @@ export function VenueQr({
             <div className="flex flex-wrap gap-2.5">
               <Button
                 variant="secondary"
-                onClick={() => pngUrl && download(pngUrl, "png")}
+                onClick={downloadPng}
                 className="py-2.5 text-[15px]"
               >
                 <Download size={16} />
@@ -156,13 +281,7 @@ export function VenueQr({
 
               <Button
                 variant="secondary"
-                onClick={() => {
-                  if (!svg) return;
-                  const blob = new Blob([svg], { type: "image/svg+xml" });
-                  const url = URL.createObjectURL(blob);
-                  download(url, "svg");
-                  URL.revokeObjectURL(url);
-                }}
+                onClick={downloadSvg}
                 className="py-2.5 text-[15px]"
               >
                 <Download size={16} />
@@ -178,6 +297,157 @@ export function VenueQr({
                 {copy.qrPrint}
               </Button>
             </div>
+
+            <p className="text-[13px] leading-snug text-muted">{copy.qrScanHint}</p>
+          </div>
+
+          {/* Style controls */}
+          <div className="flex flex-col gap-6 rounded-[20px] border border-border bg-white p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-[17px] font-bold tracking-[-0.01em]">
+                {copy.qrCustomize}
+              </h3>
+              <button
+                type="button"
+                onClick={resetStyle}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+              >
+                <RotateCcw size={15} />
+                {copy.qrReset}
+              </button>
+            </div>
+
+            {/* Colours */}
+            <section className="flex flex-col gap-3">
+              <p className="text-sm font-semibold">{copy.qrColorPresets}</p>
+              <div className="flex flex-wrap gap-2">
+                {QR_COLOR_PRESETS.map((preset) => {
+                  const active = preset.dots === dotColor && preset.bg === bgColor;
+                  return (
+                    <button
+                      key={preset.key}
+                      type="button"
+                      onClick={() => {
+                        setDotColor(preset.dots);
+                        setBgColor(preset.bg);
+                      }}
+                      title={locale === "kz" ? preset.kk : preset.ru}
+                      className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
+                        active ? "border-foreground" : "border-border"
+                      }`}
+                      style={{ background: preset.dots }}
+                      aria-label={locale === "kz" ? preset.kk : preset.ru}
+                    />
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <ColorField
+                  label={copy.qrColorDots}
+                  value={dotColor}
+                  onChange={setDotColor}
+                />
+                <ColorField
+                  label={copy.qrColorBg}
+                  value={bgColor}
+                  onChange={setBgColor}
+                />
+              </div>
+            </section>
+
+            {/* Dot shape */}
+            <section className="flex flex-col gap-3">
+              <p className="text-sm font-semibold">{copy.qrStyleDots}</p>
+              <div className="grid grid-cols-2 gap-2 xs:grid-cols-3 sm:grid-cols-5">
+                {QR_DOT_STYLES.map((style) => (
+                  <StyleTile
+                    key={style.key}
+                    label={optionLabel(QR_DOT_STYLES, style.key, locale)}
+                    active={dotStyle === style.key}
+                    onClick={() => setDotStyle(style.key)}
+                  >
+                    <DotPreview style={style.key} />
+                  </StyleTile>
+                ))}
+              </div>
+            </section>
+
+            {/* Corner shape */}
+            <section className="flex flex-col gap-3">
+              <p className="text-sm font-semibold">{copy.qrStyleCorners}</p>
+              <div className="grid grid-cols-3 gap-2">
+                {QR_CORNER_STYLES.map((style) => (
+                  <StyleTile
+                    key={style.key}
+                    label={optionLabel(QR_CORNER_STYLES, style.key, locale)}
+                    active={cornerStyle === style.key}
+                    onClick={() => setCornerStyle(style.key)}
+                  >
+                    <CornerPreview style={style.key} />
+                  </StyleTile>
+                ))}
+              </div>
+            </section>
+
+            {/* Logo */}
+            <section className="flex flex-col gap-3">
+              <p className="text-sm font-semibold">{copy.qrLogo}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <LogoButton active={logoKind === "none"} onClick={clearLogo}>
+                  {copy.qrLogoNone}
+                </LogoButton>
+                {venue.logo_url ? (
+                  <LogoButton active={logoKind === "venue"} onClick={useVenueLogo}>
+                    {copy.qrLogoVenue}
+                  </LogoButton>
+                ) : null}
+                <LogoButton
+                  active={logoKind === "custom"}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <ImagePlus size={15} />
+                  {copy.qrLogoUpload}
+                </LogoButton>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={onUpload}
+                  className="hidden"
+                />
+              </div>
+
+              {logo ? (
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-2">
+                    {/* Local data URL — a plain <img> is right here. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={logo}
+                      alt=""
+                      className="h-full w-full object-contain"
+                    />
+                  </span>
+                  <button
+                    type="button"
+                    onClick={clearLogo}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition-colors hover:text-red-600"
+                  >
+                    <Trash2 size={15} />
+                    {copy.qrLogoRemove}
+                  </button>
+                </div>
+              ) : (
+                <p className="text-[13px] leading-snug text-muted">{copy.qrLogoHint}</p>
+              )}
+
+              {logoError ? (
+                <p className="text-[13px] leading-snug text-red-600">
+                  {copy.qrLogoError}
+                </p>
+              ) : null}
+            </section>
           </div>
         </div>
       </div>
@@ -192,11 +462,9 @@ export function VenueQr({
             {copy.tentHeading}
           </p>
 
-          {svg ? (
-            <div
-              className="w-[300px] [&>svg]:h-full [&>svg]:w-full"
-              dangerouslySetInnerHTML={{ __html: svg }}
-            />
+          {tentPng ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={tentPng} alt="" className="w-[300px]" />
           ) : null}
 
           <div>
@@ -208,5 +476,139 @@ export function VenueQr({
         </div>
       </div>
     </>
+  );
+}
+
+function ColorField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex items-center gap-2 text-sm font-semibold">
+      <input
+        type="color"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-9 w-9 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
+      />
+      {label}
+    </label>
+  );
+}
+
+function StyleTile({
+  label,
+  active,
+  onClick,
+  children,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-2.5 text-[12px] font-semibold transition-colors ${
+        active
+          ? "border-foreground bg-surface-2"
+          : "border-border text-muted hover:border-border-strong"
+      }`}
+    >
+      <span className="text-foreground">{children}</span>
+      {label}
+    </button>
+  );
+}
+
+function LogoButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
+        active
+          ? "border-foreground bg-surface-2 text-foreground"
+          : "border-border text-muted hover:border-border-strong hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Colour-neutral schematics so the owner recognises the shape before applying
+// it. `currentColor` inherits the tile's foreground.
+function DotPreview({ style }: { style: QrDotStyle }) {
+  const radius: Record<QrDotStyle, number> = {
+    square: 0,
+    rounded: 2,
+    "extra-rounded": 3,
+    classy: 1.5,
+    dots: 4,
+  };
+  const cells = [
+    [0, 0],
+    [1, 0],
+    [0, 1],
+    [1, 1],
+  ];
+  return (
+    <svg width="26" height="26" viewBox="0 0 20 20" aria-hidden="true">
+      {cells.map(([x, y]) =>
+        style === "dots" ? (
+          <circle key={`${x}-${y}`} cx={x * 9 + 4.5} cy={y * 9 + 4.5} r="3.5" fill="currentColor" />
+        ) : (
+          <rect
+            key={`${x}-${y}`}
+            x={x * 9 + 1}
+            y={y * 9 + 1}
+            width="7"
+            height="7"
+            rx={radius[style]}
+            fill="currentColor"
+          />
+        ),
+      )}
+    </svg>
+  );
+}
+
+function CornerPreview({ style }: { style: QrCornerStyle }) {
+  if (style === "dot") {
+    return (
+      <svg width="26" height="26" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" strokeWidth="2.5" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="26" height="26" viewBox="0 0 20 20" aria-hidden="true">
+      <rect
+        x="2"
+        y="2"
+        width="16"
+        height="16"
+        rx={style === "extra-rounded" ? 5 : 0}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+      />
+    </svg>
   );
 }

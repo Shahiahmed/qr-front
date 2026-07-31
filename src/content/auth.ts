@@ -121,6 +121,22 @@ export type AuthCopy = {
   qrLinkLabel: string;
   qrCopied: string;
   qrCopy: string;
+  /** QR constructor — style controls. */
+  qrCustomize: string;
+  qrStyleDots: string;
+  qrStyleCorners: string;
+  qrColorDots: string;
+  qrColorBg: string;
+  qrColorPresets: string;
+  qrLogo: string;
+  qrLogoNone: string;
+  qrLogoVenue: string;
+  qrLogoUpload: string;
+  qrLogoRemove: string;
+  qrLogoHint: string;
+  qrLogoError: string;
+  qrReset: string;
+  qrScanHint: string;
   /** Printed on the table tent, above the code. */
   tentHeading: string;
   tentHint: string;
@@ -236,6 +252,21 @@ const RU: AuthCopy = {
   qrLinkLabel: "Ссылка на меню",
   qrCopied: "Скопировано",
   qrCopy: "Копировать",
+  qrCustomize: "Оформление кода",
+  qrStyleDots: "Форма точек",
+  qrStyleCorners: "Углы",
+  qrColorDots: "Цвет кода",
+  qrColorBg: "Фон",
+  qrColorPresets: "Готовые цвета",
+  qrLogo: "Логотип",
+  qrLogoNone: "Без логотипа",
+  qrLogoVenue: "Логотип заведения",
+  qrLogoUpload: "Загрузить свой",
+  qrLogoRemove: "Убрать",
+  qrLogoHint: "PNG с прозрачным фоном смотрится лучше всего.",
+  qrLogoError: "Не удалось взять логотип заведения. Скачайте его и загрузите файлом.",
+  qrReset: "Сбросить оформление",
+  qrScanHint: "Проверьте камерой телефона, что код открывает меню — особенно с логотипом.",
   tentHeading: "Меню здесь",
   tentHint: "Наведите камеру телефона на код",
 };
@@ -350,6 +381,21 @@ const KZ: AuthCopy = {
   qrLinkLabel: "Мәзірге сілтеме",
   qrCopied: "Көшірілді",
   qrCopy: "Көшіру",
+  qrCustomize: "Кодты безендіру",
+  qrStyleDots: "Нүкте пішіні",
+  qrStyleCorners: "Бұрыштар",
+  qrColorDots: "Код түсі",
+  qrColorBg: "Фон",
+  qrColorPresets: "Дайын түстер",
+  qrLogo: "Логотип",
+  qrLogoNone: "Логотипсіз",
+  qrLogoVenue: "Мекеме логотипі",
+  qrLogoUpload: "Өзіңдікін жүктеу",
+  qrLogoRemove: "Алып тастау",
+  qrLogoHint: "Мөлдір фоны бар PNG ең жақсы көрінеді.",
+  qrLogoError: "Мекеме логотипін алу мүмкін болмады. Оны жүктеп алып, файлмен қосыңыз.",
+  qrReset: "Безендіруді ысыру",
+  qrScanHint: "Код мәзірді ашатынын телефон камерасымен тексеріңіз — әсіресе логотиппен.",
   tentHeading: "Мәзір осында",
   tentHint: "Телефон камерасын кодқа бағыттаңыз",
 };
