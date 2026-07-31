@@ -34,6 +34,26 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+function blobToImage(blob: Blob): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const image = new Image();
+    image.onload = () => {
+      resolve(image);
+      URL.revokeObjectURL(url);
+    };
+    image.onerror = reject;
+    image.src = url;
+  });
+}
+
+function saveUrl(href: string, filename: string) {
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = filename;
+  link.click();
+}
+
 export function VenueQr({
   locale,
   establishmentId,
@@ -56,12 +76,20 @@ export function VenueQr({
   const [logo, setLogo] = useState<string | null>(null);
   const [logoKind, setLogoKind] = useState<LogoKind>("none");
   const [logoError, setLogoError] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [tentPng, setTentPng] = useState<string | null>(null);
 
-  const previewRef = useRef<HTMLDivElement>(null);
-  // The QRCodeStyling instance. `unknown`-typed to avoid importing the library's
-  // node-only (jsdom/canvas) type surface into this bundle.
+  // Editable table-tent text. Defaults are locale copy — deterministic from the
+  // `locale` prop, so server and first client render agree (no hydration flip).
+  const [heading, setHeading] = useState(copy.tentHeading);
+  const [caption, setCaption] = useState(copy.tentHint);
+  const [showName, setShowName] = useState(true);
+  const [showUrl, setShowUrl] = useState(true);
+
+  const [copied, setCopied] = useState(false);
+  const [pngUrl, setPngUrl] = useState<string | null>(null);
+
+  // Host for the generated canvas. Kept offscreen: the visible preview is the
+  // rasterised poster below, which is exactly what downloads/prints.
+  const canvasHostRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<{
     append: (el: HTMLElement) => void;
     update: (options: Record<string, unknown>) => void;
@@ -113,12 +141,12 @@ export function VenueQr({
     let alive = true;
 
     import("qr-code-styling").then(({ default: QRCodeStyling }) => {
-      if (!alive || !previewRef.current) return;
+      if (!alive || !canvasHostRef.current) return;
       if (!qrRef.current) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         qrRef.current = new QRCodeStyling(options as any) as any;
-        previewRef.current.innerHTML = "";
-        qrRef.current!.append(previewRef.current);
+        canvasHostRef.current.innerHTML = "";
+        qrRef.current!.append(canvasHostRef.current);
       } else {
         qrRef.current.update(options);
       }
@@ -129,8 +157,8 @@ export function VenueQr({
     };
   }, [options, menuUrl]);
 
-  // A rasterised copy for the printed tent: an <img> prints reliably where a
-  // live <canvas> can come out blank.
+  // Rasterise for the visible poster preview and the printed tent — an <img>
+  // both renders live and prints reliably where a raw <canvas> can be blank.
   useEffect(() => {
     if (!menuUrl) return;
     let alive = true;
@@ -142,7 +170,7 @@ export function VenueQr({
         .then((blob) => {
           if (!alive || !blob) return;
           url = URL.createObjectURL(blob);
-          setTentPng(url);
+          setPngUrl(url);
         })
         .catch(() => {});
     }, 120);
@@ -166,11 +194,11 @@ export function VenueQr({
     );
   }
 
-  async function downloadPng() {
+  async function downloadCodePng() {
     await qrRef.current?.download({ name: `qmenu-${venue!.slug}`, extension: "png" });
   }
 
-  async function downloadSvg() {
+  async function downloadCodeSvg() {
     // A throwaway SVG-typed instance: the on-screen one draws to canvas, and a
     // canvas cannot export vector.
     const { default: QRCodeStyling } = await import("qr-code-styling");
@@ -181,18 +209,134 @@ export function VenueQr({
     await svgQr.download({ name: `qmenu-${venue!.slug}`, extension: "svg" });
   }
 
+  // Composes the finished table tent — heading, code, name, caption, url — onto
+  // one canvas and downloads it as a shareable PNG (print-shop ready).
+  async function downloadTent() {
+    const blob = await qrRef.current?.getRawData("png");
+    if (!blob) return;
+    const qrImage = await blobToImage(blob);
+    if (document.fonts?.ready) await document.fonts.ready;
+
+    const family = getComputedStyle(document.body).fontFamily || "system-ui, sans-serif";
+    const W = 1080;
+    const padX = 90;
+    const maxTextW = W - padX * 2;
+    const qrSize = 640;
+    const ink = "#141210";
+    const muted = "#6f6a63";
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const headingFont = `800 60px ${family}`;
+    const nameFont = `700 40px ${family}`;
+    const captionFont = `400 30px ${family}`;
+    const urlFont = `500 26px ${family}`;
+
+    const wrap = (text: string, font: string): string[] => {
+      ctx.font = font;
+      const words = text.trim().split(/\s+/).filter(Boolean);
+      const lines: string[] = [];
+      let line = "";
+      for (const word of words) {
+        const candidate = line ? `${line} ${word}` : word;
+        if (line && ctx.measureText(candidate).width > maxTextW) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = candidate;
+        }
+      }
+      if (line) lines.push(line);
+      return lines;
+    };
+
+    const headingLines = heading.trim() ? wrap(heading, headingFont) : [];
+    const nameLines = showName && venue!.name ? wrap(venue!.name, nameFont) : [];
+    const captionLines = caption.trim() ? wrap(caption, captionFont) : [];
+    const urlText = showUrl ? menuUrl : "";
+
+    const topPad = 80;
+    const botPad = 80;
+    const blockGap = 34;
+    let height = topPad;
+    height += headingLines.length * 74;
+    if (headingLines.length) height += blockGap;
+    height += qrSize;
+    if (nameLines.length) height += blockGap + nameLines.length * 50;
+    if (captionLines.length) height += 18 + captionLines.length * 40;
+    if (urlText) height += 18 + 34;
+    height += botPad;
+
+    canvas.width = W;
+    canvas.height = height;
+
+    // Resizing the canvas clears its context — restore drawing state here.
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, height);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+
+    let y = topPad;
+    ctx.fillStyle = ink;
+    ctx.font = headingFont;
+    for (const line of headingLines) {
+      ctx.fillText(line, W / 2, y);
+      y += 74;
+    }
+    if (headingLines.length) y += blockGap;
+
+    ctx.drawImage(qrImage, (W - qrSize) / 2, y, qrSize, qrSize);
+    y += qrSize;
+
+    if (nameLines.length) {
+      y += blockGap;
+      ctx.fillStyle = ink;
+      ctx.font = nameFont;
+      for (const line of nameLines) {
+        ctx.fillText(line, W / 2, y);
+        y += 50;
+      }
+    }
+    if (captionLines.length) {
+      y += 18;
+      ctx.fillStyle = muted;
+      ctx.font = captionFont;
+      for (const line of captionLines) {
+        ctx.fillText(line, W / 2, y);
+        y += 40;
+      }
+    }
+    if (urlText) {
+      y += 18;
+      ctx.fillStyle = muted;
+      ctx.font = urlFont;
+      ctx.fillText(urlText, W / 2, y);
+    }
+
+    canvas.toBlob((out) => {
+      if (!out) return;
+      const url = URL.createObjectURL(out);
+      saveUrl(url, `qmenu-${venue!.slug}-tent.png`);
+      URL.revokeObjectURL(url);
+    }, "image/png");
+  }
+
   async function useVenueLogo() {
     if (!venue!.logo_url) return;
     setLogoError(false);
     try {
-      const response = await fetch(venue!.logo_url, { mode: "cors" });
-      if (!response.ok) throw new Error("fetch failed");
+      // Same-origin proxy → the fetched blob is readable and won't taint the
+      // canvas on PNG/SVG export (see app/api/venue-logo).
+      const response = await fetch(
+        `/api/venue-logo?src=${encodeURIComponent(venue!.logo_url)}`,
+      );
+      if (!response.ok) throw new Error("proxy failed");
       const dataUrl = await blobToDataUrl(await response.blob());
       setLogo(dataUrl);
       setLogoKind("venue");
     } catch {
-      // Cross-origin storage can refuse the read — the owner can still upload
-      // the same file by hand.
       setLogoError(true);
     }
   }
@@ -217,6 +361,10 @@ export function VenueQr({
     setCornerStyle(DEFAULT_QR_STYLE.cornerStyle);
     setDotColor(DEFAULT_QR_STYLE.dotColor);
     setBgColor(DEFAULT_QR_STYLE.bgColor);
+    setHeading(copy.tentHeading);
+    setCaption(copy.tentHint);
+    setShowName(true);
+    setShowUrl(true);
     clearLogo();
   }
 
@@ -233,20 +381,51 @@ export function VenueQr({
           </Link>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-          {/* Preview + link + downloads */}
+        {/* Offscreen render target for the styling library. */}
+        <div ref={canvasHostRef} className="pointer-events-none absolute -left-[9999px] top-0" />
+
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+          {/* The finished tent — what the owner gets. */}
           <div className="flex flex-col gap-4 rounded-[20px] border border-border bg-white p-5">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-[-0.02em]">
-                {venue.name}
+                {copy.posterTitle}
               </h2>
               <p className="mt-1 text-[15px] text-muted">{copy.qrSubtitle}</p>
             </div>
 
-            <div
-              ref={previewRef}
-              className="mx-auto aspect-square w-full max-w-[260px] overflow-hidden rounded-2xl [&>canvas]:h-full [&>canvas]:w-full"
-            />
+            {/* WYSIWYG poster — mirrors the printed tent and the PNG download. */}
+            <div className="rounded-2xl border border-border bg-surface-2 p-5">
+              <div className="mx-auto flex max-w-[320px] flex-col items-center gap-4 text-center">
+                {heading.trim() ? (
+                  <p className="text-[24px] font-extrabold leading-tight tracking-[-0.02em]">
+                    {heading}
+                  </p>
+                ) : null}
+
+                {pngUrl ? (
+                  // Local object URL — a plain <img> is right here.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={pngUrl}
+                    alt=""
+                    className="w-full max-w-[240px] rounded-xl"
+                  />
+                ) : (
+                  <div className="aspect-square w-full max-w-[240px] animate-pulse rounded-xl bg-white" />
+                )}
+
+                {showName && venue.name ? (
+                  <p className="text-[17px] font-bold">{venue.name}</p>
+                ) : null}
+                {caption.trim() ? (
+                  <p className="text-[14px] leading-snug text-muted">{caption}</p>
+                ) : null}
+                {showUrl ? (
+                  <p className="break-all text-[13px] text-muted">{menuUrl}</p>
+                ) : null}
+              </div>
+            </div>
 
             <div>
               <p className="mb-1.5 text-sm font-semibold">{copy.qrLinkLabel}</p>
@@ -270,38 +449,40 @@ export function VenueQr({
             </div>
 
             <div className="flex flex-wrap gap-2.5">
+              <Button variant="primary" onClick={downloadTent} className="py-2.5 text-[15px]">
+                <Download size={16} />
+                {copy.qrDownloadTent}
+              </Button>
               <Button
                 variant="secondary"
-                onClick={downloadPng}
-                className="py-2.5 text-[15px]"
-              >
-                <Download size={16} />
-                {copy.qrDownloadPng}
-              </Button>
-
-              <Button
-                variant="secondary"
-                onClick={downloadSvg}
-                className="py-2.5 text-[15px]"
-              >
-                <Download size={16} />
-                {copy.qrDownloadSvg}
-              </Button>
-
-              <Button
-                variant="primary"
                 onClick={() => window.print()}
                 className="py-2.5 text-[15px]"
               >
                 <Printer size={16} />
                 {copy.qrPrint}
               </Button>
+              <Button
+                variant="secondary"
+                onClick={downloadCodePng}
+                className="py-2.5 text-[15px]"
+              >
+                <Download size={16} />
+                {copy.qrDownloadPng}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={downloadCodeSvg}
+                className="py-2.5 text-[15px]"
+              >
+                <Download size={16} />
+                {copy.qrDownloadSvg}
+              </Button>
             </div>
 
             <p className="text-[13px] leading-snug text-muted">{copy.qrScanHint}</p>
           </div>
 
-          {/* Style controls */}
+          {/* Style + text controls */}
           <div className="flex flex-col gap-6 rounded-[20px] border border-border bg-white p-5">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[17px] font-bold tracking-[-0.01em]">
@@ -323,6 +504,7 @@ export function VenueQr({
               <div className="flex flex-wrap gap-2">
                 {QR_COLOR_PRESETS.map((preset) => {
                   const active = preset.dots === dotColor && preset.bg === bgColor;
+                  const label = locale === "kz" ? preset.kk : preset.ru;
                   return (
                     <button
                       key={preset.key}
@@ -331,28 +513,20 @@ export function VenueQr({
                         setDotColor(preset.dots);
                         setBgColor(preset.bg);
                       }}
-                      title={locale === "kz" ? preset.kk : preset.ru}
+                      title={label}
+                      aria-label={label}
                       className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
                         active ? "border-foreground" : "border-border"
                       }`}
                       style={{ background: preset.dots }}
-                      aria-label={locale === "kz" ? preset.kk : preset.ru}
                     />
                   );
                 })}
               </div>
 
               <div className="flex flex-wrap gap-4">
-                <ColorField
-                  label={copy.qrColorDots}
-                  value={dotColor}
-                  onChange={setDotColor}
-                />
-                <ColorField
-                  label={copy.qrColorBg}
-                  value={bgColor}
-                  onChange={setBgColor}
-                />
+                <ColorField label={copy.qrColorDots} value={dotColor} onChange={setDotColor} />
+                <ColorField label={copy.qrColorBg} value={bgColor} onChange={setBgColor} />
               </div>
             </section>
 
@@ -423,11 +597,7 @@ export function VenueQr({
                   <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-2">
                     {/* Local data URL — a plain <img> is right here. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={logo}
-                      alt=""
-                      className="h-full w-full object-contain"
-                    />
+                    <img src={logo} alt="" className="h-full w-full object-contain" />
                   </span>
                   <button
                     type="button"
@@ -443,10 +613,33 @@ export function VenueQr({
               )}
 
               {logoError ? (
-                <p className="text-[13px] leading-snug text-red-600">
-                  {copy.qrLogoError}
-                </p>
+                <p className="text-[13px] leading-snug text-red-600">{copy.qrLogoError}</p>
               ) : null}
+            </section>
+
+            {/* Table-tent text */}
+            <section className="flex flex-col gap-3">
+              <p className="text-sm font-semibold">{copy.qrTextLabel}</p>
+              <label className="flex flex-col gap-1 text-[13px] font-semibold text-muted">
+                {copy.qrTextHeading}
+                <input
+                  type="text"
+                  value={heading}
+                  onChange={(event) => setHeading(event.target.value)}
+                  className="rounded-xl border border-border px-3 py-2 text-[15px] font-medium text-foreground outline-none focus:border-border-strong"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-[13px] font-semibold text-muted">
+                {copy.qrTextCaption}
+                <input
+                  type="text"
+                  value={caption}
+                  onChange={(event) => setCaption(event.target.value)}
+                  className="rounded-xl border border-border px-3 py-2 text-[15px] font-medium text-foreground outline-none focus:border-border-strong"
+                />
+              </label>
+              <CheckRow checked={showName} onChange={setShowName} label={copy.qrShowName} />
+              <CheckRow checked={showUrl} onChange={setShowUrl} label={copy.qrShowUrl} />
             </section>
           </div>
         </div>
@@ -458,21 +651,20 @@ export function VenueQr({
       */}
       <div className="hidden print:block">
         <div className="mx-auto flex max-w-[420px] flex-col items-center gap-6 py-10 text-center">
-          <p className="text-[34px] font-extrabold tracking-[-0.03em]">
-            {copy.tentHeading}
-          </p>
-
-          {tentPng ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={tentPng} alt="" className="w-[300px]" />
+          {heading.trim() ? (
+            <p className="text-[34px] font-extrabold tracking-[-0.03em]">{heading}</p>
           ) : null}
 
-          <div>
-            <p className="text-[19px] font-bold">{venue.name}</p>
-            <p className="mt-1 text-[15px]">{copy.tentHint}</p>
-          </div>
+          {pngUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={pngUrl} alt="" className="w-[300px]" />
+          ) : null}
 
-          <p className="text-sm">{menuUrl}</p>
+          {showName && venue.name ? (
+            <p className="text-[19px] font-bold">{venue.name}</p>
+          ) : null}
+          {caption.trim() ? <p className="text-[15px]">{caption}</p> : null}
+          {showUrl ? <p className="text-sm">{menuUrl}</p> : null}
         </div>
       </div>
     </>
@@ -495,6 +687,28 @@ function ColorField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="h-9 w-9 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
+      />
+      {label}
+    </label>
+  );
+}
+
+function CheckRow({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  label: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2.5 text-[14px] font-medium">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 accent-accent"
       />
       {label}
     </label>

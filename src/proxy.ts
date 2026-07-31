@@ -47,8 +47,9 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   /*
-   * Skip Next internals and anything with a file extension — favicon, images,
-   * robots.txt and sitemap.xml must not be pushed under a locale.
+   * Skip Next internals, route handlers under /api, and anything with a file
+   * extension — favicon, images, robots.txt and sitemap.xml must not be pushed
+   * under a locale.
    */
-  matcher: ["/((?!_next|.*\\..*).*)"],
+  matcher: ["/((?!_next|api|.*\\..*).*)"],
 };

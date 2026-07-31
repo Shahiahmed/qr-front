@@ -137,6 +137,14 @@ export type AuthCopy = {
   qrLogoError: string;
   qrReset: string;
   qrScanHint: string;
+  /** Editable table-tent text. */
+  qrTextLabel: string;
+  qrTextHeading: string;
+  qrTextCaption: string;
+  qrShowName: string;
+  qrShowUrl: string;
+  qrDownloadTent: string;
+  posterTitle: string;
   /** Printed on the table tent, above the code. */
   tentHeading: string;
   tentHint: string;
@@ -267,6 +275,13 @@ const RU: AuthCopy = {
   qrLogoError: "Не удалось взять логотип заведения. Скачайте его и загрузите файлом.",
   qrReset: "Сбросить оформление",
   qrScanHint: "Проверьте камерой телефона, что код открывает меню — особенно с логотипом.",
+  qrTextLabel: "Текст на табличке",
+  qrTextHeading: "Заголовок",
+  qrTextCaption: "Подпись",
+  qrShowName: "Показывать название заведения",
+  qrShowUrl: "Показывать ссылку",
+  qrDownloadTent: "Скачать табличку",
+  posterTitle: "Табличка на стол",
   tentHeading: "Меню здесь",
   tentHint: "Наведите камеру телефона на код",
 };
@@ -396,6 +411,13 @@ const KZ: AuthCopy = {
   qrLogoError: "Мекеме логотипін алу мүмкін болмады. Оны жүктеп алып, файлмен қосыңыз.",
   qrReset: "Безендіруді ысыру",
   qrScanHint: "Код мәзірді ашатынын телефон камерасымен тексеріңіз — әсіресе логотиппен.",
+  qrTextLabel: "Кестедегі мәтін",
+  qrTextHeading: "Тақырып",
+  qrTextCaption: "Жазба",
+  qrShowName: "Мекеме атауын көрсету",
+  qrShowUrl: "Сілтемені көрсету",
+  qrDownloadTent: "Кестені жүктеу",
+  posterTitle: "Үстелге қоятын кесте",
   tentHeading: "Мәзір осында",
   tentHint: "Телефон камерасын кодқа бағыттаңыз",
 };
