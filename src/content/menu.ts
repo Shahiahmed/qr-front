@@ -94,6 +94,10 @@ export type MenuCopy = {
   cropZoom: string;
   cropApply: string;
 
+  // Free-tier content caps ({n} is replaced with the number)
+  categoryLimitReached: string;
+  dishLimitReached: string;
+
   // Section order
   moveUp: string;
   moveDown: string;
@@ -197,6 +201,9 @@ const RU: MenuCopy = {
   cropZoom: "Масштаб",
   cropApply: "Применить",
 
+  categoryLimitReached: "Лимит бесплатного тарифа: {n} разделов. Оформите подписку, чтобы добавить ещё.",
+  dishLimitReached: "Лимит бесплатного тарифа: {n} блюд в разделе.",
+
   moveUp: "Выше",
   moveDown: "Ниже",
 
@@ -298,6 +305,9 @@ const KZ: MenuCopy = {
   cropHint: "Жылжыту үшін сүйреңіз · масштабты жүгірткімен өзгертіңіз.",
   cropZoom: "Масштаб",
   cropApply: "Қолдану",
+
+  categoryLimitReached: "Тегін тариф шегі: {n} бөлім. Көбірек қосу үшін жазылыңыз.",
+  dishLimitReached: "Тегін тариф шегі: бөлімде {n} тағам.",
 
   moveUp: "Жоғары",
   moveDown: "Төмен",

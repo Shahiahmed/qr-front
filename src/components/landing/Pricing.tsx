@@ -30,6 +30,16 @@ export function Pricing() {
 
   const href = `/${locale}/register`;
 
+  // Card count drives the column count: 4 plans go 2×2 then a single 4-up row,
+  // 3 stay a classic trio, 2 sit side by side. Loading/empty fall back to 3.
+  const cardCount = plans === null || plans.length === 0 ? 3 : plans.length;
+  const gridCols =
+    cardCount >= 4
+      ? "sm:grid-cols-2 xl:grid-cols-4"
+      : cardCount === 2
+        ? "sm:grid-cols-2"
+        : "lg:grid-cols-3";
+
   let cards;
   if (plans === null) {
     // Still loading — show neutral skeletons, never the static plans. Flashing
@@ -78,7 +88,7 @@ export function Pricing() {
           titleId="pricing-title"
         />
 
-        <div className="grid items-start gap-6 lg:grid-cols-3">{cards}</div>
+        <div className={`grid items-start gap-6 ${gridCols}`}>{cards}</div>
       </div>
     </section>
   );
@@ -91,8 +101,10 @@ type Plan = LandingCopy["planFree"];
  * "popular" card reads as the hero of the row, not as an afterthought on the right.
  */
 function withFeaturedInCenter(plans: ApiPlan[]): ApiPlan[] {
+  // Only meaningful for a 3-up trio — with 4 cards the natural sort order reads
+  // better than a forced centre, and there is no single middle column.
   const featuredIndex = plans.findIndex((plan) => plan.is_featured);
-  if (featuredIndex < 0 || plans.length < 3) return plans;
+  if (featuredIndex < 0 || plans.length !== 3) return plans;
 
   const ordered = [...plans];
   const [featured] = ordered.splice(featuredIndex, 1);

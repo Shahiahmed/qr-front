@@ -282,6 +282,7 @@ export function MenuEditor({
           error={error}
           list={list}
           currency={currency}
+          limits={venue?.menu_limits}
           fillStarter={fillStarter}
           moveCategory={moveCategory}
           onAddCategory={() => setDialog({ kind: "category" })}
@@ -334,6 +335,7 @@ function MenuSections({
   error,
   list,
   currency,
+  limits,
   fillStarter,
   moveCategory,
   onAddCategory,
@@ -350,6 +352,8 @@ function MenuSections({
   error: Error | null;
   list: MenuCategory[];
   currency: string;
+  /** Content caps from the effective plan; free tier limits sections/dishes. */
+  limits?: { categories: number | null; dishes_per_category: number | null };
   fillStarter: {
     mutate: () => void;
     isPending: boolean;
@@ -378,17 +382,30 @@ function MenuSections({
     );
   }
 
+  // Free-tier caps. `null` = unlimited; the button dims and a hint appears when
+  // the count reaches the cap (the server is the real gate — see controllers).
+  const categoryLimit = limits?.categories ?? null;
+  const dishLimit = limits?.dishes_per_category ?? null;
+  const categoryLimitReached =
+    categoryLimit !== null && list.length >= categoryLimit;
+
   return (
     <>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Button
           variant="primary"
           onClick={onAddCategory}
+          disabled={categoryLimitReached}
           className="py-2.5 text-[15px]"
         >
           <FolderPlus size={17} />
           {copy.addCategory}
         </Button>
+        {categoryLimitReached ? (
+          <p className="text-[13px] font-medium text-muted">
+            {copy.categoryLimitReached.replace("{n}", String(categoryLimit))}
+          </p>
+        ) : null}
       </div>
 
       {list.length === 0 ? (
@@ -417,7 +434,11 @@ function MenuSections({
       ) : null}
 
       <div className="flex flex-col gap-5">
-        {list.map((category, index) => (
+        {list.map((category, index) => {
+          const dishCount = (category.dishes ?? []).length;
+          const dishLimitReached =
+            dishLimit !== null && dishCount >= dishLimit;
+          return (
           <section
             key={category.id}
             className="rounded-[20px] border border-border bg-white p-5"
@@ -453,6 +474,7 @@ function MenuSections({
                 <Button
                   variant="secondary"
                   onClick={() => onAddDish(category.id)}
+                  disabled={dishLimitReached}
                   aria-label={copy.addDish}
                   className="px-2.5 py-2 text-sm sm:px-3"
                 >
@@ -479,6 +501,12 @@ function MenuSections({
                 </IconButton>
               </div>
             </header>
+
+            {dishLimitReached ? (
+              <p className="mb-3 text-[13px] font-medium text-muted">
+                {copy.dishLimitReached.replace("{n}", String(dishLimit))}
+              </p>
+            ) : null}
 
             {(category.dishes ?? []).length === 0 ? (
               <p className="py-2 text-[15px] text-muted-soft">{copy.noDishes}</p>
@@ -582,7 +610,8 @@ function MenuSections({
               </ul>
             )}
           </section>
-        ))}
+          );
+        })}
       </div>
     </>
   );

@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import {
-  Check,
-  Minus,
-  Plus,
-  Settings2,
-  ShoppingBag,
-  UtensilsCrossed,
-  X,
-} from "lucide-react";
+import { Check, Minus, Plus, Settings2, ShoppingBag, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
 import { getLayout, MENU_LAYOUTS, type LayoutKey } from "@/content/layouts";
@@ -485,16 +477,7 @@ export function GuestMenu({
           aria-label={copy.navMenu}
           className="border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg"
         >
-          <div className="mx-auto flex max-w-[680px] items-stretch justify-around px-2 py-1.5">
-            <NavButton
-              icon={<UtensilsCrossed size={20} strokeWidth={2} />}
-              label={copy.navMenu}
-              onClick={() => {
-                setCartOpen(false);
-                setSettingsOpen(false);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-            />
+          <div className="mx-auto flex max-w-[680px] items-stretch justify-center gap-3 px-2 py-1.5">
             {ordering ? (
               <NavButton
                 icon={<ShoppingBag size={20} strokeWidth={2} />}
@@ -810,7 +793,7 @@ function NavButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-1 flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-muted transition-colors hover:text-foreground"
+      className="flex min-w-21 flex-col items-center gap-1 rounded-xl px-4 py-1.5 text-muted transition-colors hover:text-foreground"
     >
       <span className="relative">
         {icon}
@@ -826,9 +809,10 @@ function NavButton({
 }
 
 /**
- * Tiny colour-neutral schematic of a layout — bars stand in for photos and
- * text so the guest recognises the arrangement at a glance (colour is the
- * separate theme picker). Mirrors the owner-side preview.
+ * Tiny schematic of a layout — bars stand in for photos and text so the guest
+ * recognises the arrangement at a glance. The "photo" blocks use `bg-accent`,
+ * so they inherit the guest's chosen `--accent` and recolour live when the
+ * colour is switched in the same sheet. (The owner-side copy stays neutral.)
  */
 function LayoutPreview({ layout }: { layout: LayoutKey }) {
   if (layout === "grid") {
@@ -836,7 +820,7 @@ function LayoutPreview({ layout }: { layout: LayoutKey }) {
       <div className="grid h-16 grid-cols-2 grid-rows-2 gap-1.5 rounded-lg border border-border bg-white p-2">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="flex flex-col gap-1">
-            <div className="flex-1 rounded bg-border-strong" />
+            <div className="flex-1 rounded bg-accent" />
             <div className="h-1 w-3/4 rounded bg-border" />
           </div>
         ))}
@@ -849,7 +833,7 @@ function LayoutPreview({ layout }: { layout: LayoutKey }) {
       <div className="flex h-16 flex-col justify-center gap-2 rounded-lg border border-border bg-white px-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex items-center gap-1.5">
-            <div className="h-2.5 w-2.5 shrink-0 rounded bg-border-strong" />
+            <div className="h-2.5 w-2.5 shrink-0 rounded bg-accent" />
             <div className="h-1.5 flex-1 rounded bg-border" />
             <div className="h-1.5 w-3 shrink-0 rounded bg-border-strong" />
           </div>
@@ -863,7 +847,7 @@ function LayoutPreview({ layout }: { layout: LayoutKey }) {
     <div className="flex h-16 flex-col gap-1.5 rounded-lg border border-border bg-white p-2">
       {Array.from({ length: 2 }).map((_, i) => (
         <div key={i} className="flex flex-1 items-center gap-1.5">
-          <div className="h-full w-1/4 shrink-0 rounded bg-border-strong" />
+          <div className="h-full w-1/4 shrink-0 rounded bg-accent" />
           <div className="flex flex-1 flex-col gap-1">
             <div className="h-1.5 w-3/4 rounded bg-border-strong" />
             <div className="h-1.5 w-1/2 rounded bg-border" />

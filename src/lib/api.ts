@@ -249,6 +249,11 @@ export type Establishment = {
   is_expired: boolean;
   /** Whole days left; 0 if expired, null if unlimited. */
   days_left: number | null;
+  /** Content caps from the menu's effective plan (null in a slot = unlimited). */
+  menu_limits: {
+    categories: number | null;
+    dishes_per_category: number | null;
+  };
 };
 
 /** The two image slots an owner can fill. */
@@ -523,6 +528,9 @@ export type Plan = {
   period: "month" | "halfyear" | "year";
   features: { ru: string; kk: string | null }[];
   max_establishments: number | null;
+  /** Content caps (null = unlimited). The free tier carries them. */
+  max_categories: number | null;
+  max_dishes_per_category: number | null;
   is_featured: boolean;
 };
 
