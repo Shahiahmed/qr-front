@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Crown, Sparkles } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { SectionHeading } from "@/components/landing/ui/SectionHeading";
 import { Reveal } from "@/components/landing/ui/Reveal";
@@ -30,15 +30,21 @@ export function Pricing() {
 
   const href = `/${locale}/register`;
 
-  // Card count drives the column count: 4 plans go 2×2 then a single 4-up row,
-  // 3 stay a classic trio, 2 sit side by side. Loading/empty fall back to 3.
-  const cardCount = plans === null || plans.length === 0 ? 3 : plans.length;
-  const gridCols =
-    cardCount >= 4
-      ? "sm:grid-cols-2 xl:grid-cols-4"
-      : cardCount === 2
-        ? "sm:grid-cols-2"
-        : "lg:grid-cols-3";
+  // The bespoke top tier (Premium) is pulled out of the grid and shown on its
+  // own wide card below — four cards crammed in a row read poorly, and Premium
+  // is a "по запросу" product, not a like-for-like column. It is identified as
+  // the single most expensive plan, and only split out when there are 4+.
+  const spotlight =
+    plans && plans.length >= 4
+      ? plans.reduce((a, b) => (b.price_final > a.price_final ? b : a))
+      : null;
+  const trio = spotlight
+    ? plans!.filter((plan) => plan.id !== spotlight.id)
+    : (plans ?? []);
+
+  // Column count for the standard tier grid.
+  const gridCount = plans === null || trio.length === 0 ? 3 : trio.length;
+  const gridCols = gridCount === 2 ? "sm:grid-cols-2" : "lg:grid-cols-3";
 
   let cards;
   if (plans === null) {
@@ -47,7 +53,7 @@ export function Pricing() {
     // like the page changed its mind; a placeholder doesn't.
     cards = [0, 1, 2].map((i) => <PlanSkeleton key={i} />);
   } else if (plans.length > 0) {
-    cards = withFeaturedInCenter(plans).map((plan, i) => (
+    cards = withFeaturedInCenter(trio).map((plan, i) => (
       <Reveal key={plan.id} delay={i * 90}>
         <PlanCard
           plan={toCardPlan(plan, locale, copy)}
@@ -89,6 +95,16 @@ export function Pricing() {
         />
 
         <div className={`grid items-start gap-6 ${gridCols}`}>{cards}</div>
+
+        {spotlight ? (
+          <Reveal delay={120}>
+            <PremiumCard
+              plan={toCardPlan(spotlight, locale, copy)}
+              tag={copy.priceCustomTag}
+              href={href}
+            />
+          </Reveal>
+        ) : null}
       </div>
     </section>
   );
@@ -227,6 +243,64 @@ function PlanCard({
       >
         {plan.cta}
       </Button>
+    </article>
+  );
+}
+
+/**
+ * The bespoke top tier, shown full-width below the trio. It is a different kind
+ * of product (a separate site, orders, per-dish SEO — activated by request), so
+ * it gets its own wide, dark card rather than a fourth cramped column: identity
+ * and price on the left, the feature list spread across the right.
+ */
+function PremiumCard({
+  plan,
+  tag,
+  href,
+}: {
+  plan: Plan;
+  tag: string;
+  href: string;
+}) {
+  return (
+    <article className="gradient-border relative mt-6 rounded-[24px] px-6 py-8 text-white shadow-[0_34px_66px_-30px_rgba(20,18,16,0.6)] sm:px-9 sm:py-9 lg:mt-8">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-12">
+        <div className="lg:w-[300px] lg:shrink-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-3 py-1 text-[13px] font-bold text-[#FF9B84]">
+            <Crown size={13} />
+            {tag}
+          </span>
+          <div className="mt-4 text-[17px] font-bold text-[#FF8A70]">{plan.name}</div>
+          <div className="mt-1.5 flex items-baseline gap-1.5">
+            <span className="text-[40px] font-extrabold tracking-[-0.03em]">{plan.price}</span>
+            <span className="text-[15px] text-[#B8B0A9]">{plan.period}</span>
+          </div>
+          {plan.desc ? (
+            <div className="mt-2 text-sm text-[#B8B0A9]">{plan.desc}</div>
+          ) : null}
+          <Button
+            variant="dark"
+            href={href}
+            className="mt-6 w-full rounded-[13px] py-3.5 text-base"
+          >
+            {plan.cta}
+          </Button>
+        </div>
+
+        <ul className="grid flex-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">
+          {plan.features.map((feature) => (
+            <li key={feature} className="flex items-center gap-2.5 text-[15px]">
+              <span
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/20 text-[#FF9B84]"
+                aria-hidden="true"
+              >
+                <Check size={12} strokeWidth={3.2} />
+              </span>
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </div>
     </article>
   );
 }

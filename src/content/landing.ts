@@ -40,6 +40,8 @@ export type LandingCopy = {
   priceTitle: string;
   priceSub: string;
   popular: string;
+  /** Badge on the bespoke Premium spotlight card. */
+  priceCustomTag: string;
   planFree: PlanCopy;
   planStd: PlanCopy;
   planPrem: PlanCopy;
@@ -214,6 +216,7 @@ const RU: LandingCopy = {
   priceTitle: "Простые и понятные тарифы",
   priceSub: "Начните бесплатно и расширяйтесь по мере роста заведения.",
   popular: "Популярный выбор",
+  priceCustomTag: "Индивидуальное решение",
   planFree: {
     name: "Бесплатный",
     price: "0 ₸",
@@ -399,6 +402,7 @@ const KZ: LandingCopy = {
   priceTitle: "Қарапайым әрі түсінікті тарифтер",
   priceSub: "Тегін бастаңыз да, мекеме өскен сайын кеңейіңіз.",
   popular: "Танымал таңдау",
+  priceCustomTag: "Жеке шешім",
   planFree: {
     name: "Тегін",
     price: "0 ₸",
