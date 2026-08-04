@@ -36,6 +36,14 @@ export type GuestCopy = {
   showTicket: string;
   ticketEmpty: string;
   done: string;
+  // Bottom navigation + guest-chosen look (colour + layout)
+  navMenu: string;
+  navCart: string;
+  navSettings: string;
+  settingsTitle: string;
+  settingsHint: string;
+  settingsColor: string;
+  settingsDesign: string;
   /** Tiny brand credit under the menu. */
   poweredBy: string;
   poweredByAria: string;
@@ -74,6 +82,13 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     showTicket: "Показать заказ",
     ticketEmpty: "В заказе ничего нет.",
     done: "Готово",
+    navMenu: "Меню",
+    navCart: "Корзина",
+    navSettings: "Настройки",
+    settingsTitle: "Настройки меню",
+    settingsHint: "Оформление под себя — только на этом устройстве.",
+    settingsColor: "Цвет",
+    settingsDesign: "Дизайн",
     poweredBy: "Сделано на Qmenu",
     poweredByAria: "Qmenu — QR-меню для ресторанов",
   },
@@ -109,6 +124,13 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     showTicket: "Тапсырысты көрсету",
     ticketEmpty: "Тапсырыста ештеңе жоқ.",
     done: "Дайын",
+    navMenu: "Мәзір",
+    navCart: "Себет",
+    navSettings: "Баптаулар",
+    settingsTitle: "Мәзір баптаулары",
+    settingsHint: "Мәзірді өзіңізге ыңғайлаңыз — тек осы құрылғыда.",
+    settingsColor: "Түс",
+    settingsDesign: "Дизайн",
     poweredBy: "Qmenu-де жасалған",
     poweredByAria: "Qmenu — мейрамханаларға арналған QR-мәзір",
   },

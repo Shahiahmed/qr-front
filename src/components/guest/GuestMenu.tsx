@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Minus, Plus, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Check,
+  Minus,
+  Plus,
+  Settings2,
+  ShoppingBag,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
-import { getLayout, type LayoutKey } from "@/content/layouts";
-import { themeVars } from "@/content/themes";
+import { getLayout, MENU_LAYOUTS, type LayoutKey } from "@/content/layouts";
+import { getTheme, MENU_THEMES, themeVars, type ThemeKey } from "@/content/themes";
 import {
   clearGuestOrder,
   createOrderTicket,
@@ -13,6 +21,7 @@ import {
   saveGuestOrder,
   type GuestOrderTicket,
 } from "@/lib/guestOrderStorage";
+import { loadGuestPrefs, saveGuestPrefs } from "@/lib/guestPrefs";
 import { formatPrice } from "@/lib/money";
 import { pick, type PublicDish, type PublicMenu } from "@/lib/guestMenuTypes";
 
@@ -37,7 +46,26 @@ export function GuestMenu({
     menu.default_locale === "kk" ? "kk" : "ru",
   );
   const copy = guestByLocale[locale];
-  const layout = getLayout(menu.layout);
+
+  // The owner's theme / layout are only the default — the guest can override
+  // them in the Settings sheet, and the choice is stored per-slug on this phone
+  // (see the hydrate effect below). SSR and the first client render use the
+  // owner's value, so there is no hydration mismatch; stored prefs apply after.
+  const [theme, setTheme] = useState<ThemeKey>(() => getTheme(menu.theme).key);
+  const [layoutKey, setLayoutKey] = useState<LayoutKey>(() =>
+    getLayout(menu.layout),
+  );
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const layout = getLayout(layoutKey);
+
+  const pickTheme = (key: ThemeKey) => {
+    setTheme(key);
+    saveGuestPrefs(menu.slug, { theme: key, layout: layoutKey });
+  };
+  const pickLayout = (key: LayoutKey) => {
+    setLayoutKey(key);
+    saveGuestPrefs(menu.slug, { theme, layout: key });
+  };
 
   const sections = menu.categories.filter((category) => category.dishes.length > 0);
   const [active, setActive] = useState<number | null>(sections[0]?.id ?? null);
@@ -89,6 +117,18 @@ export function GuestMenu({
     }
     setHydrated(true);
   }, [ordering, menu.slug]);
+
+  // Apply the guest's own look choice (stored on this phone). Deliberately in
+  // an effect, not a lazy initializer: reading localStorage during render would
+  // diverge from the server HTML (owner default) and trip a hydration error, so
+  // the owner's default paints first and the stored choice overrides after.
+  useEffect(() => {
+    const prefs = loadGuestPrefs(menu.slug);
+    if (!prefs) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only sync, see above
+    if (prefs.theme) setTheme(getTheme(prefs.theme).key);
+    if (prefs.layout) setLayoutKey(getLayout(prefs.layout));
+  }, [menu.slug]);
 
   // Persist draft + ticket whenever they change (after first hydrate).
   useEffect(() => {
@@ -230,12 +270,16 @@ export function GuestMenu({
     // sections is rebuilt each render; length is enough — demo/menu ids are stable.
   }, [sections.length]);
 
-  // Lock the page behind the cart sheet and let Escape close it.
-  // A placed ticket stays in storage — Escape only hides the sheet.
+  // Lock the page behind any bottom sheet (cart or settings) and let Escape
+  // close it. A placed ticket stays in storage — Escape only hides the sheet.
+  const anySheetOpen = cartOpen || settingsOpen;
   useEffect(() => {
-    if (!cartOpen) return;
+    if (!anySheetOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setCartOpen(false);
+      if (e.key === "Escape") {
+        setCartOpen(false);
+        setSettingsOpen(false);
+      }
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
@@ -243,7 +287,7 @@ export function GuestMenu({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
     };
-  }, [cartOpen]);
+  }, [anySheetOpen]);
 
   const barVisible = ordering && !cartOpen && (totalCount > 0 || Boolean(ticket));
   const lastSectionId = sections[sections.length - 1]?.id;
@@ -256,9 +300,10 @@ export function GuestMenu({
   return (
     // The theme sets accent CSS vars on the root; every `bg-accent` /
     // `text-accent` below inherits them, so the whole menu recolours at once.
+    // `theme` is the guest's choice (defaults to the owner's), not `menu.theme`.
     <div
-      style={themeVars(menu.theme)}
-      className={`min-h-dvh bg-surface ${barVisible ? "pb-28" : "pb-8"}`}
+      style={themeVars(theme)}
+      className={`min-h-dvh bg-surface ${barVisible ? "pb-44" : "pb-24"}`}
     >
       <GuestVenueCover menu={menu} copy={copy} />
 
@@ -386,49 +431,93 @@ export function GuestMenu({
         ) : null}
       </main>
 
-      {/* Floating order bar — cart in progress, or reopen the waiter ticket. */}
-      {barVisible ? (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-white/95 backdrop-blur-lg">
-          <div className="mx-auto max-w-[680px] px-4 py-3">
-            {ticket && totalCount === 0 ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setPlaced(true);
-                  setCartOpen(true);
-                }}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
-              >
-                {copy.showTicket}
-                {ticket.table ? (
-                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs tabular-nums">
-                    {copy.placedTable} {ticket.table}
+      {/*
+        Bottom dock: the persistent nav (Menu · Cart · Settings), with the order
+        CTA stacked above it when a cart / ticket is in play. The nav is always
+        present so guests can always reach Settings; the cart tab only appears
+        when ordering is on. Sheets (z-40) cover the whole dock while open.
+      */}
+      <div className="fixed inset-x-0 bottom-0 z-30">
+        {barVisible ? (
+          <div className="border-t border-border bg-white/95 backdrop-blur-lg">
+            <div className="mx-auto max-w-[680px] px-4 py-3">
+              {ticket && totalCount === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlaced(true);
+                    setCartOpen(true);
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
+                >
+                  {copy.showTicket}
+                  {ticket.table ? (
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs tabular-nums">
+                      {copy.placedTable} {ticket.table}
+                    </span>
+                  ) : null}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlaced(false);
+                    setCartOpen(true);
+                  }}
+                  className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="grid h-6 min-w-6 place-items-center rounded-full bg-white/20 px-1.5 text-xs tabular-nums">
+                      {totalCount}
+                    </span>
+                    {copy.orderBar}
                   </span>
-                ) : null}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setPlaced(false);
-                  setCartOpen(true);
-                }}
-                className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
-              >
-                <span className="flex items-center gap-2">
-                  <span className="grid h-6 min-w-6 place-items-center rounded-full bg-white/20 px-1.5 text-xs tabular-nums">
-                    {totalCount}
+                  <span className="tabular-nums">
+                    {formatPrice(totalMinor, menu.currency)}
                   </span>
-                  {copy.orderBar}
-                </span>
-                <span className="tabular-nums">
-                  {formatPrice(totalMinor, menu.currency)}
-                </span>
-              </button>
-            )}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+
+        <nav
+          aria-label={copy.navMenu}
+          className="border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg"
+        >
+          <div className="mx-auto flex max-w-[680px] items-stretch justify-around px-2 py-1.5">
+            <NavButton
+              icon={<UtensilsCrossed size={20} strokeWidth={2} />}
+              label={copy.navMenu}
+              onClick={() => {
+                setCartOpen(false);
+                setSettingsOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
+            {ordering ? (
+              <NavButton
+                icon={<ShoppingBag size={20} strokeWidth={2} />}
+                label={copy.navCart}
+                badge={totalCount > 0 ? totalCount : undefined}
+                onClick={() => {
+                  setSettingsOpen(false);
+                  setPlaced(Boolean(ticket) && totalCount === 0);
+                  setCartOpen(true);
+                }}
+              />
+            ) : null}
+            <NavButton
+              icon={<Settings2 size={20} strokeWidth={2} />}
+              label={copy.navSettings}
+              onClick={() => {
+                setCartOpen(false);
+                setSettingsOpen(true);
+              }}
+            />
+          </div>
+        </nav>
+      </div>
 
       {/* Cart sheet */}
       {cartOpen ? (
@@ -600,6 +689,187 @@ export function GuestMenu({
           </div>
         </div>
       ) : null}
+
+      {/* Settings sheet — the guest tunes colour + layout for themselves. */}
+      {settingsOpen ? (
+        <div
+          className="fixed inset-0 z-40 flex items-end justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label={copy.settingsTitle}
+        >
+          <button
+            type="button"
+            aria-label={copy.close}
+            onClick={() => setSettingsOpen(false)}
+            className="absolute inset-0 bg-black/45"
+          />
+
+          <div className="relative flex max-h-[88dvh] w-full max-w-[680px] flex-col rounded-t-[26px] bg-surface shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.4)]">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <h2 className="text-[18px] font-extrabold">{copy.settingsTitle}</h2>
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(false)}
+                aria-label={copy.close}
+                className="grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-muted transition-colors hover:text-foreground"
+              >
+                <X size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              <p className="mb-2.5 text-[13px] font-bold uppercase tracking-[0.06em] text-muted">
+                {copy.settingsColor}
+              </p>
+              <div className="mb-6 flex flex-wrap gap-2.5">
+                {MENU_THEMES.map((preset) => {
+                  const selected = theme === preset.key;
+                  const label = locale === "kk" ? preset.labelKk : preset.labelRu;
+                  return (
+                    <button
+                      key={preset.key}
+                      type="button"
+                      onClick={() => pickTheme(preset.key)}
+                      aria-pressed={selected}
+                      aria-label={label}
+                      title={label}
+                      className={`grid h-11 w-11 place-items-center rounded-full text-white transition-transform active:scale-95 ${
+                        selected
+                          ? "ring-2 ring-foreground ring-offset-2 ring-offset-surface"
+                          : ""
+                      }`}
+                      style={{ background: preset.accent }}
+                    >
+                      {selected ? <Check size={20} strokeWidth={3} /> : null}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="mb-2.5 text-[13px] font-bold uppercase tracking-[0.06em] text-muted">
+                {copy.settingsDesign}
+              </p>
+              <div className="grid grid-cols-3 gap-2.5">
+                {MENU_LAYOUTS.map((preset) => {
+                  const selected = layoutKey === preset.key;
+                  return (
+                    <button
+                      key={preset.key}
+                      type="button"
+                      onClick={() => pickLayout(preset.key)}
+                      aria-pressed={selected}
+                      className={`flex flex-col gap-2 rounded-2xl border p-2.5 text-left transition-colors ${
+                        selected
+                          ? "border-foreground bg-white"
+                          : "border-border hover:bg-white"
+                      }`}
+                    >
+                      <LayoutPreview layout={preset.key} />
+                      <span className="flex items-center gap-1">
+                        <span className="text-[12px] font-bold leading-tight">
+                          {locale === "kk" ? preset.labelKk : preset.labelRu}
+                        </span>
+                        {selected ? (
+                          <Check
+                            size={14}
+                            strokeWidth={3}
+                            className="ml-auto shrink-0 text-accent-hover"
+                          />
+                        ) : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="mt-5 text-center text-xs text-muted-soft">
+                {copy.settingsHint}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** One tab in the persistent bottom nav. */
+function NavButton({
+  icon,
+  label,
+  onClick,
+  badge,
+}: {
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+  badge?: number;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-1 flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-muted transition-colors hover:text-foreground"
+    >
+      <span className="relative">
+        {icon}
+        {badge ? (
+          <span className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-extrabold leading-none text-white tabular-nums">
+            {badge}
+          </span>
+        ) : null}
+      </span>
+      <span className="text-[11px] font-bold leading-none">{label}</span>
+    </button>
+  );
+}
+
+/**
+ * Tiny colour-neutral schematic of a layout — bars stand in for photos and
+ * text so the guest recognises the arrangement at a glance (colour is the
+ * separate theme picker). Mirrors the owner-side preview.
+ */
+function LayoutPreview({ layout }: { layout: LayoutKey }) {
+  if (layout === "grid") {
+    return (
+      <div className="grid h-16 grid-cols-2 grid-rows-2 gap-1.5 rounded-lg border border-border bg-white p-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex flex-col gap-1">
+            <div className="flex-1 rounded bg-border-strong" />
+            <div className="h-1 w-3/4 rounded bg-border" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (layout === "compact") {
+    return (
+      <div className="flex h-16 flex-col justify-center gap-2 rounded-lg border border-border bg-white px-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div className="h-2.5 w-2.5 shrink-0 rounded bg-border-strong" />
+            <div className="h-1.5 flex-1 rounded bg-border" />
+            <div className="h-1.5 w-3 shrink-0 rounded bg-border-strong" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // classic
+  return (
+    <div className="flex h-16 flex-col gap-1.5 rounded-lg border border-border bg-white p-2">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <div key={i} className="flex flex-1 items-center gap-1.5">
+          <div className="h-full w-1/4 shrink-0 rounded bg-border-strong" />
+          <div className="flex flex-1 flex-col gap-1">
+            <div className="h-1.5 w-3/4 rounded bg-border-strong" />
+            <div className="h-1.5 w-1/2 rounded bg-border" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
