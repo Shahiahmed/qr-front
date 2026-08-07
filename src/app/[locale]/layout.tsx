@@ -6,6 +6,7 @@ import {
   DEFAULT_LOCALE,
   HTML_LANG,
   LOCALES,
+  OG_LOCALE,
   isLocale,
 } from "@/content/locales";
 import { siteFont } from "@/lib/fonts";
@@ -58,12 +59,12 @@ export async function generateMetadata({
       title,
       description,
       url: `/${locale}`,
-      locale: HTML_LANG[locale].replace("-", "_"),
-      // Advertise the other language too (ru_KZ / kk_KZ), so social platforms
+      locale: OG_LOCALE[locale],
+      // Advertise the other language too (ru_RU / kk_KZ), so social platforms
       // and crawlers know both versions exist — not a geo restriction, just a
       // language hint. The site itself is reachable from anywhere.
-      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) =>
-        HTML_LANG[l].replace("-", "_"),
+      alternateLocale: LOCALES.filter((l) => l !== locale).map(
+        (l) => OG_LOCALE[l],
       ),
       images: ogImage ? [ogImage] : undefined,
     },

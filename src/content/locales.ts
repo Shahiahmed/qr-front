@@ -6,14 +6,30 @@ export const LOCALES = ["ru", "kz"] as const;
 export const DEFAULT_LOCALE: Locale = "ru";
 
 /**
- * BCP 47 tags for `<html lang>` and hreflang. The route prefix stays `kz`
- * because that is what the client asked for and what reads naturally to a
- * Kazakh visitor, but the correct language tag is `kk` — `kz` is the country,
- * not the language. Search engines need the real tag.
+ * Language tag for `<html lang>`. Shortest correct form per W3C i18n: use the
+ * bare language subtag unless a regional variant genuinely differs (like
+ * en-GB vs en-US spelling). Russian and Kazakh have no distinct "KZ variant",
+ * so a region subtag adds nothing here and only confuses some tools (browser
+ * "translate page?", screen readers). The route prefix stays `kz`, but the real
+ * language tag is `kk` — `kz` is the country, not the language.
+ *
+ * Note: geo-targeting to Kazakhstan lives in the `hreflang` alternates
+ * (ru-KZ / kk-KZ, hardcoded in the layout), NOT here — that is the tag Google
+ * uses to pick the right version by country.
  */
 export const HTML_LANG: Record<Locale, string> = {
-  ru: "ru-KZ",
-  kz: "kk-KZ",
+  ru: "ru",
+  kz: "kk",
+};
+
+/**
+ * `og:locale` value for social previews. Facebook expects `language_TERRITORY`
+ * from its own supported list — `ru_RU` and `kk_KZ` are valid, a bare `ru` or a
+ * `ru_KZ` (unsupported) would be ignored.
+ */
+export const OG_LOCALE: Record<Locale, string> = {
+  ru: "ru_RU",
+  kz: "kk_KZ",
 };
 
 export function isLocale(value: string): value is Locale {
