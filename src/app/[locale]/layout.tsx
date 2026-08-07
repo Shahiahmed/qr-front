@@ -59,6 +59,12 @@ export async function generateMetadata({
       description,
       url: `/${locale}`,
       locale: HTML_LANG[locale].replace("-", "_"),
+      // Advertise the other language too (ru_KZ / kk_KZ), so social platforms
+      // and crawlers know both versions exist — not a geo restriction, just a
+      // language hint. The site itself is reachable from anywhere.
+      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) =>
+        HTML_LANG[l].replace("-", "_"),
+      ),
       images: ogImage ? [ogImage] : undefined,
     },
     twitter: {
