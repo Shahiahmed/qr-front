@@ -4,8 +4,8 @@ import type { NextRequest } from "next/server";
 /**
  * Same-origin proxy for a venue's logo, used by the QR constructor.
  *
- * The logo lives on the API host (api.qmenu.kz), a different origin from the
- * app (qmenu.kz). Reading it in the browser to bake into a canvas would need
+ * The logo lives on the API host (api.qr-menu.kz), a different origin from the
+ * app (qr-menu.kz). Reading it in the browser to bake into a canvas would need
  * CORS headers on `/storage`, which nginx serves statically without them — so
  * a `fetch` from the client taints the canvas and PNG/SVG export fails.
  *

@@ -29,15 +29,15 @@ export async function generateMetadata({
 
   if (slug === DEMO_SLUG) {
     return {
-      title: "Демо-меню — Qmenu",
-      description: "Так гость видит меню заведения на Qmenu. Живой пример.",
+      title: "Демо-меню — QR меню",
+      description: "Так гость видит меню заведения на QR меню. Живой пример.",
       openGraph: { title: `${demoMenu.name} — демо-меню`, type: "website" },
     };
   }
 
   const menu = await fetchPublicMenu(slug);
 
-  if (!menu) return { title: "Qmenu", robots: { index: false } };
+  if (!menu) return { title: "QR меню", robots: { index: false } };
 
   return {
     title: `${menu.name} — меню`,
@@ -97,7 +97,7 @@ export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) 
         </div>
 
         <a
-          href="https://qmenu.kz"
+          href="https://qr-menu.kz"
           className="relative mt-8 text-[13px] font-semibold text-muted-soft transition-colors hover:text-accent"
         >
           {ru.poweredBy}

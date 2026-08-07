@@ -12,7 +12,7 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
 
   return {
-    title: `${authByLocale[locale].subTitle} — Qmenu`,
+    title: `${authByLocale[locale].subTitle} — QR меню`,
     robots: { index: false, follow: false },
   };
 }

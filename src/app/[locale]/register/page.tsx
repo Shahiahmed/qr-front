@@ -13,7 +13,7 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
 
   return {
-    title: `${authByLocale[locale].registerTitle} — Qmenu`,
+    title: `${authByLocale[locale].registerTitle} — QR меню`,
     // Auth screens have nothing to offer search engines.
     robots: { index: false, follow: false },
   };

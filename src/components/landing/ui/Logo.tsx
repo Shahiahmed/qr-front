@@ -28,7 +28,7 @@ export function Logo({ className = "", size = "md", href = "#hero" }: LogoProps)
         {brand.logoLetter}
       </span>
       <span className={`font-extrabold tracking-[-0.02em] ${textSize}`}>
-        {brand.name}
+        {brand.wordmark}
       </span>
     </a>
   );

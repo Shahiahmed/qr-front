@@ -54,7 +54,7 @@ export async function generateMetadata({
     },
     openGraph: {
       type: "website",
-      siteName: "Qmenu",
+      siteName: "QR меню",
       title,
       description,
       url: `/${locale}`,

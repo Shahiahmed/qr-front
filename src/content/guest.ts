@@ -89,8 +89,8 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     settingsHint: "Оформление под себя — только на этом устройстве.",
     settingsColor: "Цвет",
     settingsDesign: "Дизайн",
-    poweredBy: "Сделано на Qmenu",
-    poweredByAria: "Qmenu — QR-меню для ресторанов",
+    poweredBy: "Сделано на QR меню",
+    poweredByAria: "QR меню — QR-меню для ресторанов",
   },
   kk: {
     soldOut: "Бітті",
@@ -131,7 +131,7 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     settingsHint: "Мәзірді өзіңізге ыңғайлаңыз — тек осы құрылғыда.",
     settingsColor: "Түс",
     settingsDesign: "Дизайн",
-    poweredBy: "Qmenu-де жасалған",
-    poweredByAria: "Qmenu — мейрамханаларға арналған QR-мәзір",
+    poweredBy: "QR меню-де жасалған",
+    poweredByAria: "QR меню — мейрамханаларға арналған QR-мәзір",
   },
 };

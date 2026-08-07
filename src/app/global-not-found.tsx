@@ -15,7 +15,7 @@ import "./globals.css";
  * The visitor's language is unknown here, so both are shown (RU lead, KZ below).
  */
 export const metadata: Metadata = {
-  title: "Страница не найдена — Qmenu",
+  title: "Страница не найдена — QR меню",
 };
 
 export default function GlobalNotFound() {
@@ -31,7 +31,7 @@ export default function GlobalNotFound() {
 
           <div className="relative flex w-full max-w-sm flex-col items-center gap-6 rounded-[28px] border border-border bg-white/80 p-8 shadow-[0_20px_60px_-30px_rgba(20,18,16,0.35)] backdrop-blur">
             <span className="text-[18px] font-extrabold tracking-[-0.02em] text-foreground">
-              Qmenu
+              QR меню
             </span>
 
             <p className="text-[64px] font-extrabold leading-none tracking-[-0.04em] text-foreground">

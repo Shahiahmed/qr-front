@@ -64,13 +64,16 @@ type PlanCopy = {
 };
 
 export const brand = {
-  name: "Qmenu",
-  logoLetter: "Q",
+  // Full wordmark for aria labels, OG siteName, page-title suffixes.
+  name: "QR меню",
+  // The badge shows "QR"; the wordmark word next to it is "меню" → "QR меню".
+  logoLetter: "QR",
+  wordmark: "меню",
 } as const;
 
 const RU: LandingCopy = {
   meta: {
-    title: "Qmenu — QR-меню для ресторанов",
+    title: "QR меню — цифровое меню для ресторанов",
     description:
       "Гости сканируют код и видят меню без приложения — на русском и казахском. Запуск за 2 минуты.",
   },
@@ -250,14 +253,14 @@ const RU: LandingCopy = {
     { label: "Вопросы", href: "#faq" },
     { label: "Контакты", href: "#cta" },
   ],
-  footRights: "© 2026 Qmenu. Все права защищены.",
+  footRights: "© 2026 QR меню. Все права защищены.",
   waAria: "Написать в WhatsApp",
-  waMessage: "Здравствуйте! Хочу узнать про Qmenu.",
+  waMessage: "Здравствуйте! Хочу узнать про QR меню.",
 };
 
 const KZ: LandingCopy = {
   meta: {
-    title: "Qmenu — мейрамханаларға арналған QR-мәзір",
+    title: "QR меню — мейрамханаларға арналған QR-мәзір",
     description:
       "Қонақтар кодты сканерлеп, қосымшасыз мәзірді көреді — орысша және қазақша.",
   },
@@ -436,9 +439,9 @@ const KZ: LandingCopy = {
     { label: "Сұрақтар", href: "#faq" },
     { label: "Байланыс", href: "#cta" },
   ],
-  footRights: "© 2026 Qmenu. Барлық құқықтар қорғалған.",
+  footRights: "© 2026 QR меню. Барлық құқықтар қорғалған.",
   waAria: "WhatsApp-қа жазу",
-  waMessage: "Сәлеметсіз бе! Qmenu туралы білгім келеді.",
+  waMessage: "Сәлеметсіз бе! QR меню туралы білгім келеді.",
 };
 
 export const landingByLocale: Record<Locale, LandingCopy> = {

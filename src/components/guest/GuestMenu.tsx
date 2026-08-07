@@ -388,7 +388,7 @@ export function GuestMenu({
               else sectionRefs.current.delete(category.id);
             }}
             // No min-height stretch: it left a huge empty band under short
-            // trailing sections (and under the Qmenu credit). Last-tab
+            // trailing sections (and under the "QR меню" credit). Last-tab
             // highlighting uses the at-bottom scroll-spy instead.
             className="pt-7"
           >

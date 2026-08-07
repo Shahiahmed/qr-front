@@ -11,7 +11,7 @@ export const VENUES_QUERY_KEY = ["establishments"] as const;
  * printed on a table tent.
  */
 export const PUBLIC_MENU_HOST =
-  (process.env.NEXT_PUBLIC_MENU_HOST ?? "qmenu.kz") + "/m";
+  (process.env.NEXT_PUBLIC_MENU_HOST ?? "qr-menu.kz") + "/m";
 
 export function useVenues() {
   return useQuery({
