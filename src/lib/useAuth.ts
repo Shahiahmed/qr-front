@@ -35,6 +35,16 @@ function writeStoredUser(user: User | null): void {
   }
 }
 
+/**
+ * Persist a confirmed session for the public header to read. The login/register
+ * forms already do this through `useSetAuthUser`, but the Google sign-in is a
+ * full-page redirect with no client mutation — so the cabinet shell calls this
+ * when it fetches the user, otherwise the landing keeps showing "Войти".
+ */
+export function persistAuthUser(user: User | null): void {
+  writeStoredUser(user);
+}
+
 export function useAuth() {
   const query = useQuery({
     queryKey: USER_QUERY_KEY,

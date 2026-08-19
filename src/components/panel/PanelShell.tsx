@@ -9,7 +9,7 @@ import { Logo } from "@/components/landing/ui/Logo";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
 import { currentUser, logout } from "@/lib/api";
-import { USER_QUERY_KEY, useSetAuthUser } from "@/lib/useAuth";
+import { persistAuthUser, USER_QUERY_KEY, useSetAuthUser } from "@/lib/useAuth";
 
 export type PanelTab = "venues" | "subscription" | "profile";
 
@@ -28,7 +28,14 @@ export function PanelShell({
 
   const { data: user, isPending } = useQuery({
     queryKey: USER_QUERY_KEY,
-    queryFn: currentUser,
+    // Mirror the confirmed session into session storage so the public header
+    // (same tab) shows the cabinet link after a Google sign-in, which — being
+    // a full-page redirect — never runs a login mutation to write it.
+    queryFn: async () => {
+      const signedIn = await currentUser();
+      persistAuthUser(signedIn);
+      return signedIn;
+    },
   });
 
   const signOut = useMutation({
