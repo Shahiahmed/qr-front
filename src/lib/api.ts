@@ -23,6 +23,16 @@ const BASE_URL =
 /** False when no API is reachable — callers must not fire requests. */
 export const isApiConfigured = BASE_URL !== "";
 
+/**
+ * Full-page destination that starts the Google OAuth flow. It is a plain URL,
+ * not a `fetch`: OAuth redirects the whole browser to Google and back, so the
+ * button must be an anchor / `location` change, never an XHR. The route lives
+ * at the API root (web.php), outside the `/api` group.
+ */
+export function googleAuthUrl(locale: string): string {
+  return `${BASE_URL}/auth/google/redirect?locale=${encodeURIComponent(locale)}`;
+}
+
 export type ValidationErrors = Record<string, string[]>;
 
 export class ApiError extends Error {

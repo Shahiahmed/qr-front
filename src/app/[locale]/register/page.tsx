@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { GoogleButton } from "@/components/auth/GoogleButton";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { authByLocale } from "@/content/auth";
 import { isLocale } from "@/content/locales";
@@ -42,6 +43,7 @@ export default async function RegisterPage({ params }: PageProps<"/[locale]/regi
         </>
       }
     >
+      <GoogleButton locale={locale} />
       <RegisterForm locale={locale} />
     </AuthShell>
   );

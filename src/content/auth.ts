@@ -17,6 +17,12 @@ export type AuthCopy = {
   submitLogin: string;
   submitting: string;
 
+  /** "Continue with Google" button and the "or" divider above the form. */
+  continueWithGoogle: string;
+  orDivider: string;
+  /** Shown when Google sign-in fails or is cancelled (?error=google). */
+  googleError: string;
+
   haveAccount: string;
   goLogin: string;
   noAccount: string;
@@ -167,6 +173,10 @@ const RU: AuthCopy = {
   submitLogin: "Войти",
   submitting: "Отправляем…",
 
+  continueWithGoogle: "Войти через Google",
+  orDivider: "или",
+  googleError: "Не удалось войти через Google. Попробуйте ещё раз.",
+
   haveAccount: "Уже есть аккаунт?",
   goLogin: "Войти",
   noAccount: "Ещё нет аккаунта?",
@@ -302,6 +312,10 @@ const KZ: AuthCopy = {
   submitRegister: "Тіркелу",
   submitLogin: "Кіру",
   submitting: "Жіберілуде…",
+
+  continueWithGoogle: "Google арқылы кіру",
+  orDivider: "немесе",
+  googleError: "Google арқылы кіру сәтсіз аяқталды. Қайталап көріңіз.",
 
   haveAccount: "Аккаунтыңыз бар ма?",
   goLogin: "Кіру",
