@@ -39,9 +39,25 @@ export type AuthCopy = {
   dashboardNext: string;
   logout: string;
 
+  tabOverview: string;
   tabVenues: string;
   tabProfile: string;
   tabSubscription: string;
+
+  /** Overview (cabinet home) page. */
+  overviewTitle: string;
+  overviewWelcome: string;
+  /** Summary stat-card captions. */
+  statVenues: string;
+  statActive: string;
+  statAttention: string;
+  overviewQuickTitle: string;
+  overviewVenuesTitle: string;
+  overviewSeeAll: string;
+
+  /** Sidebar drawer toggle (mobile). */
+  navOpen: string;
+  navClose: string;
 
   subTitle: string;
   /** Intro line under the page title. */
@@ -191,9 +207,22 @@ const RU: AuthCopy = {
   dashboardNext: "Следующий шаг — добавить заведение: название, адрес и контакты.",
   logout: "Выйти",
 
+  tabOverview: "Обзор",
   tabVenues: "Заведения",
   tabProfile: "Профиль",
   tabSubscription: "Подписка",
+
+  overviewTitle: "Обзор",
+  overviewWelcome: "Добро пожаловать",
+  statVenues: "Заведения",
+  statActive: "Активные",
+  statAttention: "Требуют внимания",
+  overviewQuickTitle: "Быстрые действия",
+  overviewVenuesTitle: "Ваши заведения",
+  overviewSeeAll: "Все заведения",
+
+  navOpen: "Открыть меню",
+  navClose: "Закрыть меню",
 
   subTitle: "Подписка",
   subSubtitle: "Выберите тариф и оставьте заявку — мы активируем его вручную.",
@@ -331,9 +360,22 @@ const KZ: AuthCopy = {
   dashboardNext: "Келесі қадам — мекеме қосу: атауы, мекенжайы және байланыс.",
   logout: "Шығу",
 
+  tabOverview: "Шолу",
   tabVenues: "Мекемелер",
   tabProfile: "Профиль",
   tabSubscription: "Жазылым",
+
+  overviewTitle: "Шолу",
+  overviewWelcome: "Қош келдіңіз",
+  statVenues: "Мекемелер",
+  statActive: "Белсенді",
+  statAttention: "Назар қажет",
+  overviewQuickTitle: "Жылдам әрекеттер",
+  overviewVenuesTitle: "Сіздің мекемелеріңіз",
+  overviewSeeAll: "Барлық мекемелер",
+
+  navOpen: "Мәзірді ашу",
+  navClose: "Мәзірді жабу",
 
   subTitle: "Жазылым",
   subSubtitle: "Тарифті таңдап, өтінім қалдырыңыз — оны қолмен қосамыз.",

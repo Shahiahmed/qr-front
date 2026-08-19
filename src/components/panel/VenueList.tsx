@@ -29,7 +29,7 @@ export function VenueList({ locale }: { locale: Locale }) {
     return (
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {[0, 1].map((key) => (
-          <div key={key} className="h-[210px] animate-pulse rounded-[20px] bg-surface-2" />
+          <div key={key} className="h-[190px] animate-pulse rounded-2xl bg-surface-2" />
         ))}
       </div>
     );
@@ -47,16 +47,21 @@ export function VenueList({ locale }: { locale: Locale }) {
         {list.map((venue) => (
           <article
             key={venue.id}
-            className="flex flex-col rounded-[20px] border border-border bg-white p-5 transition-shadow hover:shadow-[0_20px_40px_-24px_rgba(20,18,16,0.3)]"
+            className="flex flex-col rounded-2xl border border-border bg-white p-5 shadow-[0_1px_2px_rgba(20,18,16,0.04)] transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(20,18,16,0.28)]"
           >
-            <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-[14px] bg-accent-soft text-accent-hover">
-              <UtensilsCrossed size={20} />
-            </span>
-
-            <h3 className="text-[19px] font-extrabold tracking-[-0.02em]">{venue.name}</h3>
-            <p className="mt-1 truncate text-sm text-muted-soft">
-              {PUBLIC_MENU_HOST}/{venue.slug}
-            </p>
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-hover">
+                <UtensilsCrossed size={18} />
+              </span>
+              <div className="min-w-0">
+                <h3 className="truncate text-[17px] font-extrabold tracking-[-0.02em]">
+                  {venue.name}
+                </h3>
+                <p className="mt-0.5 truncate text-[13px] text-muted-soft">
+                  {PUBLIC_MENU_HOST}/{venue.slug}
+                </p>
+              </div>
+            </div>
 
             <AccessBadge venue={venue} locale={locale} copy={copy} />
 
@@ -108,9 +113,11 @@ export function VenueList({ locale }: { locale: Locale }) {
         <button
           type="button"
           onClick={() => setDialog({ open: true })}
-          className="flex min-h-[210px] flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-border-strong bg-white/60 p-5 text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover"
+          className="flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border-strong bg-white/60 p-5 text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover"
         >
-          <FilePlus2 size={38} strokeWidth={1.5} />
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent-hover">
+            <FilePlus2 size={24} strokeWidth={1.75} />
+          </span>
           <span className="text-[15px] font-semibold">{copy.venueAdd}</span>
         </button>
       </div>
@@ -131,7 +138,7 @@ export function VenueList({ locale }: { locale: Locale }) {
  * a loud warning; trial/subscription show the countdown. Grandfathered venues
  * (access_source null — created before the limit) simply show «no limit».
  */
-function AccessBadge({
+export function AccessBadge({
   venue,
   locale,
   copy,

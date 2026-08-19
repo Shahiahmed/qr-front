@@ -194,7 +194,7 @@ export function VenueQr({
         </span>
         <p className="text-[17px] font-bold">{menuCopy.venueNotFound}</p>
         <Link
-          href={`/${locale}/dashboard`}
+          href={`/${locale}/dashboard/venues`}
           className="text-[15px] font-semibold text-accent transition-colors hover:text-accent-hover"
         >
           ← {menuCopy.backToVenues}
@@ -370,7 +370,7 @@ export function VenueQr({
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
           <Link
-            href={`/${locale}/dashboard`}
+            href={`/${locale}/dashboard/venues`}
             className="text-[15px] font-semibold text-muted transition-colors hover:text-foreground"
           >
             ← {menuCopy.backToVenues}
