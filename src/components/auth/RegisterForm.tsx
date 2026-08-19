@@ -100,6 +100,8 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         type="password"
         autoComplete="new-password"
         hint={copy.passwordHint}
+        showLabel={copy.passwordShow}
+        hideLabel={copy.passwordHide}
         value={values.password}
         errors={errors.password}
         onChange={(e) => update("password", e.target.value)}
@@ -110,6 +112,8 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         name="password_confirmation"
         type="password"
         autoComplete="new-password"
+        showLabel={copy.passwordShow}
+        hideLabel={copy.passwordHide}
         value={values.password_confirmation}
         onChange={(e) => update("password_confirmation", e.target.value)}
       />

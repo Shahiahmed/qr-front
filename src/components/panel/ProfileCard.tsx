@@ -117,6 +117,8 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             type="password"
             autoComplete="current-password"
             required
+            showLabel={copy.passwordShow}
+            hideLabel={copy.passwordHide}
             value={values.current_password}
             errors={errors.current_password}
             onChange={(e) => update("current_password", e.target.value)}
@@ -129,6 +131,8 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             autoComplete="new-password"
             required
             hint={copy.passwordHint}
+            showLabel={copy.passwordShow}
+            hideLabel={copy.passwordHide}
             value={values.password}
             errors={errors.password}
             onChange={(e) => update("password", e.target.value)}
@@ -140,6 +144,8 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             type="password"
             autoComplete="new-password"
             required
+            showLabel={copy.passwordShow}
+            hideLabel={copy.passwordHide}
             value={values.password_confirmation}
             errors={errors.password_confirmation}
             onChange={(e) => update("password_confirmation", e.target.value)}

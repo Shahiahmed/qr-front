@@ -11,6 +11,8 @@ export type AuthCopy = {
   emailLabel: string;
   passwordLabel: string;
   passwordHint: string;
+  passwordShow: string;
+  passwordHide: string;
   passwordConfirmLabel: string;
 
   submitRegister: string;
@@ -183,6 +185,8 @@ const RU: AuthCopy = {
   emailLabel: "Email",
   passwordLabel: "Пароль",
   passwordHint: "Минимум 8 символов",
+  passwordShow: "Показать пароль",
+  passwordHide: "Скрыть пароль",
   passwordConfirmLabel: "Повторите пароль",
 
   submitRegister: "Зарегистрироваться",
@@ -336,6 +340,8 @@ const KZ: AuthCopy = {
   emailLabel: "Email",
   passwordLabel: "Құпиясөз",
   passwordHint: "Кемінде 8 таңба",
+  passwordShow: "Құпиясөзді көрсету",
+  passwordHide: "Құпиясөзді жасыру",
   passwordConfirmLabel: "Құпиясөзді қайталаңыз",
 
   submitRegister: "Тіркелу",

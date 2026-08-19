@@ -79,6 +79,8 @@ export function LoginForm({ locale }: { locale: Locale }) {
         name="password"
         type="password"
         autoComplete="current-password"
+        showLabel={copy.passwordShow}
+        hideLabel={copy.passwordHide}
         value={values.password}
         errors={errors.password}
         onChange={(e) => update("password", e.target.value)}
