@@ -6,6 +6,16 @@ export const LOCALES = ["ru", "kz"] as const;
 export const DEFAULT_LOCALE: Locale = "ru";
 
 /**
+ * Native language name shown in the language switcher's dropdown. Add an entry
+ * here when adding a locale (see §10 in the root CLAUDE.md) — the switcher lists
+ * whatever LOCALES contains and reads its label from this map.
+ */
+export const LOCALE_NAMES: Record<Locale, string> = {
+  ru: "Русский",
+  kz: "Қазақша",
+};
+
+/**
  * Language tag for `<html lang>`. Shortest correct form per W3C i18n: use the
  * bare language subtag unless a regional variant genuinely differs (like
  * en-GB vs en-US spelling). Russian and Kazakh have no distinct "KZ variant",

@@ -10,6 +10,7 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 import { LandingLocaleProvider } from "@/components/landing/LandingLocaleProvider";
 import { Pricing } from "@/components/landing/Pricing";
 import { PromoModal } from "@/components/landing/PromoModal";
+import { ScrollToTop } from "@/components/landing/ScrollToTop";
 import { isLocale } from "@/content/locales";
 import { getPromo, promoFieldsFor } from "@/lib/promo";
 
@@ -41,6 +42,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       </main>
       <Footer />
       <FloatingWhatsApp />
+      <ScrollToTop />
       {promo && promoFields?.title ? (
         <PromoModal
           id={promo.id}
