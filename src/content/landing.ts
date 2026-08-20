@@ -52,6 +52,7 @@ export type LandingCopy = {
   footRights: string;
   waAria: string;
   waMessage: string;
+  promoClose: string;
 };
 
 type PlanCopy = {
@@ -256,6 +257,7 @@ const RU: LandingCopy = {
   footRights: "© 2026 QR меню. Все права защищены.",
   waAria: "Написать в WhatsApp",
   waMessage: "Здравствуйте! Хочу узнать про QR меню.",
+  promoClose: "Закрыть",
 };
 
 const KZ: LandingCopy = {
@@ -442,6 +444,7 @@ const KZ: LandingCopy = {
   footRights: "© 2026 QR меню. Барлық құқықтар қорғалған.",
   waAria: "WhatsApp-қа жазу",
   waMessage: "Сәлеметсіз бе! QR меню туралы білгім келеді.",
+  promoClose: "Жабу",
 };
 
 export const landingByLocale: Record<Locale, LandingCopy> = {
