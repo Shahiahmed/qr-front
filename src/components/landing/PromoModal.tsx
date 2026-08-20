@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
 
@@ -18,8 +18,9 @@ type PromoModalProps = {
 const DISMISS_KEY = "qmenu.promo-dismissed.v1";
 
 /**
- * Landing promo pop-up. The server only renders this when the promo is active
- * and has a title, so `title` is guaranteed here.
+ * Landing promo pop-up — a dark "premium" card that stands apart from the light
+ * landing: warm coral/gold glows on a near-black panel. The server only mounts
+ * this when the promo is active and has a title, so `title` is guaranteed here.
  *
  * Shown once per campaign: the dismissed campaign id lives in localStorage, so
  * editing the promo in /admin (new id) shows it again to everyone. Reveal is
@@ -77,45 +78,55 @@ export function PromoModal({ id, badge, title, body, ctaLabel, ctaUrl }: PromoMo
         type="button"
         aria-label={copy.promoClose}
         onClick={close}
-        className="absolute inset-0 h-full w-full cursor-default bg-ink/50 backdrop-blur-sm motion-safe:animate-[fade-in_200ms_ease-out]"
+        className="absolute inset-0 h-full w-full cursor-default bg-black/60 backdrop-blur-sm motion-safe:animate-[fade-in_220ms_ease-out]"
       />
 
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-surface p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.45)] motion-safe:animate-[pop-in_260ms_cubic-bezier(0.22,1,0.36,1)] sm:p-8">
-        {/* Warm glow echoing the brand gradient. */}
+      <div className="relative w-full max-w-md overflow-hidden rounded-[22px] border border-white/10 bg-[#161210] p-6 text-white shadow-[0_40px_120px_-24px_rgba(0,0,0,0.8)] motion-safe:animate-[pop-in_300ms_cubic-bezier(0.22,1,0.36,1)] sm:p-8">
+        {/* Warm coral wash from the top, gold pool from the corner — the glow. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-accent-soft blur-3xl"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(130%_85%_at_50%_-10%,rgba(255,106,77,0.28),transparent_60%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-24 -right-20 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(240,168,60,0.35),transparent_70%)] blur-2xl"
+        />
+        {/* Hairline highlight along the top edge. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
         />
 
         <button
           type="button"
           aria-label={copy.promoClose}
           onClick={close}
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6a4d]"
         >
           <X className="h-5 w-5" />
         </button>
 
         <div className="relative">
           {badge ? (
-            <span className="inline-flex items-center rounded-full bg-accent-soft px-3 py-1 text-xs font-bold uppercase tracking-wide text-accent">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f0a83c]/30 bg-[#f0a83c]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#f6c777]">
+              <Sparkles className="h-3.5 w-3.5" />
               {badge}
             </span>
           ) : null}
 
           <h2
             id="promo-title"
-            className="mt-3 text-2xl font-extrabold tracking-[-0.02em] text-foreground"
+            className="mt-4 text-[26px] font-extrabold leading-tight tracking-[-0.02em] text-white"
           >
             {title}
           </h2>
 
           {body ? (
-            <p className="mt-2 text-[15px] leading-relaxed text-muted">{body}</p>
+            <p className="mt-2.5 text-[15px] leading-relaxed text-white/65">{body}</p>
           ) : null}
 
           {ctaLabel && ctaUrl ? (
-            <Button href={ctaUrl} className="mt-5 w-full" onClick={close}>
+            <Button href={ctaUrl} className="mt-6 w-full" onClick={close}>
               {ctaLabel}
             </Button>
           ) : null}
