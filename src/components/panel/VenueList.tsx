@@ -142,14 +142,20 @@ export function AccessBadge({
   venue,
   locale,
   copy,
+  inRow = false,
 }: {
   venue: Establishment;
   locale: Locale;
   copy: typeof authByLocale.ru;
+  // `inRow` drops the top margin so the badge can sit inline in a list row
+  // instead of stacking under the venue name (its default card use).
+  inRow?: boolean;
 }) {
+  const gap = inRow ? "" : "mt-3 ";
+
   if (venue.is_expired) {
     return (
-      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-1 text-[13px] font-semibold text-red-600">
+      <span className={`${gap}inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-1 text-[13px] font-semibold text-red-600`}>
         {copy.accessExpired}
       </span>
     );
@@ -157,7 +163,7 @@ export function AccessBadge({
 
   if (venue.access_source === null || venue.days_left === null) {
     return (
-      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-surface-2 px-3 py-1 text-[13px] font-semibold text-muted">
+      <span className={`${gap}inline-flex w-fit items-center rounded-full bg-surface-2 px-3 py-1 text-[13px] font-semibold text-muted`}>
         {copy.accessUnlimited}
       </span>
     );
@@ -170,7 +176,7 @@ export function AccessBadge({
 
   return (
     <span
-      className={`mt-3 inline-flex w-fit items-center rounded-full px-3 py-1 text-[13px] font-semibold ${
+      className={`${gap}inline-flex w-fit items-center rounded-full px-3 py-1 text-[13px] font-semibold ${
         trial ? "bg-amber-50 text-amber-700" : "bg-accent-soft text-accent-hover"
       }`}
     >

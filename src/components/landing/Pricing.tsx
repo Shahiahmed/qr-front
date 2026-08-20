@@ -9,9 +9,15 @@ import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 import type { LandingCopy } from "@/content/landing";
 import { getPlans, type Plan as ApiPlan } from "@/lib/api";
 import { formatPrice } from "@/lib/money";
+import { useAuth } from "@/lib/useAuth";
+import { useHydrated } from "@/lib/useHydrated";
 
 export function Pricing() {
   const { copy, locale } = useLandingLocale();
+  const { isAuthenticated } = useAuth();
+  // Signed-in visitors go to the cabinet's subscription page instead of
+  // registration; hydration-gated so the static server HTML matches (see Header).
+  const authed = useHydrated() && isAuthenticated;
 
   // The page is statically rendered; plans arrive from the API on the client.
   // Until they do (or if the API is down), the hand-written fallback shows —
@@ -28,7 +34,7 @@ export function Pricing() {
     };
   }, [locale]);
 
-  const href = `/${locale}/register`;
+  const href = authed ? `/${locale}/dashboard/subscription` : `/${locale}/register`;
 
   // The bespoke top tier (Premium) is pulled out of the grid and shown on its
   // own wide card below — four cards crammed in a row read poorly, and Premium

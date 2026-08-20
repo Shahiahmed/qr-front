@@ -60,6 +60,8 @@ export type AuthCopy = {
   /** Sidebar drawer toggle (mobile). */
   navOpen: string;
   navClose: string;
+  navCollapse: string;
+  navExpand: string;
 
   subTitle: string;
   /** Intro line under the page title. */
@@ -227,6 +229,8 @@ const RU: AuthCopy = {
 
   navOpen: "Открыть меню",
   navClose: "Закрыть меню",
+  navCollapse: "Свернуть меню",
+  navExpand: "Развернуть меню",
 
   subTitle: "Подписка",
   subSubtitle: "Выберите тариф и оставьте заявку — мы активируем его вручную.",
@@ -382,6 +386,8 @@ const KZ: AuthCopy = {
 
   navOpen: "Мәзірді ашу",
   navClose: "Мәзірді жабу",
+  navCollapse: "Мәзірді жию",
+  navExpand: "Мәзірді жаю",
 
   subTitle: "Жазылым",
   subSubtitle: "Тарифті таңдап, өтінім қалдырыңыз — оны қолмен қосамыз.",

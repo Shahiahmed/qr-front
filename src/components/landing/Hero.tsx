@@ -6,9 +6,20 @@ import { PhoneMockup } from "@/components/landing/ui/PhoneMockup";
 import { QrCode } from "@/components/landing/ui/QrCode";
 import { Reveal } from "@/components/landing/ui/Reveal";
 import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
+import { authByLocale } from "@/content/auth";
+import { useAuth } from "@/lib/useAuth";
+import { useHydrated } from "@/lib/useHydrated";
 
 export function Hero() {
   const { copy, locale } = useLandingLocale();
+  const auth = authByLocale[locale];
+  const { isAuthenticated } = useAuth();
+  // Signed-in visitors should land in the cabinet, not on registration. Gate on
+  // hydration so the static (session-less) server HTML and the first client
+  // paint agree — see Header for the same guard.
+  const authed = useHydrated() && isAuthenticated;
+  const ctaHref = authed ? `/${locale}/dashboard` : `/${locale}/register`;
+  const ctaLabel = authed ? auth.navPanel : copy.heroCta1;
 
   return (
     <section id="hero" aria-labelledby="hero-title" className="relative overflow-hidden">
@@ -49,10 +60,10 @@ export function Hero() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5 lg:justify-start">
               <Button
                 variant="primary"
-                href={`/${locale}/register`}
+                href={ctaHref}
                 className="rounded-[14px] px-7 py-4 text-[17px]"
               >
-                {copy.heroCta1}
+                {ctaLabel}
                 <ArrowRight
                   size={18}
                   className="transition-transform duration-200 group-hover/btn:translate-x-1"

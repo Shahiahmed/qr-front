@@ -5,9 +5,18 @@ import { Button } from "@/components/landing/ui/Button";
 import { QrCode } from "@/components/landing/ui/QrCode";
 import { Reveal } from "@/components/landing/ui/Reveal";
 import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
+import { authByLocale } from "@/content/auth";
+import { useAuth } from "@/lib/useAuth";
+import { useHydrated } from "@/lib/useHydrated";
 
 export function CtaBanner() {
   const { copy, locale } = useLandingLocale();
+  const auth = authByLocale[locale];
+  const { isAuthenticated } = useAuth();
+  // Signed-in visitors go to the cabinet; hydration-gated (see Header).
+  const authed = useHydrated() && isAuthenticated;
+  const ctaHref = authed ? `/${locale}/dashboard` : `/${locale}/register`;
+  const ctaLabel = authed ? auth.navPanel : copy.ctaBtn;
 
   return (
     <section id="cta" aria-labelledby="cta-title" className="py-16 lg:py-[88px]">
@@ -37,10 +46,10 @@ export function CtaBanner() {
                 <div className="mt-8 flex justify-center lg:justify-start">
                   <Button
                     variant="onAccent"
-                    href={`/${locale}/register`}
+                    href={ctaHref}
                     className="rounded-[15px] px-10 py-[18px] text-lg font-extrabold"
                   >
-                    {copy.ctaBtn}
+                    {ctaLabel}
                     <ArrowRight
                       size={19}
                       className="transition-transform duration-200 group-hover/btn:translate-x-1"

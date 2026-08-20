@@ -5,9 +5,11 @@ type LogoProps = {
   size?: "sm" | "md";
   /** Defaults to the in-page anchor used across the landing. */
   href?: string;
+  /** Badge only, no wordmark — for a collapsed sidebar rail. */
+  markOnly?: boolean;
 };
 
-export function Logo({ className = "", size = "md", href = "#hero" }: LogoProps) {
+export function Logo({ className = "", size = "md", href = "#hero", markOnly = false }: LogoProps) {
   // The md mark steps down on narrow phones so the header row stays on one line.
   const markSize =
     size === "sm"
@@ -27,9 +29,11 @@ export function Logo({ className = "", size = "md", href = "#hero" }: LogoProps)
       >
         {brand.logoLetter}
       </span>
-      <span className={`font-extrabold tracking-[-0.02em] ${textSize}`}>
-        {brand.wordmark}
-      </span>
+      {markOnly ? null : (
+        <span className={`font-extrabold tracking-[-0.02em] ${textSize}`}>
+          {brand.wordmark}
+        </span>
+      )}
     </a>
   );
 }
