@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { Logo } from "@/components/landing/ui/Logo";
+import { Preloader } from "@/components/ui/Preloader";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
 import { currentUser, logout } from "@/lib/api";
@@ -276,11 +277,7 @@ export function PanelShell({
         }`}
       >
         <main className="mx-auto max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8">
-          {isPending || !user ? (
-            <div className="h-40 animate-pulse rounded-[20px] bg-surface-2" />
-          ) : (
-            children
-          )}
+          {isPending || !user ? <Preloader className="min-h-[60vh]" /> : children}
         </main>
       </div>
     </div>

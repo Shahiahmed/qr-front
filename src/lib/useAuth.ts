@@ -1,15 +1,18 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { currentUser, isApiConfigured, type User } from "@/lib/api";
 
 /** One key everywhere, so a login or logout updates every screen at once. */
 export const USER_QUERY_KEY = ["user"] as const;
 
 /*
- * Locale switches remount QueryProvider (fresh client). Without a hand-off the
- * header goes back to "loading" and the CTA buttons vanish for a beat. Session
- * storage bridges that gap for the same browser tab.
+ * The confirmed session is mirrored into localStorage — NOT sessionStorage —
+ * so it is shared across every tab and window, not just the one that logged in.
+ * A fresh tab (or a locale hop, which remounts QueryProvider with a fresh
+ * client) seeds the header from it instantly instead of flashing "Войти" until
+ * /api/user comes back. A `storage` event keeps open tabs in sync live.
  */
 const USER_STORAGE_KEY = "qmenu.user.v1";
 
@@ -17,7 +20,7 @@ function readStoredUser(): User | null | undefined {
   if (typeof window === "undefined") return undefined;
 
   try {
-    const raw = window.sessionStorage.getItem(USER_STORAGE_KEY);
+    const raw = window.localStorage.getItem(USER_STORAGE_KEY);
     if (raw === null) return undefined;
     return JSON.parse(raw) as User | null;
   } catch {
@@ -29,7 +32,7 @@ function writeStoredUser(user: User | null): void {
   if (typeof window === "undefined") return;
 
   try {
-    window.sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
   } catch {
     // Private mode / quota — auth still works from the network.
   }
@@ -46,6 +49,22 @@ export function persistAuthUser(user: User | null): void {
 }
 
 export function useAuth() {
+  const client = useQueryClient();
+
+  // Propagate a sign-in / sign-out from another tab. The `storage` event fires
+  // only in *other* tabs (the acting tab already updated its own cache), so a
+  // login here lights up "Кабинет" there, and a logout drops it back to guest —
+  // no refetch, no stale header lingering in a background tab.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== USER_STORAGE_KEY) return;
+      const next = readStoredUser();
+      client.setQueryData(USER_QUERY_KEY, next === undefined ? null : next);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [client]);
+
   const query = useQuery({
     queryKey: USER_QUERY_KEY,
     queryFn: async () => {
