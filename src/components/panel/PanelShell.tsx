@@ -80,7 +80,10 @@ export function PanelShell({
 
   useEffect(() => {
     if (leaving) return;
-    if (!isPending && user === null) router.replace(`/${locale}/login`);
+    // `!user` covers both a 401 (null) and a failed request (undefined, e.g. the
+    // API is unreachable) — either way there's no session to show, so send the
+    // visitor to login instead of hanging on the loader forever.
+    if (!isPending && !user) router.replace(`/${locale}/login`);
   }, [leaving, isPending, user, locale, router]);
 
   useEffect(() => {
@@ -276,9 +279,17 @@ export function PanelShell({
           collapsed ? "lg:pl-16" : "lg:pl-64"
         }`}
       >
-        <main className="mx-auto max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8">
-          {isPending || !user ? <Preloader className="min-h-[60vh]" /> : children}
-        </main>
+        {isPending || !user ? (
+          // Fill the content column's height and center — the rail stays visible
+          // (not covered), the spinner just sits in the middle of the workspace.
+          <div className="flex min-h-dvh items-center justify-center">
+            <Preloader />
+          </div>
+        ) : (
+          <main className="mx-auto max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8">
+            {children}
+          </main>
+        )}
       </div>
     </div>
   );
