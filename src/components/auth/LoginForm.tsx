@@ -79,6 +79,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
         name="password"
         type="password"
         autoComplete="current-password"
+        placeholder="••••••••"
         showLabel={copy.passwordShow}
         hideLabel={copy.passwordHide}
         value={values.password}

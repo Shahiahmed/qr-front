@@ -117,12 +117,16 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             type="password"
             autoComplete="current-password"
             required
+            placeholder="••••••••"
             showLabel={copy.passwordShow}
             hideLabel={copy.passwordHide}
             value={values.current_password}
             errors={errors.current_password}
             onChange={(e) => update("current_password", e.target.value)}
           />
+
+          {/* Split identity check from the new-password pair. */}
+          <hr className="border-t border-border" />
 
           <Field
             label={copy.newPasswordLabel}
@@ -131,6 +135,7 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             autoComplete="new-password"
             required
             hint={copy.passwordHint}
+            placeholder="••••••••"
             showLabel={copy.passwordShow}
             hideLabel={copy.passwordHide}
             value={values.password}
@@ -144,6 +149,7 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             type="password"
             autoComplete="new-password"
             required
+            placeholder="••••••••"
             showLabel={copy.passwordShow}
             hideLabel={copy.passwordHide}
             value={values.password_confirmation}
