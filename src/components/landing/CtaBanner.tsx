@@ -73,7 +73,7 @@ export function CtaBanner() {
               >
                 <QrCode className="h-[148px] w-[148px]" scanning />
                 <div className="mt-2.5 text-center text-[12px] font-extrabold tracking-[0.08em] text-muted">
-                  QMENU.KZ
+                  QR-MENU.KZ
                 </div>
               </div>
             </div>
