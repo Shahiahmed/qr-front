@@ -24,6 +24,19 @@ const LANGUAGES: { code: GuestLocale; label: string }[] = [
 ];
 
 /**
+ * Table number carried by a per-table QR (`/m/{slug}?table=12`). Used as the
+ * initial value of the waiter-call and order table fields so a guest who
+ * scanned their table's own code never has to type it. Read as a lazy state
+ * initialiser: on the server it is "", and the fields live inside closed
+ * sheets, so the client picking up the real value causes no hydration flip.
+ */
+function readQrTable(): string {
+  if (typeof window === "undefined") return "";
+  const value = new URLSearchParams(window.location.search).get("table") ?? "";
+  return value.trim().slice(0, 30);
+}
+
+/**
  * `ordering` turns on the at-the-table cart. Checkout is local-only for now:
  * the cart and the placed ticket live in `localStorage` on this phone so the
  * guest can show the screen to a waiter. Nothing is posted to the API yet.
@@ -54,7 +67,7 @@ export function GuestMenu({
   // Call-the-waiter sheet. Only shown when the venue bound a Telegram chat.
   const waiterEnabled = Boolean(menu.waiter_call_enabled);
   const [waiterOpen, setWaiterOpen] = useState(false);
-  const [waiterTable, setWaiterTable] = useState("");
+  const [waiterTable, setWaiterTable] = useState(readQrTable);
   const [waiterStatus, setWaiterStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
@@ -98,7 +111,7 @@ export function GuestMenu({
   const [cart, setCart] = useState<Record<number, number>>({});
   const [cartOpen, setCartOpen] = useState(false);
   const [placed, setPlaced] = useState(false);
-  const [table, setTable] = useState("");
+  const [table, setTable] = useState(readQrTable);
   const [ticket, setTicket] = useState<GuestOrderTicket | null>(null);
   // Gate persistence until localStorage has been read — otherwise the first
   // save would wipe a restored ticket with empty state.

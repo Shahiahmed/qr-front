@@ -169,6 +169,12 @@ export type AuthCopy = {
   qrTextCaption: string;
   qrShowName: string;
   qrShowUrl: string;
+  /** Optional table number baked into the QR link. */
+  qrTableLabel: string;
+  qrTablePlaceholder: string;
+  qrTableHint: string;
+  /** Prefix shown on the poster + guest sheet, e.g. "Стол 12". */
+  qrTableWord: string;
   qrDownloadTent: string;
   posterTitle: string;
   /** Printed on the table tent, above the code. */
@@ -327,6 +333,10 @@ const RU: AuthCopy = {
   qrTextCaption: "Подпись",
   qrShowName: "Показывать название заведения",
   qrShowUrl: "Показывать ссылку",
+  qrTableLabel: "Номер стола",
+  qrTablePlaceholder: "например, 12",
+  qrTableHint: "Гость сразу попадёт на этот стол — номер подставится при вызове официанта. Оставьте пустым для общего кода.",
+  qrTableWord: "Стол",
   qrDownloadTent: "Скачать табличку",
   posterTitle: "Табличка на стол",
   tentHeading: "Меню здесь",
@@ -484,6 +494,10 @@ const KZ: AuthCopy = {
   qrTextCaption: "Жазба",
   qrShowName: "Мекеме атауын көрсету",
   qrShowUrl: "Сілтемені көрсету",
+  qrTableLabel: "Үстел нөмірі",
+  qrTablePlaceholder: "мысалы, 12",
+  qrTableHint: "Қонақ бірден осы үстелге түседі — даяшыны шақырғанда нөмір автоматты қойылады. Ортақ код үшін бос қалдырыңыз.",
+  qrTableWord: "Үстел",
   qrDownloadTent: "Кестені жүктеу",
   posterTitle: "Үстелге қоятын кесте",
   tentHeading: "Мәзір осында",

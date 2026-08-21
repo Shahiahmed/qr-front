@@ -83,6 +83,10 @@ export function VenueQr({
   const [caption, setCaption] = useState(copy.tentHint);
   const [showName, setShowName] = useState(true);
   const [showUrl, setShowUrl] = useState(true);
+  // Optional table number baked into the link (`?table=12`). The guest UI
+  // reads it and pre-fills the waiter call, so scanning a table's own code
+  // tells the waiter which table without the guest typing anything.
+  const [table, setTable] = useState("");
 
   const [copied, setCopied] = useState(false);
   const [pngUrl, setPngUrl] = useState<string | null>(null);
@@ -103,8 +107,12 @@ export function VenueQr({
    * a custom domain the printed code has to point at the host the owner is
    * actually looking at, or every printed tent leads nowhere.
    */
+  // Keep only what a table label can sensibly hold; the backend caps at 30.
+  const tableId = table.trim().slice(0, 30);
   const menuUrl = venue
-    ? `${typeof window === "undefined" ? "" : window.location.origin}/m/${venue.slug}`
+    ? `${typeof window === "undefined" ? "" : window.location.origin}/m/${venue.slug}${
+        tableId ? `?table=${encodeURIComponent(tableId)}` : ""
+      }`
     : "";
 
   const options = useMemo(
@@ -203,8 +211,14 @@ export function VenueQr({
     );
   }
 
+  // Table number sanitised for a filename so per-table downloads don't clash.
+  const fileSuffix = tableId ? `-t${tableId.replace(/[^\w-]+/g, "")}` : "";
+
   async function downloadCodePng() {
-    await qrRef.current?.download({ name: `qmenu-${venue!.slug}`, extension: "png" });
+    await qrRef.current?.download({
+      name: `qmenu-${venue!.slug}${fileSuffix}`,
+      extension: "png",
+    });
   }
 
   // Composes the finished table tent — heading, code, name, caption, url — onto
@@ -228,6 +242,7 @@ export function VenueQr({
     if (!ctx) return;
 
     const headingFont = `800 60px ${family}`;
+    const tableFont = `800 48px ${family}`;
     const nameFont = `700 40px ${family}`;
     const captionFont = `400 30px ${family}`;
     const urlFont = `500 26px ${family}`;
@@ -251,6 +266,7 @@ export function VenueQr({
     };
 
     const headingLines = heading.trim() ? wrap(heading, headingFont) : [];
+    const tableLines = tableId ? wrap(`${copy.qrTableWord} ${tableId}`, tableFont) : [];
     const nameLines = showName && venue!.name ? wrap(venue!.name, nameFont) : [];
     const captionLines = caption.trim() ? wrap(caption, captionFont) : [];
     const urlText = showUrl ? menuUrl : "";
@@ -262,6 +278,7 @@ export function VenueQr({
     height += headingLines.length * 74;
     if (headingLines.length) height += blockGap;
     height += qrSize;
+    if (tableLines.length) height += blockGap + tableLines.length * 58;
     if (nameLines.length) height += blockGap + nameLines.length * 50;
     if (captionLines.length) height += 18 + captionLines.length * 40;
     if (urlText) height += 18 + 34;
@@ -288,6 +305,15 @@ export function VenueQr({
     ctx.drawImage(qrImage, (W - qrSize) / 2, y, qrSize, qrSize);
     y += qrSize;
 
+    if (tableLines.length) {
+      y += blockGap;
+      ctx.fillStyle = ink;
+      ctx.font = tableFont;
+      for (const line of tableLines) {
+        ctx.fillText(line, W / 2, y);
+        y += 58;
+      }
+    }
     if (nameLines.length) {
       y += blockGap;
       ctx.fillStyle = ink;
@@ -316,7 +342,7 @@ export function VenueQr({
     canvas.toBlob((out) => {
       if (!out) return;
       const url = URL.createObjectURL(out);
-      saveUrl(url, `qmenu-${venue!.slug}-tent.png`);
+      saveUrl(url, `qmenu-${venue!.slug}${fileSuffix}-tent.png`);
       URL.revokeObjectURL(url);
     }, "image/png");
   }
@@ -363,6 +389,7 @@ export function VenueQr({
     setCaption(copy.tentHint);
     setShowName(true);
     setShowUrl(true);
+    setTable("");
     clearLogo();
   }
 
@@ -411,6 +438,11 @@ export function VenueQr({
                   <div className="aspect-square w-full max-w-[240px] animate-pulse rounded-xl bg-white" />
                 )}
 
+                {tableId ? (
+                  <p className="text-[18px] font-extrabold text-accent">
+                    {copy.qrTableWord} {tableId}
+                  </p>
+                ) : null}
                 {showName && venue.name ? (
                   <p className="text-[17px] font-bold">{venue.name}</p>
                 ) : null}
@@ -620,6 +652,22 @@ export function VenueQr({
               </label>
               <CheckRow checked={showName} onChange={setShowName} label={copy.qrShowName} />
               <CheckRow checked={showUrl} onChange={setShowUrl} label={copy.qrShowUrl} />
+            </section>
+
+            {/* Table number → baked into the QR link */}
+            <section className="flex flex-col gap-2">
+              <label className="flex flex-col gap-1 text-[13px] font-semibold text-muted">
+                {copy.qrTableLabel}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={table}
+                  onChange={(event) => setTable(event.target.value)}
+                  placeholder={copy.qrTablePlaceholder}
+                  className="rounded-xl border border-border px-3 py-2 text-[15px] font-medium text-foreground outline-none focus:border-border-strong"
+                />
+              </label>
+              <p className="text-[13px] leading-snug text-muted">{copy.qrTableHint}</p>
             </section>
           </div>
         </div>
