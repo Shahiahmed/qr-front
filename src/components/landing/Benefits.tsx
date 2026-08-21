@@ -8,7 +8,7 @@ import {
   Palette,
   RefreshCw,
   ShoppingBag,
-  Wallet,
+  Smartphone,
 } from "lucide-react";
 import { Reveal } from "@/components/landing/ui/Reveal";
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
@@ -19,7 +19,7 @@ const FEATURE_ICONS = [
   ImageOff,
   ShoppingBag,
   BellRing,
-  Wallet,
+  Smartphone,
   BarChart3,
   RefreshCw,
   Palette,

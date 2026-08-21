@@ -21,7 +21,7 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
 
   return (
     <div
-      className={`relative w-[260px] sm:w-[300px] ${className}`}
+      className={`relative w-60 sm:w-68 ${className}`}
       aria-hidden="true"
     >
       <div className="absolute inset-[-30px] bg-[radial-gradient(circle_at_60%_40%,#FFE7DF,transparent_70%)] blur-[10px]" />
@@ -109,7 +109,7 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
           width={1339}
           height={2716}
           priority
-          sizes="(min-width: 640px) 300px, 260px"
+          sizes="(min-width: 640px) 272px, 240px"
           className="relative z-10 h-auto w-full select-none"
           draggable={false}
         />

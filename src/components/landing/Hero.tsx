@@ -26,7 +26,10 @@ export function Hero() {
       <div className="bg-mesh pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
       <div className="bg-grid pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
 
-      <div className="mx-auto grid max-w-[1180px] items-center gap-10 px-4 pb-14 pt-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:pb-20 lg:pt-[72px]">
+      {/* On desktop the section fills exactly one screen (minus the sticky
+          header) and centres its content, so the hero reads as one clean
+          above-the-fold frame. */}
+      <div className="mx-auto grid max-w-[1180px] items-center gap-10 px-4 pb-12 pt-10 sm:px-6 lg:min-h-[calc(100svh-68px)] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:pb-12 lg:pt-12">
         <div className="text-center lg:text-left">
           <Reveal>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-tint bg-white/70 px-3.5 py-2 text-sm font-semibold text-accent-hover shadow-[0_2px_10px_-4px_rgba(255,106,77,0.4)] backdrop-blur">

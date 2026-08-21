@@ -65,7 +65,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3.5">
       {formError ? (
         <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
           {formError}
@@ -94,37 +94,41 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         onChange={(e) => update("email", e.target.value)}
       />
 
-      <Field
-        label={copy.passwordLabel}
-        name="password"
-        type="password"
-        autoComplete="new-password"
-        hint={copy.passwordHint}
-        placeholder="••••••••"
-        showLabel={copy.passwordShow}
-        hideLabel={copy.passwordHide}
-        value={values.password}
-        errors={errors.password}
-        onChange={(e) => update("password", e.target.value)}
-      />
+      {/* Password + confirmation share a row on sm+ (they stack on phones) —
+          it keeps the whole form on one screen without shrinking anything. */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field
+          label={copy.passwordLabel}
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          hint={copy.passwordHint}
+          placeholder="••••••••"
+          showLabel={copy.passwordShow}
+          hideLabel={copy.passwordHide}
+          value={values.password}
+          errors={errors.password}
+          onChange={(e) => update("password", e.target.value)}
+        />
 
-      <Field
-        label={copy.passwordConfirmLabel}
-        name="password_confirmation"
-        type="password"
-        autoComplete="new-password"
-        placeholder="••••••••"
-        showLabel={copy.passwordShow}
-        hideLabel={copy.passwordHide}
-        value={values.password_confirmation}
-        onChange={(e) => update("password_confirmation", e.target.value)}
-      />
+        <Field
+          label={copy.passwordConfirmLabel}
+          name="password_confirmation"
+          type="password"
+          autoComplete="new-password"
+          placeholder="••••••••"
+          showLabel={copy.passwordShow}
+          hideLabel={copy.passwordHide}
+          value={values.password_confirmation}
+          onChange={(e) => update("password_confirmation", e.target.value)}
+        />
+      </div>
 
       <Button
         type="submit"
         variant="primary"
         disabled={mutation.isPending}
-        className="mt-1 w-full py-3.5 text-base"
+        className="mt-1 w-full py-3 text-base"
       >
         {mutation.isPending ? copy.submitting : copy.submitRegister}
       </Button>

@@ -14,16 +14,16 @@ export function GoogleButton({ locale }: { locale: Locale }) {
   if (!isApiConfigured) return null;
 
   return (
-    <div className="mb-5">
+    <div className="mb-4">
       <a
         href={googleAuthUrl(locale)}
-        className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3.5 text-[15px] font-semibold text-foreground transition-colors hover:bg-surface"
+        className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-[15px] font-semibold text-foreground transition-colors hover:bg-surface"
       >
         <GoogleGlyph />
         {copy.continueWithGoogle}
       </a>
 
-      <div className="mt-5 flex items-center gap-3" aria-hidden="true">
+      <div className="mt-4 flex items-center gap-3" aria-hidden="true">
         <span className="h-px flex-1 bg-border" />
         <span className="text-xs font-medium text-muted-soft uppercase">
           {copy.orDivider}

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, Globe } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
+import { FlagIcon } from "@/components/landing/ui/FlagIcon";
 import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
 import { HTML_LANG, LOCALE_NAMES, LOCALES } from "@/content/locales";
 
@@ -44,7 +45,7 @@ export function LanguageSwitch() {
         aria-expanded={open}
         className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1.5 text-xs font-bold uppercase text-foreground transition-colors hover:bg-surface sm:px-3 sm:text-sm"
       >
-        <Globe className="h-4 w-4 text-muted-soft" />
+        <FlagIcon locale={locale} className="h-3.5 w-5" />
         {locale}
         <ChevronDown
           className={`h-3.5 w-3.5 text-muted-soft transition-transform ${open ? "rotate-180" : ""}`}
@@ -73,8 +74,8 @@ export function LanguageSwitch() {
                 isActive ? "bg-accent-soft text-accent" : "text-foreground hover:bg-surface-2"
               }`}
             >
-              <span className="flex items-center gap-2">
-                <span className="w-6 text-[11px] font-bold uppercase text-muted-soft">{code}</span>
+              <span className="flex items-center gap-2.5">
+                <FlagIcon locale={code} className="h-3.5 w-5 shrink-0" />
                 {LOCALE_NAMES[code]}
               </span>
               {isActive ? <Check className="h-4 w-4 shrink-0" /> : null}

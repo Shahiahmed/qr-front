@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { QrCode } from "@/components/landing/ui/QrCode";
 import { Reveal } from "@/components/landing/ui/Reveal";
@@ -56,6 +56,15 @@ export function CtaBanner() {
                     />
                   </Button>
                 </div>
+
+                <ul className="mt-7 flex flex-col items-center gap-x-6 gap-y-2.5 text-[15px] font-medium text-white/95 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+                  {copy.ctaPoints.map((point) => (
+                    <li key={point} className="flex items-center gap-2">
+                      <Check size={17} strokeWidth={3} aria-hidden="true" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <div

@@ -11,6 +11,7 @@ import { LandingLocaleProvider } from "@/components/landing/LandingLocaleProvide
 import { Pricing } from "@/components/landing/Pricing";
 import { PromoModal } from "@/components/landing/PromoModal";
 import { ScrollToTop } from "@/components/landing/ScrollToTop";
+import { Testimonials } from "@/components/landing/Testimonials";
 import { isLocale } from "@/content/locales";
 import { getPromo, promoFieldsFor } from "@/lib/promo";
 
@@ -37,6 +38,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <HowItWorks />
         <Benefits />
         <Faq />
+        <Testimonials />
         <Pricing />
         <CtaBanner />
       </main>
