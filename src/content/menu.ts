@@ -68,6 +68,17 @@ export type MenuCopy = {
   designSaved: string;
   designError: string;
 
+  // Telegram: bind a chat so the "call waiter" button reaches the venue
+  tgTitle: string;
+  tgHint: string;
+  tgConnected: string;
+  tgDisconnected: string;
+  tgConnect: string;
+  tgConnecting: string;
+  tgDisconnect: string;
+  tgWaitingHint: string;
+  tgError: string;
+
   // Images (cover + logo)
   imagesLabel: string;
   coverLabel: string;
@@ -175,6 +186,18 @@ const RU: MenuCopy = {
   designSaved: "Сохранено",
   designError: "Не удалось сохранить. Проверьте ссылки соцсетей.",
 
+  tgTitle: "Вызов официанта (Telegram)",
+  tgHint:
+    "Подключите Telegram — гость сможет позвать официанта с меню, вы получите уведомление в чат.",
+  tgConnected: "Подключено",
+  tgDisconnected: "Не подключено",
+  tgConnect: "Подключить Telegram",
+  tgConnecting: "Открываем…",
+  tgDisconnect: "Отключить",
+  tgWaitingHint:
+    "Откройте бота в Telegram и нажмите «Старт». После этого обновите страницу.",
+  tgError: "Не удалось. Попробуйте ещё раз.",
+
   imagesLabel: "Фото заведения",
   coverLabel: "Обложка",
   coverHint:
@@ -279,6 +302,18 @@ const KZ: MenuCopy = {
   socialHint: "Профиль сілтемесі",
   designSaved: "Сақталды",
   designError: "Сақтау мүмкін болмады. Әлеуметтік желі сілтемелерін тексеріңіз.",
+
+  tgTitle: "Даяшыны шақыру (Telegram)",
+  tgHint:
+    "Telegram қосыңыз — қонақ мәзірден даяшыны шақыра алады, сіз чатқа хабарлама аласыз.",
+  tgConnected: "Қосылған",
+  tgDisconnected: "Қосылмаған",
+  tgConnect: "Telegram қосу",
+  tgConnecting: "Ашылуда…",
+  tgDisconnect: "Ажырату",
+  tgWaitingHint:
+    "Telegram-да ботты ашып, «Старт» түймесін басыңыз. Содан кейін бетті жаңартыңыз.",
+  tgError: "Мүмкін болмады. Қайта көріңіз.",
 
   imagesLabel: "Мекеме фотосы",
   coverLabel: "Мұқаба",

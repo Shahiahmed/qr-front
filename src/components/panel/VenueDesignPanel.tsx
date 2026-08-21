@@ -7,6 +7,7 @@ import {
   EyeOff,
   ImageIcon,
   Loader2,
+  Send,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -18,6 +19,8 @@ import { MENU_LAYOUTS, type LayoutKey } from "@/content/layouts";
 import { MENU_THEMES } from "@/content/themes";
 import {
   deleteVenueImage,
+  linkTelegram,
+  unlinkTelegram,
   updateEstablishment,
   uploadVenueImage,
   type Establishment,
@@ -312,6 +315,117 @@ export function VenueDesignPanel({
       </div>
 
       {saveBar}
+
+      <TelegramConnect venue={venue} copy={copy} />
+    </section>
+  );
+}
+
+/**
+ * Bind the venue's Telegram chat so guest "call waiter" pings reach it.
+ * Mint a deep link, open it (owner presses Start in Telegram → webhook binds),
+ * then refetch the venue for the flipped `telegram_connected` flag.
+ */
+function TelegramConnect({
+  venue,
+  copy,
+}: {
+  venue: Establishment;
+  copy: MenuCopy;
+}) {
+  const queryClient = useQueryClient();
+  const connected = venue.telegram_connected;
+
+  const connect = useMutation({
+    mutationFn: () => linkTelegram(venue.id),
+    onSuccess: ({ url }) => {
+      // The owner finishes the bind inside Telegram; refetch when they return.
+      window.open(url, "_blank", "noopener,noreferrer");
+    },
+  });
+
+  const disconnect = useMutation({
+    mutationFn: () => unlinkTelegram(venue.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY });
+    },
+  });
+
+  const busy = connect.isPending || disconnect.isPending;
+
+  return (
+    <section className="mt-6 rounded-2xl border border-border bg-surface p-4">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent">
+          <Send size={18} strokeWidth={2.25} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-[15px] font-extrabold tracking-[-0.01em]">
+              {copy.tgTitle}
+            </h3>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${
+                connected
+                  ? "bg-green-100 text-green-700"
+                  : "bg-white text-muted"
+              }`}
+            >
+              {connected ? (
+                <Check size={13} strokeWidth={3} />
+              ) : null}
+              {connected ? copy.tgConnected : copy.tgDisconnected}
+            </span>
+          </div>
+          <p className="mt-1 text-[13px] leading-snug text-muted-soft">
+            {copy.tgHint}
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {connected ? (
+              <button
+                type="button"
+                onClick={() => disconnect.mutate()}
+                disabled={busy}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold text-muted transition-colors hover:text-red-600 disabled:opacity-40"
+              >
+                {disconnect.isPending ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Trash2 size={14} strokeWidth={2.25} />
+                )}
+                {copy.tgDisconnect}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => connect.mutate()}
+                disabled={busy}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-2 text-[13px] font-bold transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+              >
+                {connect.isPending ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Send size={14} strokeWidth={2.5} />
+                )}
+                {connect.isPending ? copy.tgConnecting : copy.tgConnect}
+              </button>
+            )}
+          </div>
+
+          {connect.isSuccess && !connected ? (
+            <p className="mt-2 text-[12px] leading-snug text-muted-soft">
+              {copy.tgWaitingHint}
+            </p>
+          ) : null}
+
+          {connect.isError || disconnect.isError ? (
+            <p className="mt-2 text-[12px] font-semibold text-red-600">
+              {copy.tgError}
+            </p>
+          ) : null}
+        </div>
+      </div>
     </section>
   );
 }

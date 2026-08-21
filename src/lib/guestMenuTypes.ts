@@ -54,6 +54,8 @@ export type PublicMenu = {
   /** Optional venue blurb under the cover. Demo fills it; real venues later. */
   description_ru?: string | null;
   description_kk?: string | null;
+  /** True when a Telegram chat is bound — shows the guest "call waiter" button. */
+  waiter_call_enabled?: boolean;
   categories: PublicCategory[];
 };
 

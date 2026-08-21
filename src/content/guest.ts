@@ -44,6 +44,17 @@ export type GuestCopy = {
   settingsHint: string;
   settingsColor: string;
   settingsDesign: string;
+  // Call the waiter (Telegram) — bottom-bar button + its sheet
+  navWaiter: string;
+  waiterTitle: string;
+  waiterHint: string;
+  waiterReasonWaiter: string;
+  waiterReasonBill: string;
+  waiterReasonHelp: string;
+  waiterTableLabel: string;
+  waiterTablePlaceholder: string;
+  waiterSent: string;
+  waiterError: string;
   /** Tiny brand credit under the menu. */
   poweredBy: string;
   poweredByAria: string;
@@ -89,6 +100,16 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     settingsHint: "Оформление под себя — только на этом устройстве.",
     settingsColor: "Цвет",
     settingsDesign: "Дизайн",
+    navWaiter: "Официант",
+    waiterTitle: "Позвать официанта",
+    waiterHint: "Официант получит уведомление и подойдёт.",
+    waiterReasonWaiter: "Позвать официанта",
+    waiterReasonBill: "Счёт",
+    waiterReasonHelp: "Нужна помощь",
+    waiterTableLabel: "Номер стола",
+    waiterTablePlaceholder: "например, 12",
+    waiterSent: "Официант уже идёт",
+    waiterError: "Не удалось отправить. Попробуйте ещё раз.",
     poweredBy: "Сделано на QR меню",
     poweredByAria: "QR меню — QR-меню для ресторанов",
   },
@@ -131,6 +152,16 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     settingsHint: "Мәзірді өзіңізге ыңғайлаңыз — тек осы құрылғыда.",
     settingsColor: "Түс",
     settingsDesign: "Дизайн",
+    navWaiter: "Даяшы",
+    waiterTitle: "Даяшыны шақыру",
+    waiterHint: "Даяшы хабарлама алып, жаныңызға келеді.",
+    waiterReasonWaiter: "Даяшыны шақыру",
+    waiterReasonBill: "Есеп-шот",
+    waiterReasonHelp: "Көмек керек",
+    waiterTableLabel: "Үстел нөмірі",
+    waiterTablePlaceholder: "мысалы, 12",
+    waiterSent: "Даяшы келе жатыр",
+    waiterError: "Жіберілмеді. Қайта көріңіз.",
     poweredBy: "QR меню-де жасалған",
     poweredByAria: "QR меню — мейрамханаларға арналған QR-мәзір",
   },

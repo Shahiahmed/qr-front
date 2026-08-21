@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Check, Minus, Plus, Settings2, ShoppingBag, X } from "lucide-react";
+import { BellRing, Check, Minus, Plus, Settings2, ShoppingBag, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
+import { callWaiter, type WaiterCallReason } from "@/lib/api";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
 import { getLayout, MENU_LAYOUTS, type LayoutKey } from "@/content/layouts";
 import { getTheme, MENU_THEMES, themeVars, type ThemeKey } from "@/content/themes";
@@ -49,6 +50,30 @@ export function GuestMenu({
   );
   const [settingsOpen, setSettingsOpen] = useState(false);
   const layout = getLayout(layoutKey);
+
+  // Call-the-waiter sheet. Only shown when the venue bound a Telegram chat.
+  const waiterEnabled = Boolean(menu.waiter_call_enabled);
+  const [waiterOpen, setWaiterOpen] = useState(false);
+  const [waiterTable, setWaiterTable] = useState("");
+  const [waiterStatus, setWaiterStatus] = useState<"idle" | "sending" | "sent" | "error">(
+    "idle",
+  );
+
+  const sendWaiterCall = async (reason: WaiterCallReason) => {
+    setWaiterStatus("sending");
+    try {
+      await callWaiter(
+        menu.slug,
+        { reason, table: waiterTable.trim() || null },
+        locale === "kk" ? "kz" : "ru",
+      );
+      setWaiterStatus("sent");
+    } catch {
+      // Best-effort: a throttled call still reads as success server-side, so
+      // only a real failure (network, 404 if just disconnected) lands here.
+      setWaiterStatus("error");
+    }
+  };
 
   const pickTheme = (key: ThemeKey) => {
     setTheme(key);
@@ -264,13 +289,14 @@ export function GuestMenu({
 
   // Lock the page behind any bottom sheet (cart or settings) and let Escape
   // close it. A placed ticket stays in storage — Escape only hides the sheet.
-  const anySheetOpen = cartOpen || settingsOpen;
+  const anySheetOpen = cartOpen || settingsOpen || waiterOpen;
   useEffect(() => {
     if (!anySheetOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setCartOpen(false);
         setSettingsOpen(false);
+        setWaiterOpen(false);
       }
     };
     document.body.style.overflow = "hidden";
@@ -490,11 +516,24 @@ export function GuestMenu({
                 }}
               />
             ) : null}
+            {waiterEnabled ? (
+              <NavButton
+                icon={<BellRing size={20} strokeWidth={2} />}
+                label={copy.navWaiter}
+                onClick={() => {
+                  setCartOpen(false);
+                  setSettingsOpen(false);
+                  setWaiterStatus("idle");
+                  setWaiterOpen(true);
+                }}
+              />
+            ) : null}
             <NavButton
               icon={<Settings2 size={20} strokeWidth={2} />}
               label={copy.navSettings}
               onClick={() => {
                 setCartOpen(false);
+                setWaiterOpen(false);
                 setSettingsOpen(true);
               }}
             />
@@ -769,6 +808,101 @@ export function GuestMenu({
               <p className="mt-5 text-center text-xs text-muted-soft">
                 {copy.settingsHint}
               </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Call-the-waiter sheet — sends a Telegram ping to the venue chat. */}
+      {waiterOpen ? (
+        <div
+          className="fixed inset-0 z-40 flex items-end justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label={copy.waiterTitle}
+        >
+          <button
+            type="button"
+            aria-label={copy.close}
+            onClick={() => setWaiterOpen(false)}
+            className="absolute inset-0 bg-black/45"
+          />
+
+          <div className="relative flex max-h-[88dvh] w-full max-w-[680px] flex-col rounded-t-[26px] bg-surface shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.4)]">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <h2 className="text-[18px] font-extrabold">{copy.waiterTitle}</h2>
+              <button
+                type="button"
+                onClick={() => setWaiterOpen(false)}
+                aria-label={copy.close}
+                className="grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-muted transition-colors hover:text-foreground"
+              >
+                <X size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              {waiterStatus === "sent" ? (
+                <div className="flex flex-col items-center py-6 text-center">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-accent-hover">
+                    <Check size={28} strokeWidth={2.5} />
+                  </div>
+                  <p className="mt-4 text-[17px] font-extrabold">{copy.waiterSent}</p>
+                  <button
+                    type="button"
+                    onClick={() => setWaiterOpen(false)}
+                    className="mt-6 w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white"
+                  >
+                    {copy.done}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-[0.06em] text-muted">
+                    {copy.waiterTableLabel}
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={waiterTable}
+                    onChange={(e) => setWaiterTable(e.target.value)}
+                    placeholder={copy.waiterTablePlaceholder}
+                    maxLength={30}
+                    className="mb-5 w-full rounded-xl border border-border bg-white px-4 py-3 text-[15px] outline-none focus:border-accent"
+                  />
+
+                  <div className="flex flex-col gap-2.5">
+                    {(
+                      [
+                        ["waiter", copy.waiterReasonWaiter],
+                        ["bill", copy.waiterReasonBill],
+                        ["help", copy.waiterReasonHelp],
+                      ] as [WaiterCallReason, string][]
+                    ).map(([reason, label]) => (
+                      <button
+                        key={reason}
+                        type="button"
+                        disabled={waiterStatus === "sending"}
+                        onClick={() => sendWaiterCall(reason)}
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                      >
+                        <BellRing size={18} strokeWidth={2.5} />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {waiterStatus === "error" ? (
+                    <p className="mt-4 text-center text-[13px] font-bold text-red-600">
+                      {copy.waiterError}
+                    </p>
+                  ) : (
+                    <p className="mt-4 text-center text-xs text-muted-soft">
+                      {copy.waiterHint}
+                    </p>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -251,6 +251,8 @@ export type Establishment = {
   logo_url: string | null;
   /** When false, the guest cover hides the logo (file stays). Default true. */
   show_logo: boolean;
+  /** True once a Telegram chat is bound — guests can call the waiter. */
+  telegram_connected: boolean;
   created_at: string | null;
   /** When the public menu stops working (ISO), or null for no limit. */
   access_ends_at: string | null;
@@ -349,6 +351,48 @@ export async function deleteVenueImage(
     { method: "DELETE", locale },
   );
   return data;
+}
+
+/* ---------- telegram binding ---------- */
+
+/**
+ * Start connecting this venue's Telegram chat: the API mints a one-time token
+ * and returns the bot deep link. The owner opens it and presses Start; the
+ * webhook then binds the chat. 409 when the bot isn't configured on the server.
+ */
+export async function linkTelegram(id: number): Promise<{ url: string }> {
+  return apiFetch<{ url: string }>(`/api/establishments/${id}/telegram`, {
+    method: "POST",
+  });
+}
+
+/** Unbind the Telegram chat. Returns the updated venue. */
+export async function unlinkTelegram(id: number): Promise<Establishment> {
+  const { data } = await apiFetch<Wrapped<Establishment>>(
+    `/api/establishments/${id}/telegram`,
+    { method: "DELETE" },
+  );
+  return data;
+}
+
+/* ---------- guest waiter call ---------- */
+
+/** Reasons a guest can send from the public menu — mirrors the API enum. */
+export type WaiterCallReason = "waiter" | "bill" | "help";
+
+/**
+ * Guest calls the waiter from the public menu. Public (no auth); best-effort —
+ * a resolved promise means the API accepted it, not that Telegram delivered it.
+ */
+export async function callWaiter(
+  slug: string,
+  payload: { reason: WaiterCallReason; table?: string | null },
+  locale?: string,
+): Promise<void> {
+  await apiFetch<{ ok: boolean }>(
+    `/api/public/menu/${encodeURIComponent(slug)}/waiter-call`,
+    { method: "POST", body: payload, locale },
+  );
 }
 
 /* ---------- menu ---------- */
