@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { BellRing, Check, Minus, Plus, Settings2, ShoppingBag, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
-import { callWaiter, type WaiterCallReason } from "@/lib/api";
+import { callWaiter, sendOrder, type WaiterCallReason } from "@/lib/api";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
 import { getLayout, MENU_LAYOUTS, type LayoutKey } from "@/content/layouts";
 import { getTheme, MENU_THEMES, themeVars, type ThemeKey } from "@/content/themes";
@@ -37,9 +37,12 @@ function readQrTable(): string {
 }
 
 /**
- * `ordering` turns on the at-the-table cart. Checkout is local-only for now:
- * the cart and the placed ticket live in `localStorage` on this phone so the
- * guest can show the screen to a waiter. Nothing is posted to the API yet.
+ * `ordering` turns on the at-the-table cart. Where the checkout goes depends on
+ * whether the venue bound a Telegram chat (same flag as call-the-waiter): when
+ * it did, the order is POSTed to the API and pushed to the kitchen's chat; when
+ * it didn't (or on the demo), it stays a local ticket the guest shows a waiter.
+ * Either way the cart and the placed ticket live in `localStorage` on this
+ * phone so a refresh keeps them.
  */
 export function GuestMenu({
   menu,
@@ -107,11 +110,17 @@ export function GuestMenu({
   // the highlight back to a previous section (common on the last few).
   const clickLockUntil = useRef(0);
 
+  // When the venue has a Telegram chat, the order is sent to the kitchen;
+  // otherwise checkout is a local-only ticket. Same flag as call-the-waiter.
+  const serverOrdering = ordering && waiterEnabled;
+
   // dish id → quantity in the order
   const [cart, setCart] = useState<Record<number, number>>({});
   const [cartOpen, setCartOpen] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [table, setTable] = useState(readQrTable);
+  const [comment, setComment] = useState("");
+  const [orderStatus, setOrderStatus] = useState<"idle" | "sending" | "error">("idle");
   const [ticket, setTicket] = useState<GuestOrderTicket | null>(null);
   // Gate persistence until localStorage has been read — otherwise the first
   // save would wipe a restored ticket with empty state.
@@ -179,14 +188,16 @@ export function GuestMenu({
 
   const resetOrder = () => {
     setCart({});
-    setTable("");
+    setTable(readQrTable());
+    setComment("");
+    setOrderStatus("idle");
     setPlaced(false);
     setTicket(null);
     setCartOpen(false);
     clearGuestOrder(menu.slug);
   };
 
-  const placeOrder = () => {
+  const submitOrder = async () => {
     const lines = Object.entries(cart)
       .map(([id, qty]) => {
         const dish = dishById.get(Number(id));
@@ -203,6 +214,28 @@ export function GuestMenu({
 
     if (lines.length === 0) return;
 
+    // Send to the kitchen's Telegram chat when connected. Prices are recomputed
+    // server-side from the venue's own dishes — we send only ids + quantities.
+    if (serverOrdering) {
+      setOrderStatus("sending");
+      try {
+        await sendOrder(
+          menu.slug,
+          {
+            items: lines.map((line) => ({ dish_id: line.id, qty: line.qty })),
+            table: table.trim() || null,
+            comment: comment.trim() || null,
+          },
+          locale === "kk" ? "kz" : "ru",
+        );
+      } catch {
+        // A refused order must not read as placed — surface the error, keep
+        // the cart so the guest can retry.
+        setOrderStatus("error");
+        return;
+      }
+    }
+
     const nextTicket = createOrderTicket({
       cart,
       table,
@@ -210,6 +243,7 @@ export function GuestMenu({
       lines,
     });
 
+    setOrderStatus("idle");
     setTicket(nextTicket);
     setCart({});
     setPlaced(true);
@@ -576,10 +610,10 @@ export function GuestMenu({
                   <Check size={28} strokeWidth={2.5} />
                 </div>
                 <h2 className="mt-4 text-center text-[22px] font-extrabold tracking-[-0.01em]">
-                  {copy.placedTitle}
+                  {serverOrdering ? copy.orderSentTitle : copy.placedTitle}
                 </h2>
                 <p className="mt-1.5 text-center text-[14px] text-muted-soft">
-                  {copy.placedText}
+                  {serverOrdering ? copy.orderSentText : copy.placedText}
                 </p>
 
                 {ticket.table ? (
@@ -619,9 +653,11 @@ export function GuestMenu({
                   </li>
                 </ul>
 
-                <p className="mt-4 text-center text-xs text-muted-soft">
-                  {copy.localNote}
-                </p>
+                {serverOrdering ? null : (
+                  <p className="mt-4 text-center text-xs text-muted-soft">
+                    {copy.localNote}
+                  </p>
+                )}
 
                 <button
                   type="button"
@@ -703,7 +739,32 @@ export function GuestMenu({
 
                 {totalCount > 0 ? (
                   <div className="border-t border-border px-5 py-4">
-                    {/* Table number: hidden until per-table QR codes exist. */}
+                    {/* Table + comment only when the order is actually sent to
+                        the kitchen; a local ticket needs neither. */}
+                    {serverOrdering ? (
+                      <div className="mb-3 flex flex-col gap-2.5">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={table}
+                          onChange={(e) => setTable(e.target.value)}
+                          placeholder={copy.waiterTablePlaceholder}
+                          aria-label={copy.waiterTableLabel}
+                          maxLength={30}
+                          className="w-full rounded-xl border border-border bg-white px-4 py-3 text-[15px] outline-none focus:border-accent"
+                        />
+                        <input
+                          type="text"
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          placeholder={copy.cartCommentPlaceholder}
+                          aria-label={copy.cartCommentLabel}
+                          maxLength={500}
+                          className="w-full rounded-xl border border-border bg-white px-4 py-3 text-[15px] outline-none focus:border-accent"
+                        />
+                      </div>
+                    ) : null}
+
                     <div className="mb-3 flex items-center justify-between">
                       <span className="text-[15px] text-muted">{copy.cartTotal}</span>
                       <span className="text-[20px] font-extrabold tabular-nums">
@@ -712,11 +773,18 @@ export function GuestMenu({
                     </div>
                     <button
                       type="button"
-                      onClick={placeOrder}
-                      className="w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white transition-transform active:scale-[0.99]"
+                      onClick={submitOrder}
+                      disabled={orderStatus === "sending"}
+                      className="w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white transition-transform active:scale-[0.99] disabled:opacity-60"
                     >
-                      {copy.checkout}
+                      {orderStatus === "sending" ? copy.orderSending : copy.checkout}
                     </button>
+
+                    {orderStatus === "error" ? (
+                      <p className="mt-3 text-center text-[13px] font-bold text-red-600">
+                        {copy.orderError}
+                      </p>
+                    ) : null}
                   </div>
                 ) : null}
               </>

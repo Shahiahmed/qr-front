@@ -395,6 +395,28 @@ export async function callWaiter(
   );
 }
 
+/* ---------- guest order ---------- */
+
+/** One line the guest sends — id + quantity only; the server prices it. */
+export type OrderItemInput = { dish_id: number; qty: number };
+
+/**
+ * Guest sends an order from the public menu. Public (no auth); the request
+ * carries only dish ids and quantities — the server reads every price from the
+ * venue's own dishes and pushes the order to its Telegram chat. Best-effort:
+ * a resolved promise means the API accepted it, not that Telegram delivered it.
+ */
+export async function sendOrder(
+  slug: string,
+  payload: { items: OrderItemInput[]; table?: string | null; comment?: string | null },
+  locale?: string,
+): Promise<void> {
+  await apiFetch<{ ok: boolean }>(
+    `/api/public/menu/${encodeURIComponent(slug)}/order`,
+    { method: "POST", body: payload, locale },
+  );
+}
+
 /* ---------- menu ---------- */
 
 export type Dish = {

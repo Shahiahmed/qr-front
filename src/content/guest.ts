@@ -26,12 +26,20 @@ export type GuestCopy = {
   cartTotal: string;
   cartTableLabel: string;
   cartTablePlaceholder: string;
+  cartCommentLabel: string;
+  cartCommentPlaceholder: string;
   checkout: string;
+  /** Button label while the order is being sent to the kitchen. */
+  orderSending: string;
+  orderError: string;
   close: string;
   placedTitle: string;
   placedText: string;
+  /** Success copy when the order was actually pushed to the venue's chat. */
+  orderSentTitle: string;
+  orderSentText: string;
   placedTable: string;
-  /** Order stays on this phone for the waiter to read (no API yet). */
+  /** Order stays on this phone for the waiter to read (venue not connected). */
   localNote: string;
   showTicket: string;
   ticketEmpty: string;
@@ -84,10 +92,16 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     cartTotal: "Итого",
     cartTableLabel: "Номер стола",
     cartTablePlaceholder: "например, 12",
+    cartCommentLabel: "Комментарий",
+    cartCommentPlaceholder: "Пожелания к заказу (необязательно)",
     checkout: "Оформить заказ",
+    orderSending: "Отправляем…",
+    orderError: "Не удалось отправить. Попробуйте ещё раз.",
     close: "Закрыть",
     placedTitle: "Покажите официанту",
     placedText: "Заказ сохранён на этом телефоне — передайте экран официанту.",
+    orderSentTitle: "Заказ отправлен",
+    orderSentText: "Кухня уже получила ваш заказ. Официант скоро подойдёт.",
     placedTable: "Стол",
     localNote: "Пока без сервера: заказ виден только на этом устройстве.",
     showTicket: "Показать заказ",
@@ -136,10 +150,16 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     cartTotal: "Барлығы",
     cartTableLabel: "Үстел нөмірі",
     cartTablePlaceholder: "мысалы, 12",
+    cartCommentLabel: "Түсініктеме",
+    cartCommentPlaceholder: "Тапсырысқа тілектер (міндетті емес)",
     checkout: "Тапсырыс беру",
+    orderSending: "Жіберілуде…",
+    orderError: "Жіберілмеді. Қайта көріңіз.",
     close: "Жабу",
     placedTitle: "Даяшыға көрсетіңіз",
     placedText: "Тапсырыс осы телефонда сақталды — экранды даяшыға беріңіз.",
+    orderSentTitle: "Тапсырыс жіберілді",
+    orderSentText: "Ас үй тапсырысыңызды алды. Даяшы жақын арада келеді.",
     placedTable: "Үстел",
     localNote: "Әзірге серверсіз: тапсырыс тек осы құрылғыда көрінеді.",
     showTicket: "Тапсырысты көрсету",
