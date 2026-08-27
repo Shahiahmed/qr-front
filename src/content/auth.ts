@@ -45,6 +45,39 @@ export type AuthCopy = {
   tabVenues: string;
   tabProfile: string;
   tabSubscription: string;
+  tabReferral: string;
+
+  /** Referral program — cabinet section + register banner. */
+  refTitle: string;
+  refSubtitle: string;
+  /** «Вас пригласил {name}» — shown to an invited owner. `{name}` is replaced. */
+  refInvitedBy: string;
+  refLinkTitle: string;
+  refLinkHint: string;
+  refCodeLabel: string;
+  refCopy: string;
+  refCopied: string;
+  refShareWhatsapp: string;
+  refShareTelegram: string;
+  /** Message body for the share buttons (the link is appended after it). */
+  refShareText: string;
+  refBalanceTitle: string;
+  refBalanceHint: string;
+  refStatInvited: string;
+  refStatConverted: string;
+  refHowTitle: string;
+  /** Both use `{amount}` for the formatted reward. */
+  refHowInviter: string;
+  refHowInvited: string;
+  /** Shown when the program is switched off in /admin. */
+  refDisabled: string;
+  /** Green banner on the sign-up form when a `?ref=` code is present. */
+  refRegisterBanner: string;
+  /** Subscription form: referral discount line + net amount to pay. */
+  subReferralDiscount: string;
+  subNetPrice: string;
+  /** «На счету {amount} — спишется при активации». `{amount}` replaced. */
+  subWalletNote: string;
 
   /** Overview (cabinet home) page. */
   overviewTitle: string;
@@ -223,6 +256,31 @@ const RU: AuthCopy = {
   tabVenues: "Заведения",
   tabProfile: "Профиль",
   tabSubscription: "Подписка",
+  tabReferral: "Пригласить друга",
+
+  refTitle: "Пригласить друга",
+  refSubtitle: "Делитесь ссылкой — вы и ваш друг получаете скидку на подписку.",
+  refInvitedBy: "Вас пригласил {name}",
+  refLinkTitle: "Ваша реферальная ссылка",
+  refLinkHint: "Отправьте её другу. Скидка начислится автоматически.",
+  refCodeLabel: "Ваш код",
+  refCopy: "Копировать",
+  refCopied: "Скопировано",
+  refShareWhatsapp: "WhatsApp",
+  refShareTelegram: "Telegram",
+  refShareText: "Заведи QR-меню для своего заведения и получи скидку по моей ссылке:",
+  refBalanceTitle: "Ваша скидка",
+  refBalanceHint: "Спишется при оформлении подписки на любое ваше меню.",
+  refStatInvited: "Приглашено",
+  refStatConverted: "Оформили подписку",
+  refHowTitle: "Как это работает",
+  refHowInviter: "Вам — {amount} за каждого друга, который оформит платный тариф.",
+  refHowInvited: "Другу — {amount} скидка сразу после регистрации по ссылке.",
+  refDisabled: "Реферальная программа временно приостановлена.",
+  refRegisterBanner: "Вы приглашены — скидка на подписку начислится после регистрации.",
+  subReferralDiscount: "Скидка по рефералам",
+  subNetPrice: "К оплате",
+  subWalletNote: "На вашем счету {amount} — спишется при активации.",
 
   overviewTitle: "Обзор",
   overviewWelcome: "Добро пожаловать",
@@ -384,6 +442,31 @@ const KZ: AuthCopy = {
   tabVenues: "Мекемелер",
   tabProfile: "Профиль",
   tabSubscription: "Жазылым",
+  tabReferral: "Досты шақыру",
+
+  refTitle: "Досты шақыру",
+  refSubtitle: "Сілтемемен бөлісіңіз — сіз де, досыңыз да жазылымға жеңілдік аласыз.",
+  refInvitedBy: "Сізді {name} шақырды",
+  refLinkTitle: "Сіздің реферал сілтемеңіз",
+  refLinkHint: "Оны досыңызға жіберіңіз. Жеңілдік автоматты есептеледі.",
+  refCodeLabel: "Сіздің кодыңыз",
+  refCopy: "Көшіру",
+  refCopied: "Көшірілді",
+  refShareWhatsapp: "WhatsApp",
+  refShareTelegram: "Telegram",
+  refShareText: "Мекемеңе QR-мәзір аш және менің сілтемем арқылы жеңілдік ал:",
+  refBalanceTitle: "Сіздің жеңілдігіңіз",
+  refBalanceHint: "Кез келген мәзіріңізге жазылым рәсімдегенде есептен шығады.",
+  refStatInvited: "Шақырылды",
+  refStatConverted: "Жазылым рәсімдеді",
+  refHowTitle: "Бұл қалай жұмыс істейді",
+  refHowInviter: "Сізге — ақылы тариф рәсімдеген әр дос үшін {amount}.",
+  refHowInvited: "Досыңызға — сілтеме арқылы тіркелген соң бірден {amount} жеңілдік.",
+  refDisabled: "Реферал бағдарламасы уақытша тоқтатылған.",
+  refRegisterBanner: "Сіз шақырылдыңыз — тіркелген соң жазылымға жеңілдік есептеледі.",
+  subReferralDiscount: "Реферал жеңілдігі",
+  subNetPrice: "Төлеуге",
+  subWalletNote: "Есебіңізде {amount} бар — белсендіргенде есептен шығады.",
 
   overviewTitle: "Шолу",
   overviewWelcome: "Қош келдіңіз",

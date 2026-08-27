@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  Gift,
   LayoutDashboard,
   LayoutList,
   LogOut,
@@ -21,7 +22,7 @@ import { currentUser, logout } from "@/lib/api";
 import { persistAuthUser, USER_QUERY_KEY, useSetAuthUser } from "@/lib/useAuth";
 import { setSidebarCollapsed, useSidebarCollapsed } from "@/lib/useSidebarCollapsed";
 
-export type PanelTab = "overview" | "venues" | "subscription" | "profile";
+export type PanelTab = "overview" | "venues" | "subscription" | "referral" | "profile";
 
 type NavItem = {
   id: PanelTab;
@@ -101,6 +102,7 @@ export function PanelShell({
     { id: "overview", label: copy.tabOverview, href: `/${locale}/dashboard`, icon: LayoutDashboard },
     { id: "venues", label: copy.tabVenues, href: `/${locale}/dashboard/venues`, icon: LayoutList },
     { id: "subscription", label: copy.tabSubscription, href: `/${locale}/dashboard/subscription`, icon: CreditCard },
+    { id: "referral", label: copy.tabReferral, href: `/${locale}/dashboard/referral`, icon: Gift },
   ];
 
   const initial = (user?.email?.[0] ?? "?").toUpperCase();

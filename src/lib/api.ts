@@ -162,6 +162,10 @@ export type User = {
   name: string;
   email: string;
   created_at: string | null;
+  /** Own invite code, minted at registration. Null only in edge cases. */
+  referral_code: string | null;
+  /** Referral wallet balance in minor units (тиыны) — spent on subscriptions. */
+  referral_credit: number;
 };
 
 type Wrapped<T> = { data: T };
@@ -171,6 +175,8 @@ export type RegisterPayload = {
   email: string;
   password: string;
   password_confirmation: string;
+  /** Invite code carried from a `?ref=` link; the server links the referrer. */
+  referral_code?: string | null;
 };
 
 export async function register(
@@ -633,6 +639,8 @@ export type SubscriptionRequest = {
   note: string | null;
   plan: { id: number; name_ru: string; name_kk: string | null } | null;
   establishment: SubscriptionMenuRef | null;
+  /** Referral credit the owner wants applied to this request, in minor units. */
+  referral_credit_applied: number;
   created_at: string | null;
   reviewed_at: string | null;
 };
@@ -646,6 +654,8 @@ export type Subscription = {
   is_active: boolean;
   /** Whole days until it ends; 0 if past, null if open-ended. */
   days_left: number | null;
+  /** Referral credit consumed when this grant was approved, in minor units. */
+  referral_credit_applied: number;
   plan: Plan | null;
 };
 
@@ -690,4 +700,29 @@ export async function createSubscriptionRequest(
     locale,
   });
   return data;
+}
+
+/* ---------- referral program ---------- */
+
+/** Everything the cabinet's referral panel shows. Amounts in minor units (тиыны). */
+export type ReferralSummary = {
+  /** False when the program is switched off in /admin — hide the rewards. */
+  enabled: boolean;
+  /** The owner's own invite code. */
+  code: string | null;
+  /** Current wallet balance, spent on subscriptions. */
+  credit: number;
+  /** Advertised reward amounts, kept in sync with /admin. */
+  referrer_reward: number;
+  referred_reward: number;
+  /** How the owner's own invites are doing. */
+  invited_count: number;
+  converted_count: number;
+  /** Name of whoever invited this owner, or null. */
+  referred_by: string | null;
+};
+
+/** The signed-in owner's referral summary (auth required). */
+export async function getReferral(locale?: string): Promise<ReferralSummary> {
+  return apiFetch<ReferralSummary>("/api/referral", { locale });
 }

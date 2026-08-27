@@ -12,6 +12,7 @@ import {
   ApiError,
   createSubscriptionRequest,
   getPlans,
+  getReferral,
   getSubscriptionStatus,
   type MenuSubscription,
   type Plan,
@@ -21,6 +22,7 @@ import { formatPrice } from "@/lib/money";
 
 const STATUS_QUERY_KEY = ["subscription-status"] as const;
 const PLANS_QUERY_KEY = ["plans"] as const;
+const REFERRAL_QUERY_KEY = ["referral"] as const;
 
 type Copy = typeof authByLocale.ru;
 
@@ -51,6 +53,14 @@ export function SubscriptionCard({ locale }: { locale: Locale }) {
     queryFn: () => getPlans(locale),
   });
 
+  // Referral wallet — lowers the charge on a request; 0 when the program is off
+  // or the owner has no credit. A failed read falls back to 0 (no discount UI).
+  const { data: referral } = useQuery({
+    queryKey: REFERRAL_QUERY_KEY,
+    queryFn: () => getReferral(locale),
+  });
+  const credit = referral?.credit ?? 0;
+
   // Wait for the initial status read before deciding what to show.
   if (status === undefined) {
     return <div className="h-40 max-w-[720px] animate-pulse rounded-[20px] bg-surface-2" />;
@@ -68,7 +78,15 @@ export function SubscriptionCard({ locale }: { locale: Locale }) {
     <div className="flex max-w-[720px] flex-col gap-6">
       <p className="text-sm text-muted-soft">{copy.subMenuHint}</p>
       {status.menus.map((menu) => (
-        <MenuRow key={menu.id} menu={menu} plans={plans ?? []} copy={copy} locale={locale} kz={kz} />
+        <MenuRow
+          key={menu.id}
+          menu={menu}
+          plans={plans ?? []}
+          credit={credit}
+          copy={copy}
+          locale={locale}
+          kz={kz}
+        />
       ))}
     </div>
   );
@@ -78,12 +96,14 @@ export function SubscriptionCard({ locale }: { locale: Locale }) {
 function MenuRow({
   menu,
   plans,
+  credit,
   copy,
   locale,
   kz,
 }: {
   menu: MenuSubscription;
   plans: Plan[];
+  credit: number;
   copy: Copy;
   locale: Locale;
   kz: boolean;
@@ -186,6 +206,11 @@ function MenuRow({
               {pending.plan ? `${pickPlanName(pending.plan, kz)}. ` : ""}
               {copy.subPendingNote}
             </p>
+            {pending.referral_credit_applied > 0 ? (
+              <p className="mt-1 text-sm font-semibold text-amber-900">
+                {copy.subReferralDiscount}: −{formatPrice(pending.referral_credit_applied)}
+              </p>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -236,6 +261,33 @@ function MenuRow({
                     />
                   ))}
                 </fieldset>
+
+                {/* Referral wallet applied to the chosen plan — the actual
+                    charge is min(wallet, price), computed the same way on the
+                    server at approval. */}
+                {(() => {
+                  const chosen = plans.find((p) => p.id === planId);
+                  if (!chosen || credit <= 0 || chosen.price_final <= 0) return null;
+                  const applied = Math.min(credit, chosen.price_final);
+                  const net = chosen.price_final - applied;
+                  return (
+                    <div className="rounded-[16px] bg-accent-soft p-4 text-sm">
+                      <p className="flex items-center justify-between gap-3 text-accent-hover">
+                        <span className="font-semibold">{copy.subReferralDiscount}</span>
+                        <span className="font-bold">−{formatPrice(applied)}</span>
+                      </p>
+                      <p className="mt-1.5 flex items-center justify-between gap-3 text-foreground">
+                        <span className="font-semibold">{copy.subNetPrice}</span>
+                        <span className="text-lg font-extrabold tracking-[-0.02em]">
+                          {formatPrice(net)}
+                        </span>
+                      </p>
+                      <p className="mt-1 text-xs text-muted-soft">
+                        {copy.subWalletNote.replace("{amount}", formatPrice(credit))}
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 <Field
                   label={copy.subContactPhone}
