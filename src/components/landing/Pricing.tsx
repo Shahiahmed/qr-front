@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Crown, Sparkles } from "lucide-react";
+import { ArrowUpRight, Check, Crown, Sparkles } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { SectionHeading } from "@/components/landing/ui/SectionHeading";
 import { Reveal } from "@/components/landing/ui/Reveal";
 import { useLandingLocale } from "@/components/landing/LandingLocaleProvider";
-import type { LandingCopy } from "@/content/landing";
+import { PREMIUM_DEMO_URL, type LandingCopy } from "@/content/landing";
 import { getPlans, type Plan as ApiPlan } from "@/lib/api";
 import { formatPrice } from "@/lib/money";
 import { useAuth } from "@/lib/useAuth";
@@ -107,6 +107,7 @@ export function Pricing() {
             <PremiumCard
               plan={toCardPlan(spotlight, locale, copy)}
               tag={copy.priceCustomTag}
+              demoLabel={copy.priceCustomDemo}
               href={href}
             />
           </Reveal>
@@ -262,10 +263,12 @@ function PlanCard({
 function PremiumCard({
   plan,
   tag,
+  demoLabel,
   href,
 }: {
   plan: Plan;
   tag: string;
+  demoLabel: string;
   href: string;
 }) {
   return (
@@ -291,6 +294,19 @@ function PremiumCard({
           >
             {plan.cta}
           </Button>
+          {/* A Premium menu lives on its own site, so a live client menu sells it
+              better than any copy — and it answers "how does it look" right where
+              the question comes up. Distinct from the Hero's /m/demo, which shows
+              the regular builder menu. */}
+          <a
+            href={PREMIUM_DEMO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3.5 inline-flex w-full items-center justify-center gap-1.5 rounded-[13px] py-2.5 text-[15px] font-semibold text-[#FF9B84] transition-colors duration-200 hover:text-[#FFB9A6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF9B84]"
+          >
+            {demoLabel}
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </a>
         </div>
 
         <ul className="grid flex-1 gap-x-8 gap-y-3.5 sm:grid-cols-2">

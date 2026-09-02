@@ -46,6 +46,8 @@ export type LandingCopy = {
   popular: string;
   /** Badge on the bespoke Premium spotlight card. */
   priceCustomTag: string;
+  /** Link on the Premium card to the live standalone menu we built for a client. */
+  priceCustomDemo: string;
   planFree: PlanCopy;
   planStd: PlanCopy;
   planPrem: PlanCopy;
@@ -77,6 +79,13 @@ export const brand = {
   logoLetter: "QR",
   wordmark: "меню",
 } as const;
+
+/**
+ * A Premium menu is deployed as its own site, so the only honest way to show
+ * the tier is a real one. This is a live client menu, not a mockup — keep it
+ * pointing at something that actually answers, or drop the link entirely.
+ */
+export const PREMIUM_DEMO_URL = "https://qmenu.kz/";
 
 const RU: LandingCopy = {
   meta: {
@@ -250,6 +259,7 @@ const RU: LandingCopy = {
   priceSub: "Начните бесплатно и расширяйтесь по мере роста заведения.",
   popular: "Популярный выбор",
   priceCustomTag: "Индивидуальное решение",
+  priceCustomDemo: "Пример премиум-сайта",
   planFree: {
     name: "Бесплатный",
     price: "0 ₸",
@@ -462,6 +472,7 @@ const KZ: LandingCopy = {
   priceSub: "Тегін бастаңыз да, мекеме өскен сайын кеңейіңіз.",
   popular: "Танымал таңдау",
   priceCustomTag: "Жеке шешім",
+  priceCustomDemo: "Премиум-сайт мысалы",
   planFree: {
     name: "Тегін",
     price: "0 ₸",
