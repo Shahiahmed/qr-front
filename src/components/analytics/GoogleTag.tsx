@@ -1,10 +1,15 @@
 import Script from "next/script";
 
 /**
- * Google Ads account the marketing team runs campaigns under. Not a secret —
+ * Google Ads accounts the marketing team runs campaigns under. Not a secret —
  * an `AW-` tag ships in the page source of every site that advertises.
+ *
+ * Two IDs because marketing handed over a second account (2026-09-15) while the
+ * first may still have live campaigns. One gtag.js loader serves both — each
+ * account just needs its own `config` call. Drop the old one once marketing
+ * confirms nothing runs on it.
  */
-export const GOOGLE_ADS_ID = "AW-729626448";
+export const GOOGLE_ADS_IDS = ["AW-729626448", "AW-18453331524"] as const;
 
 /**
  * Google Ads tag (gtag.js), mounted from the `[locale]` root layout so it
@@ -20,10 +25,14 @@ export function GoogleTag() {
   // entirely — local reloads would otherwise land in the live Ads account.
   if (process.env.NODE_ENV !== "production") return null;
 
+  const configs = GOOGLE_ADS_IDS.map((id) => `gtag('config', '${id}');`).join(
+    "\n",
+  );
+
   return (
     <>
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_IDS[0]}`}
         strategy="afterInteractive"
       />
       {/* Inline scripts need a stable `id` for Next to track and dedupe them
@@ -32,7 +41,7 @@ export function GoogleTag() {
         {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', '${GOOGLE_ADS_ID}');`}
+${configs}`}
       </Script>
     </>
   );
