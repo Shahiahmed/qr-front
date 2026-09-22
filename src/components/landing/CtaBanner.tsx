@@ -52,7 +52,7 @@ export function CtaBanner() {
                     {ctaLabel}
                     <ArrowRight
                       size={19}
-                      className="transition-transform duration-200 group-hover/btn:translate-x-1"
+                      className="transition-transform duration-200 group-hover/btn:translate-x-0.5 motion-reduce:transition-none"
                     />
                   </Button>
                 </div>

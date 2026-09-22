@@ -36,7 +36,7 @@ export function ScrollToTop() {
       type="button"
       onClick={toTop}
       aria-label={copy.scrollTop}
-      className={`fixed bottom-5 left-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-border-strong bg-white text-foreground shadow-lg shadow-black/15 transition-all duration-300 hover:-translate-y-0.5 hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:bottom-6 sm:left-6 ${
+      className={`fixed bottom-5 left-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-border-strong bg-white text-foreground shadow-lg shadow-black/15 transition-all duration-300 hover:-translate-y-px hover:bg-surface motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:bottom-6 sm:left-6 ${
         visible ? "opacity-100" : "pointer-events-none translate-y-2 opacity-0"
       }`}
     >

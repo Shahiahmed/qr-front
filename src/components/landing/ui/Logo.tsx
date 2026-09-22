@@ -76,7 +76,7 @@ export function Logo({ className = "", size = "md", href = "#hero", markOnly = f
       aria-label={`${brand.name} — на главную`}
     >
       <span
-        className={`flex items-center justify-center bg-[linear-gradient(140deg,#ff8a70,#ff6a4d_55%,#f0a83c)] text-white shadow-[0_6px_16px_-4px_rgba(255,106,77,0.55)] transition-transform duration-200 group-hover/logo:scale-105 ${markSize}`}
+        className={`flex items-center justify-center bg-[linear-gradient(140deg,#ff8a70,#ff6a4d_55%,#f0a83c)] text-white shadow-[0_6px_16px_-4px_rgba(255,106,77,0.55)] transition-transform duration-200 group-hover/logo:scale-[1.03] motion-reduce:transition-none ${markSize}`}
       >
         <QrMark className="h-[62%] w-[62%]" />
       </span>

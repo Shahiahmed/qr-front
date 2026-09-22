@@ -189,7 +189,7 @@ function PlanCard({
 }) {
   if (featured) {
     return (
-      <article className="gradient-border relative rounded-[24px] px-[30px] py-[34px] text-white shadow-[0_34px_66px_-28px_rgba(20,18,16,0.6)] transition-transform duration-300 lg:-translate-y-3 lg:hover:-translate-y-4">
+      <article className="gradient-border relative rounded-[24px] px-[30px] py-[34px] text-white shadow-[0_34px_66px_-28px_rgba(20,18,16,0.6)] transition-transform duration-300 motion-reduce:transition-none lg:-translate-y-3 lg:hover:-translate-y-3.5">
         {popular ? (
           <span className="absolute -top-[15px] left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-[linear-gradient(120deg,#ff6a4d,#f0a83c)] px-4 py-1.5 text-[13px] font-bold text-white shadow-[0_10px_22px_-10px_rgba(255,106,77,0.9)]">
             <Sparkles size={13} />
@@ -223,7 +223,7 @@ function PlanCard({
   }
 
   return (
-    <article className="rounded-[24px] border border-border-strong bg-white px-[30px] py-[34px] transition-all duration-300 hover:-translate-y-1 hover:border-accent-tint hover:shadow-[0_28px_54px_-30px_rgba(20,18,16,0.32)]">
+    <article className="rounded-[24px] border border-border-strong bg-white px-[30px] py-[34px] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-tint hover:shadow-[0_18px_36px_-26px_rgba(20,18,16,0.24)] motion-reduce:transition-none">
       <div className="mb-2 text-[15px] font-bold text-muted">{plan.name}</div>
       <div className="mb-1.5 flex items-baseline gap-1.5">
         <span className="text-[40px] font-extrabold tracking-[-0.03em]">{plan.price}</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
+import { WHATSAPP_MESSAGE } from "@/content/landing";
 
 /**
  * Support WhatsApp line. Digits only, international format without "+"
@@ -16,7 +17,8 @@ const WHATSAPP_NUMBER = "77752597294";
 export function FloatingWhatsApp() {
   const copy = useLandingCopy();
 
-  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(copy.waMessage)}`;
+  // Message is bilingual and locale-independent on purpose — see WHATSAPP_MESSAGE.
+  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
   return (
     <a
@@ -24,7 +26,7 @@ export function FloatingWhatsApp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={copy.waAria}
-      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/25 transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:bottom-6 sm:right-6"
+      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/25 transition-transform duration-200 hover:scale-[1.03] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:bottom-6 sm:right-6"
     >
       <svg
         viewBox="0 0 24 24"

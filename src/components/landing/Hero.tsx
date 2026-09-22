@@ -69,7 +69,7 @@ export function Hero() {
                 {ctaLabel}
                 <ArrowRight
                   size={18}
-                  className="transition-transform duration-200 group-hover/btn:translate-x-1"
+                  className="transition-transform duration-200 group-hover/btn:translate-x-0.5 motion-reduce:transition-none"
                 />
               </Button>
               <Button

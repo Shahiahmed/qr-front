@@ -58,7 +58,6 @@ export type LandingCopy = {
   footLinks: { label: string; href: string }[];
   footRights: string;
   waAria: string;
-  waMessage: string;
   promoClose: string;
   scrollTop: string;
 };
@@ -86,6 +85,18 @@ export const brand = {
  * pointing at something that actually answers, or drop the link entirely.
  */
 export const PREMIUM_DEMO_URL = "https://qmenu.kz/";
+
+/**
+ * Prefilled text for the floating WhatsApp button. Carries **both** languages
+ * regardless of the locale the visitor is browsing: the site locale is a guess
+ * (plenty of Kazakh-speaking owners read the RU page), while this message is
+ * what the sales line actually receives — seeing both lets whoever picks it up
+ * answer in the language the owner is comfortable with. Worded as an intent to
+ * order ("I want to make one"), not a question, so the reply can start selling.
+ */
+export const WHATSAPP_MESSAGE = `Здравствуйте! Хочу сделать QR-меню для своего заведения. Подскажите, пожалуйста, с чего начать?
+
+Сәлеметсіз бе! Өз мекемеме QR-мәзір жасағым келеді. Қайдан бастасам болады?`;
 
 const RU: LandingCopy = {
   meta: {
@@ -296,7 +307,6 @@ const RU: LandingCopy = {
   ],
   footRights: "© 2026 QR меню. Все права защищены.",
   waAria: "Написать в WhatsApp",
-  waMessage: "Здравствуйте! Хочу узнать про QR меню.",
   promoClose: "Закрыть",
   scrollTop: "Наверх",
 };
@@ -509,7 +519,6 @@ const KZ: LandingCopy = {
   ],
   footRights: "© 2026 QR меню. Барлық құқықтар қорғалған.",
   waAria: "WhatsApp-қа жазу",
-  waMessage: "Сәлеметсіз бе! QR меню туралы білгім келеді.",
   promoClose: "Жабу",
   scrollTop: "Жоғарыға",
 };
