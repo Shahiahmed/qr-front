@@ -21,8 +21,19 @@ const API =
 /** How long a rendered menu may be served before it is rebuilt. */
 export const MENU_REVALIDATE_SECONDS = 60;
 
-export async function fetchPublicMenu(slug: string): Promise<PublicMenu | null> {
-  if (!API) return null;
+/**
+ * A blocked menu (switched off from /admin) is told apart from a missing one:
+ * the QR is right, so the guest sees "temporarily unavailable", not "not found".
+ */
+export type PublicMenuResult =
+  | { status: "ok"; menu: PublicMenu }
+  | { status: "blocked" }
+  | { status: "missing" };
+
+const MISSING: PublicMenuResult = { status: "missing" };
+
+export async function fetchPublicMenu(slug: string): Promise<PublicMenuResult> {
+  if (!API) return MISSING;
 
   try {
     const response = await fetch(`${API}/api/public/menu/${encodeURIComponent(slug)}`, {
@@ -30,15 +41,17 @@ export async function fetchPublicMenu(slug: string): Promise<PublicMenu | null> 
       next: { revalidate: MENU_REVALIDATE_SECONDS },
     });
 
-    if (!response.ok) return null;
+    // 423 Locked — the API's answer for a platform-blocked menu.
+    if (response.status === 423) return { status: "blocked" };
+    if (!response.ok) return MISSING;
 
     const payload = (await response.json()) as { data: PublicMenu };
-    return payload.data;
+    return { status: "ok", menu: payload.data };
   } catch {
     /*
      * A venue's menu must not 500 because the API blinked — the page renders
      * "not found" instead, and the next revalidation picks it back up.
      */
-    return null;
+    return MISSING;
   }
 }

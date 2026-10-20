@@ -138,6 +138,8 @@ export type AuthCopy = {
   /** Access-window labels shown on venue cards + the subscription card. */
   accessTrial: string;
   accessExpired: string;
+  accessBlocked: string;
+  accessBlockedHint: string;
   accessExpiredHint: string;
   accessUnlimited: string;
 
@@ -329,6 +331,8 @@ const RU: AuthCopy = {
 
   accessTrial: "Пробный период",
   accessExpired: "Доступ истёк",
+  accessBlocked: "Заблокировано",
+  accessBlockedHint: "Меню отключено администрацией сервиса. Напишите нам, чтобы разобраться.",
   accessExpiredHint: "Оформите подписку, чтобы меню снова открылось для гостей.",
   accessUnlimited: "Без ограничений",
 
@@ -515,6 +519,8 @@ const KZ: AuthCopy = {
 
   accessTrial: "Сынақ кезеңі",
   accessExpired: "Қолжетімділік бітті",
+  accessBlocked: "Бұғатталған",
+  accessBlockedHint: "Мәзірді сервис әкімшілігі өшірді. Мән-жайын білу үшін бізге жазыңыз.",
   accessExpiredHint: "Мәзір қонақтарға қайта ашылуы үшін жазылым рәсімдеңіз.",
   accessUnlimited: "Шектеусіз",
 

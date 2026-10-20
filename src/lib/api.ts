@@ -265,6 +265,8 @@ export type Establishment = {
   /** What governs the window: "trial" | "subscription" | null (unlimited). */
   access_source: "trial" | "subscription" | null;
   is_expired: boolean;
+  /** Switched off by the platform from /admin — guests see "unavailable". */
+  is_blocked: boolean;
   /** Whole days left; 0 if expired, null if unlimited. */
   days_left: number | null;
   /** Content caps from the menu's effective plan (null in a slot = unlimited). */

@@ -153,6 +153,18 @@ export function AccessBadge({
 }) {
   const gap = inRow ? "" : "mt-3 ";
 
+  // Checked first: a platform block wins over any access window.
+  if (venue.is_blocked) {
+    return (
+      <span
+        title={copy.accessBlockedHint}
+        className={`${gap}inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-1 text-[13px] font-semibold text-red-600`}
+      >
+        {copy.accessBlocked}
+      </span>
+    );
+  }
+
   if (venue.is_expired) {
     return (
       <span className={`${gap}inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-1 text-[13px] font-semibold text-red-600`}>

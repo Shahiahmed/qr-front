@@ -6,6 +6,8 @@ export type GuestCopy = {
   emptyMenu: string;
   notFoundTitle: string;
   notFoundText: string;
+  blockedTitle: string;
+  blockedText: string;
   languageAria: string;
   sectionsAria: string;
   // Venue info — icons carry the meaning; these are for a11y / tooltips
@@ -74,6 +76,8 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     emptyMenu: "Меню пока пустое.",
     notFoundTitle: "Меню не найдено",
     notFoundText: "Проверьте адрес или отсканируйте код ещё раз.",
+    blockedTitle: "Меню временно недоступно",
+    blockedText: "Попросите меню у официанта — скоро всё заработает.",
     languageAria: "Выбор языка",
     sectionsAria: "Разделы меню",
     wifiNetworkAria: "Wi‑Fi сеть",
@@ -132,6 +136,8 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     emptyMenu: "Мәзір әзірге бос.",
     notFoundTitle: "Мәзір табылмады",
     notFoundText: "Мекенжайды тексеріңіз немесе кодты қайта сканерлеңіз.",
+    blockedTitle: "Мәзір уақытша қолжетімсіз",
+    blockedText: "Мәзірді даяшыдан сұраңыз — жақында бәрі жұмыс істейді.",
     languageAria: "Тілді таңдау",
     sectionsAria: "Мәзір бөлімдері",
     wifiNetworkAria: "Wi‑Fi желісі",

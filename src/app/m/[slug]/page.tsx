@@ -1,4 +1,4 @@
-import { QrCode } from "lucide-react";
+import { Lock, QrCode } from "lucide-react";
 import type { Metadata } from "next";
 import { GuestMenu } from "@/components/guest/GuestMenu";
 import { guestByLocale } from "@/content/guest";
@@ -35,9 +35,11 @@ export async function generateMetadata({
     };
   }
 
-  const menu = await fetchPublicMenu(slug);
+  const result = await fetchPublicMenu(slug);
 
-  if (!menu) return { title: "QR меню", robots: { index: false } };
+  if (result.status !== "ok") return { title: "QR меню", robots: { index: false } };
+
+  const { menu } = result;
 
   return {
     title: `${menu.name} — меню`,
@@ -56,13 +58,16 @@ export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) 
   // waiter on screen. Server-side order intake comes later.
   if (slug === DEMO_SLUG) return <GuestMenu menu={demoMenu} ordering />;
 
-  const menu = await fetchPublicMenu(slug);
+  const result = await fetchPublicMenu(slug);
 
-  if (!menu) {
+  if (result.status !== "ok") {
     // The guest's language is unknown here (there is no menu to read it from),
     // so both are shown — Russian lead, Kazakh beneath.
     const ru = guestByLocale.ru;
     const kk = guestByLocale.kk;
+    // Blocked from /admin: same card, but "unavailable" instead of "404" —
+    // the code on the table is right, the menu is only switched off.
+    const blocked = result.status === "blocked";
 
     return (
       <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-surface px-6 py-16 text-center">
@@ -74,25 +79,37 @@ export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) 
 
         <div className="relative flex w-full max-w-sm flex-col items-center gap-6 rounded-[28px] border border-border bg-white/80 p-8 shadow-[0_20px_60px_-30px_rgba(20,18,16,0.35)] backdrop-blur">
           <span className="flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-soft text-accent">
-            <QrCode size={40} strokeWidth={1.75} />
+            {blocked ? (
+              <Lock size={36} strokeWidth={1.75} />
+            ) : (
+              <QrCode size={40} strokeWidth={1.75} />
+            )}
           </span>
 
-          <p className="text-[64px] font-extrabold leading-none tracking-[-0.04em] text-foreground">
-            404
-          </p>
+          {blocked ? null : (
+            <p className="text-[64px] font-extrabold leading-none tracking-[-0.04em] text-foreground">
+              404
+            </p>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <h1 className="text-[20px] font-extrabold tracking-[-0.02em] text-foreground">
-              {ru.notFoundTitle}
+              {blocked ? ru.blockedTitle : ru.notFoundTitle}
             </h1>
-            <p className="text-[15px] leading-snug text-muted">{ru.notFoundText}</p>
+            <p className="text-[15px] leading-snug text-muted">
+              {blocked ? ru.blockedText : ru.notFoundText}
+            </p>
           </div>
 
           <div className="h-px w-12 bg-border-strong" />
 
           <div className="flex flex-col gap-1">
-            <p className="text-[15px] font-bold text-foreground">{kk.notFoundTitle}</p>
-            <p className="text-[14px] leading-snug text-muted-soft">{kk.notFoundText}</p>
+            <p className="text-[15px] font-bold text-foreground">
+              {blocked ? kk.blockedTitle : kk.notFoundTitle}
+            </p>
+            <p className="text-[14px] leading-snug text-muted-soft">
+              {blocked ? kk.blockedText : kk.notFoundText}
+            </p>
           </div>
         </div>
 
@@ -106,5 +123,5 @@ export default async function GuestMenuPage({ params }: PageProps<"/m/[slug]">) 
     );
   }
 
-  return <GuestMenu menu={menu} ordering />;
+  return <GuestMenu menu={result.menu} ordering />;
 }
