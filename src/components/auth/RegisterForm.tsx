@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Gift } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Field } from "@/components/auth/Field";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
@@ -23,6 +23,14 @@ export function RegisterForm({ locale }: { locale: Locale }) {
     password: "",
     password_confirmation: "",
   });
+
+  // Bot trap (checked on the server): a hidden field humans never see, and
+  // how long the form was open. Scripts fill every input and post instantly.
+  const [honeypot, setHoneypot] = useState("");
+  const openedAt = useRef<number | null>(null);
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, []);
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -54,7 +62,10 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       if (error instanceof ApiError) {
         setErrors(error.errors);
         // A 422 is already explained field by field; anything else is not.
-        setFormError(error.isValidation ? null : error.message);
+        // The bot trap answers under `form`, which belongs to no field.
+        setFormError(
+          error.errors.form?.[0] ?? (error.isValidation ? null : error.message),
+        );
         return;
       }
 
@@ -78,7 +89,12 @@ export function RegisterForm({ locale }: { locale: Locale }) {
     event.preventDefault();
     setErrors({});
     setFormError(null);
-    mutation.mutate({ ...values, referral_code: referralCode });
+    mutation.mutate({
+      ...values,
+      referral_code: referralCode,
+      contact_me_by_fax_only: honeypot,
+      form_time: openedAt.current === null ? 0 : Date.now() - openedAt.current,
+    });
   }
 
   return (
@@ -95,6 +111,22 @@ export function RegisterForm({ locale }: { locale: Locale }) {
           {formError}
         </p>
       ) : null}
+
+      {/* Honeypot: off-screen rather than display:none, which some bots skip.
+          Hidden from screen readers and the tab order so no human fills it. */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label>
+          Fax
+          <input
+            type="text"
+            name="contact_me_by_fax_only"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+          />
+        </label>
+      </div>
 
       <Field
         label={copy.nameLabel}

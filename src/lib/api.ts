@@ -177,6 +177,10 @@ export type RegisterPayload = {
   password_confirmation: string;
   /** Invite code carried from a `?ref=` link; the server links the referrer. */
   referral_code?: string | null;
+  /** Bot trap: hidden field a human leaves empty, see RegisterForm. */
+  contact_me_by_fax_only?: string;
+  /** Bot trap: ms the form was open before submit. */
+  form_time?: number;
 };
 
 export async function register(
