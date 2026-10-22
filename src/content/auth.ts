@@ -174,6 +174,8 @@ export type AuthCopy = {
   newPasswordLabel: string;
   passwordChangeSubmit: string;
   passwordChangeSuccess: string;
+  phoneEmpty: string;
+  phoneSaved: string;
 
   qrTitle: string;
   qrSubtitle: string;
@@ -369,6 +371,8 @@ const RU: AuthCopy = {
   newPasswordLabel: "Новый пароль",
   passwordChangeSubmit: "Сменить пароль",
   passwordChangeSuccess: "Пароль обновлён.",
+  phoneEmpty: "Не указан",
+  phoneSaved: "Номер сохранён.",
 
   qrTitle: "QR-код",
   qrSubtitle: "Распечатайте и поставьте на стол. Гость наведёт камеру и увидит меню.",
@@ -419,7 +423,7 @@ const KZ: AuthCopy = {
   namePlaceholder: "Айгүл Серікова",
   emailLabel: "Email",
   phoneLabel: "WhatsApp нөмірі",
-  phoneHint: "Көмек керек болса, менеджер жазады",
+  phoneHint: "Менеджермен байланыс үшін",
   passwordLabel: "Құпиясөз",
   passwordHint: "Кемінде 8 таңба",
   passwordShow: "Құпиясөзді көрсету",
@@ -559,6 +563,8 @@ const KZ: AuthCopy = {
   newPasswordLabel: "Жаңа құпиясөз",
   passwordChangeSubmit: "Құпиясөзді өзгерту",
   passwordChangeSuccess: "Құпиясөз жаңартылды.",
+  phoneEmpty: "Көрсетілмеген",
+  phoneSaved: "Нөмір сақталды.",
 
   qrTitle: "QR-код",
   qrSubtitle: "Басып шығарып, үстелге қойыңыз. Қонақ камераны бағыттап, мәзірді көреді.",

@@ -10,9 +10,113 @@ import {
   ApiError,
   changePassword,
   currentUser,
+  updatePhone,
   type ValidationErrors,
 } from "@/lib/api";
-import { USER_QUERY_KEY } from "@/lib/useAuth";
+import { formatPhone } from "@/lib/phone";
+import { USER_QUERY_KEY, useSetAuthUser } from "@/lib/useAuth";
+
+/**
+ * WhatsApp number with inline edit. Google sign-ins and accounts made before
+ * the field existed start empty — this is where they add one.
+ */
+function PhoneRow({ locale, phone }: { locale: Locale; phone: string | null }) {
+  const copy = authByLocale[locale];
+  const setAuthUser = useSetAuthUser();
+
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saved, setSaved] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: () => updatePhone(value, locale),
+    onSuccess: (user) => {
+      setAuthUser(user);
+      setEditing(false);
+      setSaved(true);
+    },
+    onError: (error: unknown) => {
+      setErrors(
+        error instanceof ApiError
+          ? (error.errors.phone ?? [error.message])
+          : [copy.networkError],
+      );
+    },
+  });
+
+  function startEdit() {
+    setValue(phone ? formatPhone(phone) : "");
+    setErrors([]);
+    setSaved(false);
+    setEditing(true);
+  }
+
+  // <dl> only allows <div>/<dt>/<dd> children, hence the wrapper.
+  if (editing) {
+    return (
+      <div>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          setErrors([]);
+          mutation.mutate();
+        }}
+        noValidate
+        className="flex flex-col gap-3"
+      >
+        <Field
+          label={copy.phoneLabel}
+          name="phone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="+7 701 123 45 67"
+          hint={copy.phoneHint}
+          autoFocus
+          value={value}
+          errors={errors}
+          onChange={(e) => {
+            setValue(e.target.value);
+            setErrors([]);
+          }}
+        />
+        <div className="flex gap-2">
+          <Button type="submit" variant="primary" disabled={mutation.isPending} className="px-5 py-2.5">
+            {mutation.isPending ? copy.submitting : copy.save}
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setEditing(false)} className="px-5 py-2.5">
+            {copy.cancel}
+          </Button>
+        </div>
+      </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-end justify-between gap-3">
+      <div className="min-w-0">
+        <dt className="text-sm text-muted-soft">{copy.phoneLabel}</dt>
+        <dd className={`text-[15px] ${phone ? "" : "text-muted-soft"}`}>
+          {phone ? formatPhone(phone) : copy.phoneEmpty}
+        </dd>
+        {saved ? (
+          <p role="status" className="mt-1 text-sm font-semibold text-accent-hover">
+            {copy.phoneSaved}
+          </p>
+        ) : null}
+      </div>
+      <button
+        type="button"
+        onClick={startEdit}
+        className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-accent transition-colors hover:bg-accent-soft"
+      >
+        {copy.venueEdit}
+      </button>
+    </div>
+  );
+}
 
 export function ProfileCard({ locale }: { locale: Locale }) {
   const copy = authByLocale[locale];
@@ -83,6 +187,7 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             <dt className="text-sm text-muted-soft">{copy.emailLabel}</dt>
             <dd className="text-[15px]">{user.email}</dd>
           </div>
+          <PhoneRow locale={locale} phone={user.phone ?? null} />
         </dl>
       </div>
 

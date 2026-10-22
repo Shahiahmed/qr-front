@@ -241,6 +241,16 @@ export async function changePassword(
   });
 }
 
+/** Sets or changes the owner's WhatsApp number; returns the updated user. */
+export async function updatePhone(phone: string, locale?: string): Promise<User> {
+  const { data } = await apiFetch<Wrapped<User>>("/api/user/phone", {
+    method: "PUT",
+    body: { phone },
+    locale,
+  });
+  return data;
+}
+
 /* ---------- establishments ---------- */
 
 export type Establishment = {
