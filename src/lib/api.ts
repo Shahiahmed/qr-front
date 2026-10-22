@@ -161,6 +161,8 @@ export type User = {
   id: number;
   name: string;
   email: string;
+  /** WhatsApp number as digits `7XXXXXXXXXX`; null for Google sign-ins. */
+  phone?: string | null;
   created_at: string | null;
   /** Own invite code, minted at registration. Null only in edge cases. */
   referral_code: string | null;
@@ -173,6 +175,8 @@ type Wrapped<T> = { data: T };
 export type RegisterPayload = {
   name: string;
   email: string;
+  /** WhatsApp number in any format; the server normalises it. */
+  phone: string;
   password: string;
   password_confirmation: string;
   /** Invite code carried from a `?ref=` link; the server links the referrer. */

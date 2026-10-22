@@ -9,6 +9,8 @@ export type AuthCopy = {
   nameLabel: string;
   namePlaceholder: string;
   emailLabel: string;
+  phoneLabel: string;
+  phoneHint: string;
   passwordLabel: string;
   passwordHint: string;
   passwordShow: string;
@@ -226,6 +228,8 @@ const RU: AuthCopy = {
   nameLabel: "Ваше имя",
   namePlaceholder: "Айгүл Серікова",
   emailLabel: "Email",
+  phoneLabel: "Номер WhatsApp",
+  phoneHint: "Менеджер напишет, если понадобится помощь",
   passwordLabel: "Пароль",
   passwordHint: "Минимум 8 символов",
   passwordShow: "Показать пароль",
@@ -414,6 +418,8 @@ const KZ: AuthCopy = {
   nameLabel: "Атыңыз",
   namePlaceholder: "Айгүл Серікова",
   emailLabel: "Email",
+  phoneLabel: "WhatsApp нөмірі",
+  phoneHint: "Көмек керек болса, менеджер жазады",
   passwordLabel: "Құпиясөз",
   passwordHint: "Кемінде 8 таңба",
   passwordShow: "Құпиясөзді көрсету",

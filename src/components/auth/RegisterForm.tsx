@@ -20,6 +20,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
   const [values, setValues] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     password_confirmation: "",
   });
@@ -148,6 +149,19 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         value={values.email}
         errors={errors.email}
         onChange={(e) => update("email", e.target.value)}
+      />
+
+      <Field
+        label={copy.phoneLabel}
+        name="phone"
+        type="tel"
+        inputMode="tel"
+        autoComplete="tel"
+        placeholder="+7 701 123 45 67"
+        hint={copy.phoneHint}
+        value={values.phone}
+        errors={errors.phone}
+        onChange={(e) => update("phone", e.target.value)}
       />
 
       {/* Password + confirmation share a row on sm+ (they stack on phones) —
