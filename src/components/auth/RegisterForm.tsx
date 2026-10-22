@@ -8,6 +8,7 @@ import { Field } from "@/components/auth/Field";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
+import { maskPhoneInput, PHONE_MASK_LENGTH } from "@/lib/phone";
 import { useSetAuthUser } from "@/lib/useAuth";
 import { captureRefFromUrl, clearStoredRef, readStoredRef } from "@/lib/referral";
 import { ApiError, register, type RegisterPayload, type ValidationErrors } from "@/lib/api";
@@ -158,10 +159,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         inputMode="tel"
         autoComplete="tel"
         placeholder="+7 701 123 45 67"
+        maxLength={PHONE_MASK_LENGTH}
         hint={copy.phoneHint}
         value={values.phone}
         errors={errors.phone}
-        onChange={(e) => update("phone", e.target.value)}
+        onChange={(e) => update("phone", maskPhoneInput(e.target.value))}
       />
 
       {/* Password + confirmation share a row on sm+ (they stack on phones) —

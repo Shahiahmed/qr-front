@@ -13,7 +13,7 @@ import {
   updatePhone,
   type ValidationErrors,
 } from "@/lib/api";
-import { formatPhone } from "@/lib/phone";
+import { formatPhone, maskPhoneInput, PHONE_MASK_LENGTH } from "@/lib/phone";
 import { USER_QUERY_KEY, useSetAuthUser } from "@/lib/useAuth";
 
 /**
@@ -72,12 +72,13 @@ function PhoneRow({ locale, phone }: { locale: Locale; phone: string | null }) {
           inputMode="tel"
           autoComplete="tel"
           placeholder="+7 701 123 45 67"
+          maxLength={PHONE_MASK_LENGTH}
           hint={copy.phoneHint}
           autoFocus
           value={value}
           errors={errors}
           onChange={(e) => {
-            setValue(e.target.value);
+            setValue(maskPhoneInput(e.target.value));
             setErrors([]);
           }}
         />
