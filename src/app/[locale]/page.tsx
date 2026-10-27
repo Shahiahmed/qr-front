@@ -12,8 +12,8 @@ import { Pricing } from "@/components/landing/Pricing";
 import { PromoModal } from "@/components/landing/PromoModal";
 import { RefCapture } from "@/components/landing/RefCapture";
 import { ScrollToTop } from "@/components/landing/ScrollToTop";
-import { Testimonials } from "@/components/landing/Testimonials";
 import { isLocale } from "@/content/locales";
+import { getPublicPlans } from "@/lib/plans";
 import { getPromo, promoFieldsFor } from "@/lib/promo";
 
 // Hourly ISR (not force-static): the landing pulls admin-managed SEO and plans
@@ -28,7 +28,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
   // Admin-managed promo pop-up. Fetched server-side; only mounted when active
   // and it has a title in this locale (empty scheduled content never leaks).
-  const promo = await getPromo();
+  const [promo, plans] = await Promise.all([getPromo(), getPublicPlans()]);
   const promoFields = promo ? promoFieldsFor(promo, locale) : null;
 
   return (
@@ -38,9 +38,8 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <Hero />
         <HowItWorks />
         <Benefits />
+        <Pricing initialPlans={plans} />
         <Faq />
-        <Testimonials />
-        <Pricing />
         <CtaBanner />
       </main>
       <Footer />

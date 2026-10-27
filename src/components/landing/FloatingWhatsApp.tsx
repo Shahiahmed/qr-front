@@ -1,13 +1,7 @@
 "use client";
 
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
-import { WHATSAPP_MESSAGE } from "@/content/landing";
-
-/**
- * Support WhatsApp line. Digits only, international format without "+"
- * (the local 8-7752597294 becomes 7-7752597294).
- */
-const WHATSAPP_NUMBER = "77752597294";
+import { WHATSAPP_MESSAGE, WHATSAPP_NUMBER } from "@/content/landing";
 
 /**
  * Floating WhatsApp button pinned to the bottom-right of the landing. lucide

@@ -21,7 +21,27 @@ export type LandingCopy = {
   restName: string;
   restTag: string;
   cats: { name: string; active?: boolean }[];
-  heroDishes: { name: string; desc: string; price: string; image: string }[];
+  /** `soldOut` paints the dish as stop-listed in the hero and cabinet mockups. */
+  heroDishes: { name: string; desc: string; price: string; image: string; soldOut?: boolean }[];
+  /** Label on the stop-listed dish in the phone mockup. */
+  heroSoldOut: string;
+  /** Decorative cabinet mockup under «Как это работает». */
+  cabinet: {
+    tableQr: string;
+    addDish: string;
+    colDish: string;
+    colPrice: string;
+    colStock: string;
+    stopBadge: string;
+  };
+  /** Mini-illustration on the «Вызов официанта» feature card. */
+  waiterCall: string;
+  /** Total line on the order-slip illustration. */
+  receiptTotal: string;
+  faqMore: string;
+  faqMoreLink: string;
+  footProduct: string;
+  footContacts: string;
   hiwKicker: string;
   hiwTitle: string;
   hiwSub: string;
@@ -94,6 +114,12 @@ export const PREMIUM_DEMO_URL = "https://qmenu.kz/";
  * answer in the language the owner is comfortable with. Worded as an intent to
  * order ("I want to make one"), not a question, so the reply can start selling.
  */
+/** Support WhatsApp line: digits only, international format without "+". */
+export const WHATSAPP_NUMBER = "77752597294";
+
+/** The same number as people read it — footer contacts. */
+export const WHATSAPP_DISPLAY = "+7 775 259 72 94";
+
 export const WHATSAPP_MESSAGE = `Здравствуйте! Хочу сделать QR-меню для своего заведения. Подскажите, пожалуйста, с чего начать?
 
 Сәлеметсіз бе! Өз мекемеме QR-мәзір жасағым келеді. Қайдан бастасам болады?`;
@@ -146,6 +172,7 @@ const RU: LandingCopy = {
       name: "Манты (5 шт)",
       desc: "сочная баранина",
       price: "1 890 ₸",
+      soldOut: true,
       image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=160&h=160&q=70&auto=format&fit=crop",
     },
     {
@@ -213,6 +240,21 @@ const RU: LandingCopy = {
   ],
   cartTable: "Стол №7",
   cartTotal: "6 690 ₸",
+  heroSoldOut: "Закончилось",
+  cabinet: {
+    tableQr: "QR-коды столов",
+    addDish: "Добавить блюдо",
+    colDish: "Блюдо",
+    colPrice: "Цена",
+    colStock: "В наличии",
+    stopBadge: "стоп-лист",
+  },
+  waiterCall: "Стол №4 зовёт официанта",
+  receiptTotal: "Итого",
+  faqMore: "Не нашли ответ?",
+  faqMoreLink: "Напишите в WhatsApp",
+  footProduct: "Продукт",
+  footContacts: "Контакты",
   faqKicker: "Вопросы",
   faqTitle: "Частые вопросы",
   faqSub: "Коротко о том, как работает QR-меню и что нужно для запуска.",
@@ -358,6 +400,7 @@ const KZ: LandingCopy = {
       name: "Манты (5 дана)",
       desc: "шырынды қой еті",
       price: "1 890 ₸",
+      soldOut: true,
       image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=160&h=160&q=70&auto=format&fit=crop",
     },
     {
@@ -425,6 +468,22 @@ const KZ: LandingCopy = {
   ],
   cartTable: "7-үстел",
   cartTotal: "6 690 ₸",
+  // TODO: проверить перевод — новые строки KZ ниже (до footContacts).
+  heroSoldOut: "Таусылды",
+  cabinet: {
+    tableQr: "Үстел QR-кодтары",
+    addDish: "Тағам қосу",
+    colDish: "Тағам",
+    colPrice: "Бағасы",
+    colStock: "Қолда бар",
+    stopBadge: "стоп-лист",
+  },
+  waiterCall: "4-үстел даяшыны шақырады",
+  receiptTotal: "Барлығы",
+  faqMore: "Жауап таппадыңыз ба?",
+  faqMoreLink: "WhatsApp-қа жазыңыз",
+  footProduct: "Өнім",
+  footContacts: "Байланыс",
   faqKicker: "Сұрақтар",
   faqTitle: "Жиі қойылатын сұрақтар",
   faqSub: "QR-мәзір қалай жұмыс істейтіні және іске қосу үшін не қажет екені туралы қысқаша.",

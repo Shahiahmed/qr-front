@@ -1,21 +1,48 @@
 @import "tailwindcss";
 
 :root {
+  /*
+   * Terracotta & cream — the whole app (landing, cabinet, auth, 404). Flat: no
+   * gradients, no glow; buttons are a solid fill without shadow. Guest menus
+   * override only the accent family with the owner's theme (content/themes.ts).
+   */
   --background: #ffffff;
-  --foreground: #17140f;
-  --accent: #ff6a4d;
-  --accent-hover: #ee5233;
-  --accent-soft: #fff1ec;
-  --accent-tint: #ffe3d9;
-  --gold: #f0a83c;
-  --surface: #faf7f4;
-  --surface-2: #f4efea;
-  --muted: #736c66;
-  --muted-soft: #8a837c;
-  --border: #f0ece8;
-  --border-strong: #e7e2dd;
-  --ink: #141210;
-  --ink-soft: #241f1a;
+  --foreground: #17130f;
+  --accent: #d2401a;
+  /* Accent as text on light backgrounds (4.5:1+ on white and cream). */
+  --accent-hover: #a8330f;
+  --accent-soft: #fdebe4;
+  --accent-tint: #f6d3c6;
+  --gold: #d2401a;
+  --surface: #fbf6f2;
+  --surface-2: #f3ece6;
+  --muted: #4a433d;
+  --muted-soft: #5e5650;
+  --border: #efe8e2;
+  --border-strong: #e2d8cf;
+  --ink: #17130f;
+  --ink-soft: #2a231d;
+  --accent-light: #d2401a;
+  --accent-glow: #ff9b7e;
+  --gold-light: #ffb79f;
+  --on-dark-accent: #ff9b7e;
+  --on-dark-accent-hover: #ffc2ae;
+  --on-dark-muted: #bdb3aa;
+  --btn-from: #d2401a;
+  --btn-to: #d2401a;
+  --btn-hover-from: #b9370f;
+  --btn-hover-to: #b9370f;
+  --btn-shadow: none;
+  --btn-shadow-hover: none;
+  --btn-radius: 14px;
+  --success: #1e8a4c;
+  --logo-bg: linear-gradient(#d2401a, #d2401a);
+  --logo-shadow: none;
+}
+
+::selection {
+  background: #f6d3c6;
+  color: #17130f;
 }
 
 @theme inline {
@@ -37,6 +64,7 @@
   --color-border-strong: var(--border-strong);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
+  --color-success: var(--success);
   --font-sans: var(--font-inter);
 }
 
@@ -176,80 +204,6 @@ html {
   .animate-pulse-ring {
     animation: none;
   }
-}
-
-/* ---------- Decorative backgrounds ---------- */
-
-.bg-mesh {
-  background-image:
-    radial-gradient(
-      42rem 32rem at 78% 6%,
-      rgba(255, 106, 77, 0.16),
-      transparent 65%
-    ),
-    radial-gradient(
-      34rem 28rem at 4% 2%,
-      rgba(240, 168, 60, 0.13),
-      transparent 62%
-    ),
-    radial-gradient(
-      30rem 26rem at 50% 100%,
-      rgba(255, 106, 77, 0.07),
-      transparent 70%
-    );
-}
-
-.bg-grid {
-  background-image:
-    linear-gradient(rgba(20, 18, 16, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 18, 16, 0.045) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(60% 55% at 50% 40%, #000, transparent 100%);
-}
-
-.bg-grid-dark {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(70% 60% at 50% 35%, #000, transparent 100%);
-}
-
-/* Gradient hairline border over a dark fill. */
-.gradient-border {
-  background:
-    linear-gradient(var(--ink), var(--ink)) padding-box,
-    linear-gradient(140deg, #ff8a70, #ff6a4d 45%, #f0a83c) border-box;
-  border: 1.5px solid transparent;
-}
-
-.text-gradient {
-  background: linear-gradient(115deg, var(--accent-hover), #f0a83c);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* ---------- Menu-photo placeholders ---------- */
-
-.placeholder-stripes {
-  background: repeating-linear-gradient(
-    135deg,
-    #ffe7df,
-    #ffe7df 12px,
-    #ffddd2 12px,
-    #ffddd2 24px
-  );
-}
-
-.placeholder-stripes-sm {
-  background: repeating-linear-gradient(
-    135deg,
-    #fff1ec,
-    #fff1ec 8px,
-    #ffe4da 8px,
-    #ffe4da 16px
-  );
 }
 
 /* ---------- printing the table tent ---------- */

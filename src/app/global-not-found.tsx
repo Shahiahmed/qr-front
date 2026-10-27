@@ -23,13 +23,7 @@ export default function GlobalNotFound() {
     <html lang="ru" className={`${siteFont.variable} h-full antialiased`}>
       <body className="font-sans">
         <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-surface px-6 py-16 text-center">
-          {/* Soft brand glow behind the card. */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-accent-soft blur-3xl"
-          />
-
-          <div className="relative flex w-full max-w-sm flex-col items-center gap-6 rounded-[28px] border border-border bg-white/80 p-8 shadow-[0_20px_60px_-30px_rgba(20,18,16,0.35)] backdrop-blur">
+          <div className="relative flex w-full max-w-sm flex-col items-center gap-6 rounded-[28px] border border-border bg-white p-8">
             <span className="text-[18px] font-extrabold tracking-[-0.02em] text-foreground">
               QR меню
             </span>
@@ -58,7 +52,7 @@ export default function GlobalNotFound() {
 
             <Link
               href="/"
-              className="mt-1 inline-flex items-center justify-center rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-accent-hover"
+              className="mt-1 inline-flex items-center justify-center rounded-[14px] bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-accent-hover"
             >
               На главную · Басты бетке
             </Link>

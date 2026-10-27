@@ -19,35 +19,28 @@ export function CtaBanner() {
   const ctaLabel = authed ? auth.navPanel : copy.ctaBtn;
 
   return (
-    <section id="cta" aria-labelledby="cta-title" className="py-16 lg:py-[88px]">
-      <div className="mx-auto max-w-[1180px] px-4 sm:px-6">
+    <section id="cta" aria-labelledby="cta-title" className="py-16 lg:py-[104px]">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,#ff7a5c,#ff6a4d_45%,#f09048)] px-6 py-14 text-white shadow-[0_40px_80px_-30px_rgba(255,106,77,0.6)] sm:px-10 sm:py-[72px]">
-            <div
-              className="pointer-events-none absolute -left-[60px] -top-[100px] h-80 w-80 bg-[radial-gradient(circle,rgba(255,255,255,0.22),transparent_70%)]"
-              aria-hidden="true"
-            />
-            <div
-              className="pointer-events-none absolute -bottom-[120px] -right-10 h-80 w-80 bg-[radial-gradient(circle,rgba(255,255,255,0.16),transparent_70%)]"
-              aria-hidden="true"
-            />
-
-            <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-10 text-center lg:flex-row lg:justify-between lg:text-left">
+          {/* Flat accent block — no glows or gradients; white type on #D2401A
+              clears 4.5:1. */}
+          <div className="rounded-[32px] bg-accent px-6 py-14 text-white sm:px-10 sm:py-[72px]">
+            <div className="mx-auto flex max-w-[960px] flex-col items-center gap-10 text-center lg:flex-row lg:justify-between lg:text-left">
               <div>
                 <h2
                   id="cta-title"
-                  className="text-balance text-[32px] font-bold tracking-[-0.035em] sm:text-[44px]"
+                  className="text-balance text-[clamp(30px,5.2vw,44px)] font-extrabold leading-[1.1] tracking-[-0.02em]"
                 >
                   {copy.ctaTitle}
                 </h2>
-                <p className="mx-auto mt-4 max-w-[540px] text-pretty text-lg text-white/95 sm:text-[19px] lg:mx-0">
+                <p className="mx-auto mt-4 max-w-[540px] text-pretty text-lg text-white sm:text-[19px] lg:mx-0">
                   {copy.ctaSub}
                 </p>
                 <div className="mt-8 flex justify-center lg:justify-start">
                   <Button
                     variant="onAccent"
                     href={ctaHref}
-                    className="rounded-[15px] px-10 py-[18px] text-lg font-extrabold"
+                    className="px-10 py-[18px] text-lg font-extrabold focus-visible:outline-white"
                   >
                     {ctaLabel}
                     <ArrowRight
@@ -57,7 +50,7 @@ export function CtaBanner() {
                   </Button>
                 </div>
 
-                <ul className="mt-7 flex flex-col items-center gap-x-6 gap-y-2.5 text-[15px] font-medium text-white/95 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+                <ul className="mt-7 flex flex-col items-center gap-x-6 gap-y-2.5 text-[15px] font-semibold text-white sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
                   {copy.ctaPoints.map((point) => (
                     <li key={point} className="flex items-center gap-2">
                       <Check size={17} strokeWidth={3} aria-hidden="true" />
@@ -68,7 +61,7 @@ export function CtaBanner() {
               </div>
 
               <div
-                className="shrink-0 rotate-3 rounded-[24px] bg-white p-4 shadow-[0_28px_54px_-24px_rgba(0,0,0,0.45)]"
+                className="shrink-0 rotate-3 rounded-[24px] bg-white p-4 shadow-[0_24px_48px_-24px_rgba(23,19,15,0.45)]"
                 aria-hidden="true"
               >
                 <QrCode className="h-[148px] w-[148px]" scanning />

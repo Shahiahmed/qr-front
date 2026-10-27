@@ -24,8 +24,6 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
       className={`relative w-60 sm:w-68 ${className}`}
       aria-hidden="true"
     >
-      <div className="absolute inset-[-30px] bg-[radial-gradient(circle_at_60%_40%,#FFE7DF,transparent_70%)] blur-[10px]" />
-
       <div className={`relative ${animated ? "animate-floaty" : ""}`}>
         {/* Fills the transparent cutout; large radius matches the PNG glass. */}
         <div
@@ -67,7 +65,7 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
                 className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold ${
                   cat.active
                     ? "bg-accent text-white"
-                    : "bg-[#F4F0EC] font-semibold text-muted"
+                    : "bg-[var(--surface-2)] font-semibold text-muted"
                 }`}
               >
                 {cat.name}
@@ -79,7 +77,9 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
             {copy.heroDishes.map((dish) => (
               <div
                 key={dish.name}
-                className="flex min-h-0 flex-1 items-center gap-2.5 rounded-xl border border-border px-2 py-1.5"
+                className={`flex min-h-0 flex-1 items-center gap-2.5 rounded-xl border border-border px-2 py-1.5 ${
+                  dish.soldOut ? "bg-surface opacity-60" : ""
+                }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -91,13 +91,19 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
                   <div className="truncate text-[12px] font-bold sm:text-[13px]">
                     {dish.name}
                   </div>
-                  <div className="truncate text-[10px] text-[#9A938C] sm:text-[11px]">
+                  <div className="truncate text-[10px] text-[var(--muted-soft)] sm:text-[11px]">
                     {dish.desc}
                   </div>
                 </div>
-                <div className="whitespace-nowrap text-[12px] font-extrabold text-accent-hover sm:text-[13px]">
-                  {dish.price}
-                </div>
+                {dish.soldOut ? (
+                  <div className="whitespace-nowrap rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-bold text-muted">
+                    {copy.heroSoldOut}
+                  </div>
+                ) : (
+                  <div className="whitespace-nowrap text-[12px] font-extrabold text-accent-hover sm:text-[13px]">
+                    {dish.price}
+                  </div>
+                )}
               </div>
             ))}
           </div>

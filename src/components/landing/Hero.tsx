@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BellRing, ExternalLink, ScanLine } from "lucide-react";
+import { ArrowRight, BellRing, ScanLine, Smartphone } from "lucide-react";
 import { Button } from "@/components/landing/ui/Button";
 import { PhoneMockup } from "@/components/landing/ui/PhoneMockup";
 import { QrCode } from "@/components/landing/ui/QrCode";
@@ -22,20 +22,16 @@ export function Hero() {
   const ctaLabel = authed ? auth.navPanel : copy.heroCta1;
 
   return (
-    <section id="hero" aria-labelledby="hero-title" className="relative overflow-hidden">
-      <div className="bg-mesh pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
-      <div className="bg-grid pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
-
-      {/* On desktop the section fills exactly one screen (minus the sticky
-          header) and centres its content, so the hero reads as one clean
-          above-the-fold frame. */}
-      <div className="mx-auto grid max-w-[1180px] items-center gap-10 px-4 pb-12 pt-10 sm:px-6 lg:min-h-[calc(100svh-68px)] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:pb-12 lg:pt-12">
+    <section id="hero" aria-labelledby="hero-title" className="relative overflow-hidden bg-surface">
+      {/* On desktop the section fills one screen (minus the sticky header) and
+          centres its content, so the hero reads as one above-the-fold frame. */}
+      <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 pb-16 pt-10 sm:px-6 lg:min-h-[calc(100svh-68px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-10 lg:py-16">
         <div className="text-center lg:text-left">
           <Reveal>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-tint bg-white/70 px-3.5 py-2 text-sm font-semibold text-accent-hover shadow-[0_2px_10px_-4px_rgba(255,106,77,0.4)] backdrop-blur">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border-strong bg-white px-3.5 py-2 text-sm font-semibold text-foreground">
               <span className="relative flex h-2 w-2" aria-hidden="true">
-                <span className="animate-pulse-ring absolute inset-0 rounded-full bg-accent" />
-                <span className="relative h-2 w-2 rounded-full bg-accent" />
+                <span className="animate-pulse-ring absolute inset-0 rounded-full bg-success" />
+                <span className="relative h-2 w-2 rounded-full bg-success" />
               </span>
               {copy.heroBadge}
             </div>
@@ -44,28 +40,22 @@ export function Hero() {
           <Reveal delay={80}>
             <h1
               id="hero-title"
-              className="text-balance text-[34px] font-extrabold leading-[1.06] tracking-[-0.038em] min-[400px]:text-[42px] sm:text-[52px] sm:leading-[1.04] sm:tracking-[-0.042em] lg:text-[60px]"
+              className="text-balance text-[clamp(38px,8.4vw,64px)] font-extrabold leading-[1.02] tracking-[-0.035em]"
             >
               {copy.heroTitle}{" "}
-              <span className="bg-linear-to-r from-accent to-gold bg-clip-text text-transparent">
-                {copy.heroTitleAccent}
-              </span>
+              <span className="text-accent">{copy.heroTitleAccent}</span>
             </h1>
           </Reveal>
 
           <Reveal delay={140}>
-            <p className="mx-auto mt-5 max-w-[520px] text-pretty text-lg leading-relaxed text-muted sm:text-xl lg:mx-0">
+            <p className="mx-auto mt-6 max-w-[540px] text-pretty text-lg leading-relaxed text-muted sm:text-xl lg:mx-0">
               {copy.heroSub}
             </p>
           </Reveal>
 
           <Reveal delay={200}>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5 lg:justify-start">
-              <Button
-                variant="primary"
-                href={ctaHref}
-                className="rounded-[14px] px-7 py-4 text-[17px]"
-              >
+            <div className="mt-8 flex flex-col items-stretch justify-center gap-3 min-[460px]:flex-row min-[460px]:items-center lg:justify-start">
+              <Button variant="primary" href={ctaHref} className="px-7 py-4 text-[17px]">
                 {ctaLabel}
                 <ArrowRight
                   size={18}
@@ -77,16 +67,16 @@ export function Hero() {
                 href="/m/demo"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-[14px] px-7 py-4 text-[17px]"
+                className="px-7 py-4 text-[17px]"
               >
+                <Smartphone size={18} className="text-accent-hover" aria-hidden="true" />
                 {copy.heroCta2}
-                <ExternalLink size={16} className="text-accent-hover" />
               </Button>
             </div>
           </Reveal>
 
           <Reveal delay={260}>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 border-t border-border pt-7 lg:justify-start">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 lg:justify-start">
               <Stat value="2 мин" label={copy.heroStat1} />
               <Divider />
               <Stat value="RU / KZ" label={copy.heroStat2} />
@@ -97,30 +87,26 @@ export function Hero() {
         </div>
 
         <Reveal delay={180} className="flex justify-center lg:justify-self-center">
+          {/* The floating cards hang off the phone's sides: they may cover the
+              frame or the cover photo, never the dish list. */}
           <div className="relative">
-            {/* Soft accent glow anchoring the device — adds depth behind it. */}
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-[90px]"
-              aria-hidden="true"
-            />
-
             <PhoneMockup />
 
-            {/* Floating QR card — what the guest actually scans. */}
+            {/* QR card — left of the phone, overlapping only the frame. */}
             <div
-              className="animate-floaty-slow absolute -left-6 bottom-16 hidden w-[132px] rounded-2xl border border-border bg-white p-3 shadow-[0_24px_50px_-20px_rgba(20,18,16,0.35)] sm:block"
+              className="animate-floaty-slow absolute z-20 -left-[112px] bottom-12 hidden w-[124px] rounded-2xl border border-border bg-white p-3 shadow-[0_20px_40px_-20px_rgba(23,19,15,0.3)] sm:block"
               aria-hidden="true"
             >
-              <QrCode className="h-[104px] w-full" scanning />
+              <QrCode className="h-[98px] w-full" scanning />
               <div className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-bold text-muted">
                 <ScanLine size={12} className="text-accent" />
                 {copy.cartTable}
               </div>
             </div>
 
-            {/* Floating order notification. */}
+            {/* Order toast — over the cover photo and the frame's right edge. */}
             <div
-              className="animate-floaty absolute -right-4 top-10 hidden items-center gap-2.5 rounded-2xl border border-border bg-white px-3.5 py-3 shadow-[0_24px_50px_-20px_rgba(20,18,16,0.35)] sm:flex"
+              className="animate-floaty absolute z-20 -right-[92px] top-16 hidden items-center gap-2.5 rounded-2xl border border-border bg-white px-3.5 py-3 shadow-[0_20px_40px_-20px_rgba(23,19,15,0.3)] sm:flex"
               aria-hidden="true"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft text-accent-hover">
@@ -128,7 +114,7 @@ export function Hero() {
               </span>
               <div>
                 <div className="text-[13px] font-bold leading-tight">{copy.notifyTitle}</div>
-                <div className="text-[11px] text-muted-soft">
+                <div className="whitespace-nowrap text-[11px] text-muted-soft">
                   {copy.cartTable} · {copy.cartTotal}
                 </div>
               </div>

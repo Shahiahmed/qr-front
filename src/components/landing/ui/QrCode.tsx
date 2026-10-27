@@ -66,7 +66,7 @@ export function QrCode({
       </svg>
 
       {scanning ? (
-        <div className="animate-scan pointer-events-none absolute inset-x-0 top-1/2 h-12 -translate-y-1/2 bg-[linear-gradient(180deg,transparent,rgba(255,106,77,0.45),transparent)]" />
+        <div className="animate-scan pointer-events-none absolute inset-x-0 top-1/2 h-12 -translate-y-1/2 bg-[linear-gradient(180deg,transparent,color-mix(in_srgb,var(--accent)_45%,transparent),transparent)]" />
       ) : null}
     </div>
   );

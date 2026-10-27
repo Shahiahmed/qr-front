@@ -513,7 +513,7 @@ export function GuestMenu({
                     setPlaced(true);
                     setCartOpen(true);
                   }}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_color-mix(in_srgb,var(--accent)_80%,transparent)] transition-transform active:scale-[0.99]"
                 >
                   {copy.showTicket}
                   {ticket.table ? (
@@ -529,7 +529,7 @@ export function GuestMenu({
                     setPlaced(false);
                     setCartOpen(true);
                   }}
-                  className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(255,106,77,0.8)] transition-transform active:scale-[0.99]"
+                  className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_color-mix(in_srgb,var(--accent)_80%,transparent)] transition-transform active:scale-[0.99]"
                 >
                   <span className="flex items-center gap-2">
                     <span className="grid h-6 min-w-6 place-items-center rounded-full bg-white/20 px-1.5 text-xs tabular-nums">
@@ -1343,7 +1343,7 @@ function PoweredByFooter({
         className="mx-auto flex w-fit items-center gap-1.5 text-muted-soft no-underline transition-colors hover:text-muted"
       >
         <span
-          className="grid h-4 w-4 place-items-center rounded-[5px] bg-[linear-gradient(140deg,#ff8a70,#ff6a4d_55%,#f0a83c)] text-[9px] font-extrabold leading-none text-white"
+          className="grid h-4 w-4 place-items-center rounded-[5px] bg-[#d2401a] text-[9px] font-extrabold leading-none text-white"
           aria-hidden
         >
           Q

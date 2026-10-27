@@ -52,19 +52,19 @@ export function Header() {
   const navLinks = [
     { label: copy.hiwKicker, href: "#how" },
     { label: copy.advKicker, href: "#benefits" },
-    { label: copy.faqKicker, href: "#faq" },
     { label: copy.priceKicker, href: "#pricing" },
+    { label: copy.faqKicker, href: "#faq" },
   ];
 
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "border-b border-border bg-white/80 shadow-[0_1px_20px_-8px_rgba(20,18,16,0.18)] backdrop-blur-xl"
-          : "border-b border-transparent bg-white/50 backdrop-blur-sm"
+          ? "border-b border-border bg-white/95 backdrop-blur"
+          : "border-b border-transparent bg-surface"
       }`}
     >
-      <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-3.5">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6">
         <Logo />
 
         {/*
@@ -78,7 +78,7 @@ export function Header() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="whitespace-nowrap rounded-lg px-3 py-2 text-[15px] font-semibold text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                  className="inline-flex min-h-11 items-center whitespace-nowrap rounded-lg px-3 text-[15px] font-semibold text-muted transition-colors hover:text-foreground"
                 >
                   {link.label}
                 </a>
@@ -100,7 +100,7 @@ export function Header() {
               <Button
                 variant="primary"
                 href={`/${locale}/dashboard`}
-                className="whitespace-nowrap px-3.5 py-2.5 text-[13px] xl:px-5 xl:text-[15px]"
+                className="min-h-11 whitespace-nowrap px-3.5 py-2 text-[13px] xl:px-5 xl:text-[15px]"
               >
                 <LayoutDashboard size={16} />
                 {auth.navPanel}
@@ -112,7 +112,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   href={`/${locale}/login`}
-                  className="px-3 py-2.5 text-[15px] font-semibold"
+                  className="min-h-11 px-3 py-2 text-[15px] font-semibold"
                 >
                   {copy.navLogin}
                 </Button>
@@ -123,7 +123,7 @@ export function Header() {
                 <Button
                   variant="primary"
                   href={`/${locale}/register`}
-                  className="whitespace-nowrap px-3.5 py-2.5 text-[13px] xl:px-5 xl:text-[15px]"
+                  className="min-h-11 whitespace-nowrap px-3.5 py-2 text-[13px] xl:px-5 xl:text-[15px]"
                 >
                   {copy.navTry}
                 </Button>
@@ -137,7 +137,7 @@ export function Header() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? copy.navMenuClose : copy.navMenuOpen}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border-strong text-foreground transition-colors hover:bg-surface-2 xl:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border-strong bg-white text-foreground transition-colors hover:bg-surface-2 xl:hidden"
           >
             {open ? <X size={19} /> : <Menu size={19} />}
           </button>
@@ -160,7 +160,7 @@ export function Header() {
         id="mobile-nav"
         aria-label={copy.navMenuOpen}
         aria-hidden={!open}
-        className={`absolute inset-x-0 top-full max-h-[calc(100dvh-68px)] origin-top overflow-y-auto border-t border-border bg-white px-4 pb-6 pt-3 shadow-[0_18px_30px_-16px_rgba(20,18,16,0.28)] transition duration-200 ease-out motion-reduce:transition-none sm:px-6 xl:hidden ${
+        className={`absolute inset-x-0 top-full max-h-[calc(100dvh-68px)] origin-top overflow-y-auto border-t border-border bg-white px-4 pb-6 pt-3 shadow-[0_18px_30px_-16px_rgba(23,19,15,0.18)] transition duration-200 ease-out motion-reduce:transition-none sm:px-6 xl:hidden ${
           open
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-2 opacity-0"
