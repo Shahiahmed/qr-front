@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { PanelShell } from "@/components/panel/PanelShell";
 import { ProfileCard } from "@/components/panel/ProfileCard";
 import { authByLocale } from "@/content/auth";
@@ -25,9 +26,7 @@ export default async function ProfilePage({
 
   return (
     <PanelShell locale={locale} tab="profile">
-      <h1 className="mb-5 text-[26px] font-extrabold tracking-[-0.03em]">
-        {authByLocale[locale].profileTitle}
-      </h1>
+      <PanelPageHeader title={authByLocale[locale].profileTitle} />
       <ProfileCard locale={locale} />
     </PanelShell>
   );

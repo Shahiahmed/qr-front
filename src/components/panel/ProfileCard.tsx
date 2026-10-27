@@ -111,7 +111,7 @@ function PhoneRow({ locale, phone }: { locale: Locale; phone: string | null }) {
       <button
         type="button"
         onClick={startEdit}
-        className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-accent transition-colors hover:bg-accent-soft"
+        className="inline-flex min-h-10 shrink-0 items-center rounded-[10px] px-3 text-sm font-semibold text-accent-hover transition-colors hover:bg-accent-soft"
       >
         {copy.venueEdit}
       </button>

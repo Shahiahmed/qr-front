@@ -115,10 +115,10 @@ export const PREMIUM_DEMO_URL = "https://qmenu.kz/";
  * order ("I want to make one"), not a question, so the reply can start selling.
  */
 /** Support WhatsApp line: digits only, international format without "+". */
-export const WHATSAPP_NUMBER = "77752597294";
+export const WHATSAPP_NUMBER = "77089468123";
 
 /** The same number as people read it — footer contacts. */
-export const WHATSAPP_DISPLAY = "+7 775 259 72 94";
+export const WHATSAPP_DISPLAY = "+7 708 946 81 23";
 
 export const WHATSAPP_MESSAGE = `Здравствуйте! Хочу сделать QR-меню для своего заведения. Подскажите, пожалуйста, с чего начать?
 

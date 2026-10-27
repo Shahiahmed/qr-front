@@ -3,6 +3,7 @@
 import { ArrowRight, Plus, QrCode, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/landing/ui/Button";
+import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { AccessBadge } from "@/components/panel/VenueList";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
@@ -39,36 +40,34 @@ export function DashboardOverview({ locale }: { locale: Locale }) {
 
   return (
     <div>
-      <header className="mb-8 border-b border-border pb-6">
-        <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-muted-soft">
-          {copy.overviewTitle}
-        </span>
-        <h1 className="mt-1.5 text-[27px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[30px]">
-          {copy.overviewWelcome}
-        </h1>
-        {user ? (
-          <p className="mt-1 truncate text-[14px] text-muted-soft" title={user.email}>
-            {user.email}
-          </p>
-        ) : null}
-      </header>
+      <PanelPageHeader
+        kicker={copy.overviewTitle}
+        title={copy.overviewWelcome}
+        subtitle={
+          user ? (
+            <span className="block truncate" title={user.email}>
+              {user.email}
+            </span>
+          ) : undefined
+        }
+      />
 
       {/* Stat strip — one card, three cells split by hairlines. */}
       {isPending ? (
-        <div className="h-[96px] animate-pulse rounded-2xl bg-surface-2" />
+        <div className="h-[96px] animate-pulse rounded-[20px] bg-surface-2" />
       ) : (
-        <div className="grid grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-white shadow-[0_1px_2px_rgba(20,18,16,0.03)]">
+        <div className="grid grid-cols-3 divide-x divide-border rounded-[20px] border border-border bg-white shadow-[0_1px_2px_rgba(20,18,16,0.03)]">
           {stats.map(({ label, value, alarm }) => (
             <div key={label} className="px-3 py-5 sm:px-6">
               <div className="flex items-center gap-1.5">
                 <span
                   className={`text-[30px] font-extrabold leading-none tracking-[-0.03em] sm:text-[34px] ${
-                    alarm ? "text-amber-600" : "text-foreground"
+                    alarm ? "text-accent-hover" : "text-foreground"
                   }`}
                 >
                   {value}
                 </span>
-                {alarm ? <span className="h-2 w-2 rounded-full bg-amber-500" /> : null}
+                {alarm ? <span className="h-2 w-2 rounded-full bg-accent" /> : null}
               </div>
               <p className="mt-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-soft sm:text-[12px]">
                 {label}
@@ -96,7 +95,7 @@ export function DashboardOverview({ locale }: { locale: Locale }) {
         </div>
 
         {isPending ? (
-          <div className="overflow-hidden rounded-2xl border border-border bg-white">
+          <div className="overflow-hidden rounded-[20px] border border-border bg-white">
             {[0, 1, 2].map((k) => (
               <div key={k} className="flex items-center gap-4 border-b border-border px-5 py-4 last:border-b-0">
                 <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-surface-2" />
@@ -107,7 +106,7 @@ export function DashboardOverview({ locale }: { locale: Locale }) {
         ) : total === 0 ? (
           <Link
             href={`/${locale}/dashboard/venues`}
-            className="flex min-h-[168px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border-strong bg-white/60 p-6 text-center text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover hover:no-underline"
+            className="flex min-h-[168px] flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-border-strong bg-white/60 p-6 text-center text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover hover:no-underline"
           >
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent-hover">
               <Plus size={24} />
@@ -115,7 +114,7 @@ export function DashboardOverview({ locale }: { locale: Locale }) {
             <span className="max-w-[280px] text-[15px] font-semibold">{copy.venuesEmpty}</span>
           </Link>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-[0_1px_2px_rgba(20,18,16,0.03)]">
+          <div className="overflow-hidden rounded-[20px] border border-border bg-white shadow-[0_1px_2px_rgba(20,18,16,0.03)]">
             <ul className="divide-y divide-border">
               {list.map((venue) => (
                 <li key={venue.id}>
@@ -139,7 +138,7 @@ export function DashboardOverview({ locale }: { locale: Locale }) {
                       <Button
                         variant="primary"
                         href={`/${locale}/dashboard/venues/${venue.id}/menu`}
-                        className="px-4 py-2 text-[13.5px]"
+                        className="h-10 rounded-[12px] px-4 py-0 text-[14px]"
                       >
                         {copy.venueMenu}
                       </Button>
@@ -147,9 +146,9 @@ export function DashboardOverview({ locale }: { locale: Locale }) {
                         href={`/${locale}/dashboard/venues/${venue.id}/qr`}
                         aria-label={copy.qrOpen}
                         title={copy.qrOpen}
-                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border-strong text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-border-strong text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
                       >
-                        <QrCode size={15} />
+                        <QrCode size={17} />
                       </a>
                     </div>
                   </div>

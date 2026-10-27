@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { PanelShell } from "@/components/panel/PanelShell";
 import { ReferralCard } from "@/components/panel/ReferralCard";
 import { authByLocale } from "@/content/auth";
@@ -27,8 +28,7 @@ export default async function ReferralPage({
 
   return (
     <PanelShell locale={locale} tab="referral">
-      <h1 className="mb-1.5 text-[26px] font-extrabold tracking-[-0.03em]">{copy.refTitle}</h1>
-      <p className="mb-6 text-[15px] text-muted-soft">{copy.refSubtitle}</p>
+      <PanelPageHeader title={copy.refTitle} subtitle={copy.refSubtitle} />
       <ReferralCard locale={locale} />
     </PanelShell>
   );

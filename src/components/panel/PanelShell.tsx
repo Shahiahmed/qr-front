@@ -232,7 +232,7 @@ export function PanelShell({
       {/* Fixed desktop rail — collapses to an icon-only strip. */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-border bg-white transition-[width] duration-200 ease-out motion-reduce:transition-none lg:flex print:hidden ${
-          collapsed ? "w-16" : "w-64"
+          collapsed ? "w-[72px]" : "w-64"
         }`}
       >
         {sidebarBody(undefined, collapsed)}
@@ -278,7 +278,7 @@ export function PanelShell({
       {/* Content column, offset by the rail on desktop (tracks its width). */}
       <div
         className={`transition-[padding] duration-200 ease-out motion-reduce:transition-none print:pl-0 ${
-          collapsed ? "lg:pl-16" : "lg:pl-64"
+          collapsed ? "lg:pl-[72px]" : "lg:pl-64"
         }`}
       >
         {isPending || !user ? (
@@ -288,7 +288,10 @@ export function PanelShell({
             <Preloader />
           </div>
         ) : (
-          <main className="mx-auto max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8">
+          // Anchored to the rail, not centred: collapsing the sidebar hands its
+          // width to the content instead of leaving a gap on the left. The cap
+          // only keeps lines readable on very wide monitors.
+          <main className="w-full max-w-[1320px] px-4 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
             {children}
           </main>
         )}

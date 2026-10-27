@@ -197,7 +197,7 @@ export function VenueQr({
   if (!venue) {
     return (
       <div className="flex flex-col items-center gap-4 rounded-[20px] border border-border bg-white px-6 py-14 text-center">
-        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+        <span className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-accent-soft text-accent">
           <QrCode size={30} strokeWidth={1.75} />
         </span>
         <p className="text-[17px] font-bold">{menuCopy.venueNotFound}</p>
@@ -418,7 +418,7 @@ export function VenueQr({
             </div>
 
             {/* WYSIWYG poster — mirrors the printed tent and the PNG download. */}
-            <div className="rounded-2xl border border-border bg-surface-2 p-5">
+            <div className="rounded-[20px] border border-border bg-surface-2 p-5">
               <div className="mx-auto flex max-w-[320px] flex-col items-center gap-4 text-center">
                 {heading.trim() ? (
                   <p className="text-[24px] font-extrabold leading-tight tracking-[-0.02em]">

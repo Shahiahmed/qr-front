@@ -210,7 +210,7 @@ export function VenueDesignPanel({
                 type="button"
                 onClick={() => setLayout(preset.key)}
                 aria-pressed={selected}
-                className={`flex flex-col gap-2 rounded-2xl border p-2.5 text-left transition-colors ${
+                className={`flex flex-col gap-2 rounded-[20px] border p-2.5 text-left transition-colors ${
                   selected
                     ? "border-foreground bg-surface"
                     : "border-border-strong hover:bg-surface"
@@ -354,7 +354,7 @@ function TelegramConnect({
   const busy = connect.isPending || disconnect.isPending;
 
   return (
-    <section className="mt-6 rounded-2xl border border-border bg-surface p-4">
+    <section className="mt-6 rounded-[20px] border border-border bg-surface p-4">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent">
           <Send size={18} strokeWidth={2.25} />

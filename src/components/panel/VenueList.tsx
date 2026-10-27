@@ -29,7 +29,7 @@ export function VenueList({ locale }: { locale: Locale }) {
     return (
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {[0, 1].map((key) => (
-          <div key={key} className="h-[190px] animate-pulse rounded-2xl bg-surface-2" />
+          <div key={key} className="h-[190px] animate-pulse rounded-[20px] bg-surface-2" />
         ))}
       </div>
     );
@@ -47,7 +47,7 @@ export function VenueList({ locale }: { locale: Locale }) {
         {list.map((venue) => (
           <article
             key={venue.id}
-            className="flex flex-col rounded-2xl border border-border bg-white p-5 shadow-[0_1px_2px_rgba(20,18,16,0.04)] transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(20,18,16,0.28)]"
+            className="flex flex-col rounded-[20px] border border-border bg-white p-5 shadow-[0_1px_2px_rgba(20,18,16,0.04)] transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(20,18,16,0.28)]"
           >
             <div className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-hover">
@@ -113,7 +113,7 @@ export function VenueList({ locale }: { locale: Locale }) {
         <button
           type="button"
           onClick={() => setDialog({ open: true })}
-          className="flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border-strong bg-white/60 p-5 text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover"
+          className="flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-border-strong bg-white/60 p-5 text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover"
         >
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent-hover">
             <FilePlus2 size={24} strokeWidth={1.75} />

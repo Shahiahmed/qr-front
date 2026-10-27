@@ -20,6 +20,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/landing/ui/Button";
 import { CategoryDialog } from "@/components/panel/CategoryDialog";
 import { DishDialog } from "@/components/panel/DishDialog";
+import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { RowMenu } from "@/components/panel/RowMenu";
 import { VenueDesignPanel } from "@/components/panel/VenueDesignPanel";
 import type { Locale } from "@/content/landing";
@@ -211,32 +212,29 @@ export function MenuEditor({
 
   return (
     <>
-      {/* One header row: which venue on the left, the two real actions on the
+      {/* One header row: which venue on the left, the guest-menu link on the
           right. The "back" link is dropped — the global "Venues" tab above
           already goes there, and the section is named by the tabs below. */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-[24px] font-extrabold tracking-[-0.03em] sm:text-[26px]">
-          {venue?.name ?? copy.title}
-        </h1>
-
-        <div className="flex items-center gap-2">
-          {slug ? (
+      <PanelPageHeader
+        title={venue?.name ?? copy.title}
+        actions={
+          slug ? (
             <a
               href={`/m/${slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 py-1.5 text-[13px] font-bold transition-colors hover:border-foreground"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-[12px] border border-border-strong bg-white px-3.5 text-[14px] font-bold transition-colors hover:border-foreground"
             >
               {copy.openGuestMenu}
               <ExternalLink size={14} className="text-accent-hover" />
             </a>
-          ) : null}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       <nav
         aria-label={copy.title}
-        className="mb-6 flex gap-1 overflow-x-auto rounded-2xl border border-border bg-white p-1 scrollbar-none"
+        className="mb-6 flex gap-1 overflow-x-auto rounded-[16px] border border-border bg-white p-1 scrollbar-none"
       >
         {tabs.map((item) => {
           const active = tab === item.id;
@@ -246,7 +244,7 @@ export function MenuEditor({
               type="button"
               onClick={() => setTab(item.id)}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-colors sm:text-[14px] ${
+              className={`inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[12px] px-3 py-2 text-[13px] font-bold transition-colors sm:text-[14px] ${
                 active
                   ? "bg-accent text-white shadow-sm"
                   : "text-muted hover:bg-surface hover:text-foreground"

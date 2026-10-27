@@ -144,7 +144,7 @@ export function ImageCropper({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          className="relative mx-auto aspect-square w-full max-w-90 cursor-grab touch-none overflow-hidden rounded-2xl bg-ink/5 active:cursor-grabbing"
+          className="relative mx-auto aspect-square w-full max-w-90 cursor-grab touch-none overflow-hidden rounded-[20px] bg-ink/5 active:cursor-grabbing"
         >
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element -- local blob preview on a canvas-style editor, not an optimizable asset
@@ -156,7 +156,7 @@ export function ImageCropper({
               style={{ width: dw, height: dh, left: offsetX, top: offsetY, maxWidth: "none" }}
             />
           ) : null}
-          <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/10" />
+          <div className="pointer-events-none absolute inset-0 rounded-[20px] ring-1 ring-inset ring-black/10" />
         </div>
 
         <label className="flex items-center gap-3 text-sm font-semibold">

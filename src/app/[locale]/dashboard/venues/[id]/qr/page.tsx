@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { PanelShell } from "@/components/panel/PanelShell";
 import { VenueQr } from "@/components/panel/VenueQr";
 import { authByLocale } from "@/content/auth";
@@ -28,9 +29,7 @@ export default async function VenueQrPage({
 
   return (
     <PanelShell locale={locale} tab="venues">
-      <h1 className="mb-5 text-[26px] font-extrabold tracking-[-0.03em] print:hidden">
-        {authByLocale[locale].qrTitle}
-      </h1>
+      <PanelPageHeader title={authByLocale[locale].qrTitle} className="print:hidden" />
       <VenueQr locale={locale} establishmentId={establishmentId} />
     </PanelShell>
   );

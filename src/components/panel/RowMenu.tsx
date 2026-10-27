@@ -45,7 +45,7 @@ export function RowMenu({ label, items }: { label: string; items: RowMenuItem[] 
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-strong text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-border-strong text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
       >
         <MoreHorizontal size={17} />
       </button>

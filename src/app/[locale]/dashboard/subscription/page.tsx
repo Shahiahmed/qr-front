@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { PanelShell } from "@/components/panel/PanelShell";
 import { SubscriptionCard } from "@/components/panel/SubscriptionCard";
 import { authByLocale } from "@/content/auth";
@@ -27,8 +28,7 @@ export default async function SubscriptionPage({
 
   return (
     <PanelShell locale={locale} tab="subscription">
-      <h1 className="mb-1.5 text-[26px] font-extrabold tracking-[-0.03em]">{copy.subTitle}</h1>
-      <p className="mb-6 text-[15px] text-muted-soft">{copy.subSubtitle}</p>
+      <PanelPageHeader title={copy.subTitle} subtitle={copy.subSubtitle} />
       <SubscriptionCard locale={locale} />
     </PanelShell>
   );
