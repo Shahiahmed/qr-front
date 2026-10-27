@@ -746,3 +746,28 @@ export type ReferralSummary = {
 export async function getReferral(locale?: string): Promise<ReferralSummary> {
   return apiFetch<ReferralSummary>("/api/referral", { locale });
 }
+
+/* ---------- landing contact form ---------- */
+
+export type ContactRequestPayload = {
+  name: string;
+  /** Any format; the server normalises it to `7XXXXXXXXXX`. */
+  phone: string;
+  note?: string;
+  locale?: string;
+  /** Bot traps, same as sign-up — see RegisterForm. */
+  contact_me_by_fax_only?: string;
+  form_time?: number;
+};
+
+/** «Оставить заявку» from the landing — stored and pushed to the admin's Telegram. */
+export async function sendContactRequest(
+  payload: ContactRequestPayload,
+  locale?: string,
+): Promise<void> {
+  await apiFetch<{ ok: boolean }>("/api/contact-requests", {
+    method: "POST",
+    body: payload,
+    locale,
+  });
+}

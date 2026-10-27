@@ -80,6 +80,27 @@ export type LandingCopy = {
   waAria: string;
   promoClose: string;
   scrollTop: string;
+  /** Floating contact button (bottom-right): channel list + call-back form. */
+  contact: {
+    open: string;
+    close: string;
+    title: string;
+    whatsapp: string;
+    telegram: string;
+    lead: string;
+    back: string;
+    formTitle: string;
+    formSubtitle: string;
+    name: string;
+    phone: string;
+    note: string;
+    notePlaceholder: string;
+    submit: string;
+    sending: string;
+    successTitle: string;
+    successBody: string;
+    error: string;
+  };
 };
 
 type PlanCopy = {
@@ -119,6 +140,9 @@ export const WHATSAPP_NUMBER = "77089468123";
 
 /** The same number as people read it — footer contacts. */
 export const WHATSAPP_DISPLAY = "+7 708 946 81 23";
+
+/** Support Telegram account, without "@". */
+export const TELEGRAM_USERNAME = "CaradoX";
 
 export const WHATSAPP_MESSAGE = `Здравствуйте! Хочу сделать QR-меню для своего заведения. Подскажите, пожалуйста, с чего начать?
 
@@ -351,6 +375,26 @@ const RU: LandingCopy = {
   waAria: "Написать в WhatsApp",
   promoClose: "Закрыть",
   scrollTop: "Наверх",
+  contact: {
+    open: "Связаться с нами",
+    close: "Закрыть",
+    title: "Свяжитесь с нами",
+    whatsapp: "WhatsApp",
+    telegram: "Telegram",
+    lead: "Оставить заявку",
+    back: "Назад",
+    formTitle: "Оставить заявку",
+    formSubtitle: "Оставьте номер — менеджер свяжется с вами.",
+    name: "Ваше имя",
+    phone: "Телефон",
+    note: "Комментарий",
+    notePlaceholder: "Комментарий (необязательно)",
+    submit: "Отправить заявку",
+    sending: "Отправляем…",
+    successTitle: "Заявка отправлена",
+    successBody: "Спасибо! Менеджер скоро свяжется с вами.",
+    error: "Не удалось отправить. Попробуйте ещё раз или напишите в WhatsApp.",
+  },
 };
 
 const KZ: LandingCopy = {
@@ -580,6 +624,27 @@ const KZ: LandingCopy = {
   waAria: "WhatsApp-қа жазу",
   promoClose: "Жабу",
   scrollTop: "Жоғарыға",
+  // TODO: проверить перевод — блок contact.
+  contact: {
+    open: "Бізбен байланысу",
+    close: "Жабу",
+    title: "Бізбен байланысыңыз",
+    whatsapp: "WhatsApp",
+    telegram: "Telegram",
+    lead: "Өтінім қалдыру",
+    back: "Артқа",
+    formTitle: "Өтінім қалдыру",
+    formSubtitle: "Нөміріңізді қалдырыңыз — менеджер сізбен хабарласады.",
+    name: "Атыңыз",
+    phone: "Телефон",
+    note: "Пікір",
+    notePlaceholder: "Пікір (міндетті емес)",
+    submit: "Өтінімді жіберу",
+    sending: "Жіберілуде…",
+    successTitle: "Өтінім жіберілді",
+    successBody: "Рақмет! Менеджер жақын арада хабарласады.",
+    error: "Жіберу мүмкін болмады. Қайталап көріңіз немесе WhatsApp-қа жазыңыз.",
+  },
 };
 
 export const landingByLocale: Record<Locale, LandingCopy> = {

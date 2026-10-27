@@ -1,9 +1,9 @@
 "use client";
 
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Send } from "lucide-react";
 import { Logo } from "@/components/landing/ui/Logo";
 import { useLandingCopy } from "@/components/landing/LandingLocaleProvider";
-import { WHATSAPP_DISPLAY, WHATSAPP_NUMBER } from "@/content/landing";
+import { TELEGRAM_USERNAME, WHATSAPP_DISPLAY, WHATSAPP_NUMBER } from "@/content/landing";
 
 export function Footer() {
   const copy = useLandingCopy();
@@ -44,16 +44,27 @@ export function Footer() {
           <h2 className="mb-4 text-sm font-bold uppercase tracking-[0.08em] text-[var(--on-dark-muted)]">
             {copy.footContacts}
           </h2>
-          {/* TODO: email и Telegram — добавить, когда будут адреса. */}
-          <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-2 text-[15px] text-white transition-colors hover:text-[var(--on-dark-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--on-dark-accent)]"
-          >
-            <MessageCircle size={18} aria-hidden="true" />
-            WhatsApp {WHATSAPP_DISPLAY}
-          </a>
+          {/* TODO: email — добавить, когда будет адрес. */}
+          <div className="flex flex-col gap-1">
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 text-[15px] text-white transition-colors hover:text-[var(--on-dark-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--on-dark-accent)]"
+            >
+              <MessageCircle size={18} aria-hidden="true" />
+              WhatsApp {WHATSAPP_DISPLAY}
+            </a>
+            <a
+              href={`https://t.me/${TELEGRAM_USERNAME}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 text-[15px] text-white transition-colors hover:text-[var(--on-dark-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--on-dark-accent)]"
+            >
+              <Send size={18} aria-hidden="true" />
+              Telegram @{TELEGRAM_USERNAME}
+            </a>
+          </div>
         </div>
       </div>
     </footer>

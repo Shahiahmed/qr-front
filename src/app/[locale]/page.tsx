@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { Benefits } from "@/components/landing/Benefits";
+import { ContactWidget } from "@/components/landing/ContactWidget";
 import { CtaBanner } from "@/components/landing/CtaBanner";
 import { Faq } from "@/components/landing/Faq";
-import { FloatingWhatsApp } from "@/components/landing/FloatingWhatsApp";
 import { Footer } from "@/components/landing/Footer";
 import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
@@ -43,7 +43,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <CtaBanner />
       </main>
       <Footer />
-      <FloatingWhatsApp />
+      <ContactWidget />
       <ScrollToTop />
       <RefCapture />
       {promo && promoFields?.title ? (
