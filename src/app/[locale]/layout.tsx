@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GoogleTag } from "@/components/analytics/GoogleTag";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { landingByLocale } from "@/content/landing";
 import {
@@ -94,6 +95,7 @@ export default async function LocaleLayout({
       <body className="flex min-h-full flex-col font-sans">
         <QueryProvider>{children}</QueryProvider>
         <GoogleTag />
+        <MetaPixel />
       </body>
     </html>
   );
