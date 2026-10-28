@@ -28,16 +28,6 @@ export function Hero() {
       <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 pb-16 pt-10 sm:px-6 lg:min-h-[calc(100svh-68px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-10 lg:py-16">
         <div className="text-center lg:text-left">
           <Reveal>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border-strong bg-white px-3.5 py-2 text-sm font-semibold text-foreground">
-              <span className="relative flex h-2 w-2" aria-hidden="true">
-                <span className="animate-pulse-ring absolute inset-0 rounded-full bg-success" />
-                <span className="relative h-2 w-2 rounded-full bg-success" />
-              </span>
-              {copy.heroBadge}
-            </div>
-          </Reveal>
-
-          <Reveal delay={80}>
             <h1
               id="hero-title"
               className="text-balance text-[clamp(38px,8.4vw,64px)] font-extrabold leading-[1.02] tracking-[-0.035em]"

@@ -7,7 +7,6 @@ export type LandingCopy = {
   navMenuOpen: string;
   navMenuClose: string;
   languageAria: string;
-  heroBadge: string;
   heroTitle: string;
   /** Highlighted tail of the headline, rendered with the accent gradient. */
   heroTitleAccent: string;
@@ -159,7 +158,6 @@ const RU: LandingCopy = {
   navMenuOpen: "Открыть меню",
   navMenuClose: "Закрыть меню",
   languageAria: "Выбор языка",
-  heroBadge: "Без установки приложения",
   heroTitle: "Меню по QR",
   heroTitleAccent: "за 2 минуты",
   heroSub:
@@ -408,7 +406,6 @@ const KZ: LandingCopy = {
   navMenuOpen: "Мәзірді ашу",
   navMenuClose: "Мәзірді жабу",
   languageAria: "Тілді таңдау",
-  heroBadge: "Қосымшасыз",
   heroTitle: "QR арқылы мәзір",
   heroTitleAccent: "2 минутта",
   heroSub:
