@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { BellRing, Check, Minus, Plus, Settings2, ShoppingBag, X } from "lucide-react";
+import { BellRing, Check, Minus, Plus, Search, Settings2, ShoppingBag, X } from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { callWaiter, sendOrder, type WaiterCallReason } from "@/lib/api";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
@@ -34,6 +34,24 @@ function readQrTable(): string {
   if (typeof window === "undefined") return "";
   const value = new URLSearchParams(window.location.search).get("table") ?? "";
   return value.trim().slice(0, 30);
+}
+
+/** Lower-case and fold «ё» so «блины» finds «Блины» and «ёжик» finds «ежик». */
+function normalizeSearch(text: string): string {
+  return text.toLocaleLowerCase("ru").replace(/ё/g, "е").trim();
+}
+
+/**
+ * A dish matches when every typed word appears in its name or description, in
+ * either language — a guest reading in Russian may still type the Kazakh name.
+ */
+function dishMatches(dish: PublicDish, words: string[]): boolean {
+  const haystack = normalizeSearch(
+    [dish.name_ru, dish.name_kk, dish.description_ru, dish.description_kk]
+      .filter(Boolean)
+      .join(" "),
+  );
+  return words.every((word) => haystack.includes(word));
 }
 
 /**
@@ -106,6 +124,31 @@ export function GuestMenu({
   const tabRefs = useRef(new Map<number, HTMLButtonElement>());
   const tabsListRef = useRef<HTMLUListElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Dish search. While a query is typed, the list shows only matching dishes
+  // (under their category headings) and the category tabs step aside.
+  const [query, setQuery] = useState("");
+  const searchWords = normalizeSearch(query).split(/\s+/).filter(Boolean);
+  const searching = searchWords.length > 0;
+  const visibleSections = searching
+    ? sections
+        .map((category) => ({
+          ...category,
+          dishes: category.dishes.filter((dish) => dishMatches(dish, searchWords)),
+        }))
+        .filter((category) => category.dishes.length > 0)
+    : sections;
+
+  const changeQuery = (value: string) => {
+    setQuery(value);
+    // Results start at the top of the list — if the guest had scrolled deep
+    // into the menu, bring the list's start back under the sticky header.
+    const main = mainRef.current;
+    if (!main) return;
+    const top = window.scrollY + main.getBoundingClientRect().top - headerOffset();
+    if (window.scrollY > top) window.scrollTo({ top: Math.max(0, top) });
+  };
   // While a tab click is animating, ignore scroll-spy so it cannot snap
   // the highlight back to a previous section (common on the last few).
   const clickLockUntil = useRef(0);
@@ -355,7 +398,7 @@ export function GuestMenu({
   }, [anySheetOpen]);
 
   const barVisible = ordering && !cartOpen && (totalCount > 0 || Boolean(ticket));
-  const lastSectionId = sections[sections.length - 1]?.id;
+  const lastSectionId = visibleSections[visibleSections.length - 1]?.id;
   const about = pick(
     locale,
     menu.description_ru ?? null,
@@ -414,7 +457,46 @@ export function GuestMenu({
           </div>
         </div>
 
-        {sections.length > 1 ? (
+        {sections.length > 0 ? (
+          <div role="search" className="mx-auto max-w-[680px] px-4 pb-2.5">
+            <div className="relative">
+              <Search
+                size={17}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-soft"
+              />
+              {/* 16px text: anything smaller makes iOS Safari zoom on focus. */}
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => changeQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  // «Найти» on the phone keyboard just hides the keyboard —
+                  // results are already live.
+                  if (e.key === "Enter") e.currentTarget.blur();
+                  if (e.key === "Escape") changeQuery("");
+                }}
+                enterKeyHint="search"
+                autoComplete="off"
+                placeholder={copy.searchPlaceholder}
+                aria-label={copy.searchPlaceholder}
+                className="h-10 w-full rounded-full border border-transparent bg-surface-2 pl-10 pr-10 text-[16px] text-foreground outline-none transition-colors placeholder:text-muted-soft focus:border-accent focus:bg-white [&::-webkit-search-cancel-button]:hidden"
+              />
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => changeQuery("")}
+                  aria-label={copy.searchClear}
+                  className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                >
+                  <X size={16} />
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        {sections.length > 1 && !searching ? (
           <nav aria-label={copy.sectionsAria} className="mx-auto max-w-[680px]">
             {/* Scrolls sideways: a venue can easily have a dozen sections. */}
             <ul
@@ -446,12 +528,25 @@ export function GuestMenu({
         ) : null}
       </header>
 
-      <main className="mx-auto max-w-[680px] px-4">
+      <main ref={mainRef} className="mx-auto max-w-[680px] px-4">
         {sections.length === 0 ? (
           <p className="py-16 text-center text-muted">{copy.emptyMenu}</p>
         ) : null}
 
-        {sections.map((category) => (
+        {searching && visibleSections.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-[15px] font-bold text-foreground">{copy.searchEmpty}</p>
+            <button
+              type="button"
+              onClick={() => changeQuery("")}
+              className="mt-3 rounded-full bg-surface-2 px-4 py-2 text-[13px] font-bold text-muted transition-colors hover:text-foreground"
+            >
+              {copy.searchReset}
+            </button>
+          </div>
+        ) : null}
+
+        {visibleSections.map((category) => (
           <section
             key={category.id}
             id={`section-${category.id}`}
@@ -489,7 +584,7 @@ export function GuestMenu({
           </section>
         ))}
 
-        {sections.length === 0 ? (
+        {visibleSections.length === 0 ? (
           <div className="pt-6">
             <PoweredByFooter locale={locale} copy={copy} />
           </div>
@@ -701,7 +796,7 @@ export function GuestMenu({
                                 className="h-14 w-14 shrink-0 rounded-xl bg-surface-2 object-cover"
                               />
                             ) : (
-                              <div className="h-14 w-14 shrink-0 rounded-xl bg-surface-2" />
+                              <DishPlaceholder className="h-14 w-14 rounded-xl" />
                             )}
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-[14px] font-bold">{name}</p>
@@ -1128,6 +1223,35 @@ function DishList({
   );
 }
 
+/**
+ * Stand-in for a dish without a photo: a plate with cutlery on a soft wash of
+ * the theme colour, so a card keeps its shape and a half-photographed menu
+ * still reads as one designed list. Decorative — the dish name says it all.
+ */
+function DishPlaceholder({ className }: { className: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`flex shrink-0 items-center justify-center bg-[linear-gradient(135deg,var(--accent-soft),var(--accent-tint))] text-accent ${className}`}
+    >
+      <svg
+        viewBox="0 0 64 64"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2.4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-[62%] w-[62%] opacity-55"
+      >
+        <circle cx="32" cy="34" r="15" />
+        <circle cx="32" cy="34" r="9.5" opacity={0.5} />
+        <path d="M8 13v8a3.5 3.5 0 0 0 7 0v-8M11.5 13v42" />
+        <path d="M56 55V13c-3.5 2.5-5.5 8-5.5 15v6H56" />
+      </svg>
+    </div>
+  );
+}
+
 function DishCard({
   dish,
   layout,
@@ -1190,7 +1314,9 @@ function DishCard({
             loading="lazy"
             className="aspect-square w-full bg-surface-2 object-cover"
           />
-        ) : null}
+        ) : (
+          <DishPlaceholder className="aspect-square w-full" />
+        )}
         <div className="flex flex-1 flex-col p-3">
           <h3 className="text-[15px] font-bold leading-snug">{name}</h3>
           {description ? (
@@ -1221,7 +1347,9 @@ function DishCard({
             loading="lazy"
             className="h-12 w-12 shrink-0 rounded-xl bg-surface-2 object-cover"
           />
-        ) : null}
+        ) : (
+          <DishPlaceholder className="h-12 w-12 rounded-xl" />
+        )}
         <div className="min-w-0 flex-1">
           <h3 className="text-[15px] font-bold leading-snug">{name}</h3>
           {description ? (
@@ -1253,7 +1381,9 @@ function DishCard({
             loading="lazy"
             className="h-24 w-24 shrink-0 rounded-[13px] bg-surface-2 object-cover"
           />
-        ) : null}
+        ) : (
+          <DishPlaceholder className="h-24 w-24 rounded-[13px]" />
+        )}
 
         <div className="flex min-w-0 flex-1 flex-col">
           <h3 className="text-[16px] font-bold leading-snug">{name}</h3>

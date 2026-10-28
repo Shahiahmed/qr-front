@@ -10,6 +10,11 @@ export type GuestCopy = {
   blockedText: string;
   languageAria: string;
   sectionsAria: string;
+  // Dish search above the category tabs
+  searchPlaceholder: string;
+  searchClear: string;
+  searchEmpty: string;
+  searchReset: string;
   // Venue info — icons carry the meaning; these are for a11y / tooltips
   wifiNetworkAria: string;
   wifiPasswordAria: string;
@@ -80,6 +85,10 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     blockedText: "Попросите меню у официанта — скоро всё заработает.",
     languageAria: "Выбор языка",
     sectionsAria: "Разделы меню",
+    searchPlaceholder: "Поиск блюда",
+    searchClear: "Очистить поиск",
+    searchEmpty: "Ничего не нашлось",
+    searchReset: "Показать всё меню",
     wifiNetworkAria: "Wi‑Fi сеть",
     wifiPasswordAria: "Скопировать пароль Wi‑Fi",
     wifiCopied: "Скопировано",
@@ -140,6 +149,11 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     blockedText: "Мәзірді даяшыдан сұраңыз — жақында бәрі жұмыс істейді.",
     languageAria: "Тілді таңдау",
     sectionsAria: "Мәзір бөлімдері",
+    // TODO: KZ copy — have a native speaker check the search strings.
+    searchPlaceholder: "Тағамды іздеу",
+    searchClear: "Іздеуді тазалау",
+    searchEmpty: "Ештеңе табылмады",
+    searchReset: "Бүкіл мәзірді көрсету",
     wifiNetworkAria: "Wi‑Fi желісі",
     wifiPasswordAria: "Wi‑Fi құпия сөзін көшіру",
     wifiCopied: "Көшірілді",
