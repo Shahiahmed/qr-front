@@ -1,19 +1,10 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertTriangle,
-  Clock,
-  FilePlus2,
-  Pencil,
-  QrCode,
-  Sparkles,
-  Trash2,
-  UtensilsCrossed,
-} from "lucide-react";
-import { useState } from "react";
+import { Clock, FilePlus2, Pencil, QrCode, Trash2, UtensilsCrossed } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { SubscribeDialog } from "@/components/panel/SubscribeDialog";
-import { useSubscriptionStatus } from "@/components/panel/SubscribeForm";
+import { pickPlanName, useSubscriptionStatus } from "@/components/panel/SubscribeForm";
 import { VenueDialog } from "@/components/panel/VenueDialog";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
@@ -166,10 +157,12 @@ export function VenueList({ locale }: { locale: Locale }) {
 }
 
 /**
- * The card's plan line: access badge plus a way to subscribe or renew right
- * here. Calm while there is time left; once the menu is down or ≤3 days from
- * it, it turns into a tinted call-out with a solid button. A request already
- * under review replaces the action, so nobody files a second one.
+ * The card's plan panel — the same shape in every state so a grid of venues
+ * reads as one system: a status dot, what the menu runs on, how long it has,
+ * and (when there is something to buy) one compact action on the right.
+ * Calm on a neutral fill while time is left; amber at ≤3 days, red once the
+ * menu is down — then the action turns solid. A request under review replaces
+ * the action, so nobody files a second one.
  */
 function PlanStrip({
   venue,
@@ -184,72 +177,111 @@ function PlanStrip({
   copy: typeof authByLocale.ru;
   onSubscribe: () => void;
 }) {
-  // Blocked (platform decision) and grandfathered (no limit) venues have
-  // nothing to buy; status not loaded yet — don't offer what may be pending.
-  if (venue.is_blocked || (venue.access_source === null && !venue.is_expired) || !menu) {
-    return <AccessBadge venue={venue} locale={locale} copy={copy} />;
-  }
+  const kz = locale === "kz";
+  const pending = menu?.pending_request ?? null;
+  const plan = menu?.subscription?.plan ?? null;
+  const ends = formatShortDate(venue.access_ends_at, locale);
+  const daysLine = venue.days_left !== null ? daysLeftPhrase(venue.days_left, locale) : "";
 
-  if (menu.pending_request) {
-    return (
-      <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[13px] font-semibold text-amber-700">
-        <Clock size={14} />
-        {copy.subPendingTitle}
-      </span>
-    );
+  type Tone = "neutral" | "warn" | "danger";
+  let tone: Tone = "neutral";
+  let title: string;
+  let detail = "";
+  // The exact end date is a hover hint — the card is too narrow to carry it.
+  let hint: string | undefined;
+  let icon: ReactNode = null;
+  // Nothing to buy for blocked (platform decision) or grandfathered venues,
+  // and nothing to offer until the status (pending or not) has loaded.
+  let canAct = Boolean(menu) && !venue.is_blocked && !pending;
+
+  if (venue.is_blocked) {
+    tone = "danger";
+    title = copy.accessBlocked;
+    detail = copy.renewBlockedDetail;
+  } else if (pending) {
+    tone = "warn";
+    title = copy.subPendingTitle;
+    detail = pending.plan ? pickPlanName(pending.plan, kz) : "";
+    icon = <Clock size={15} className="shrink-0 text-amber-600" />;
+  } else if (venue.is_expired) {
+    tone = "danger";
+    title = copy.accessExpired;
+    detail = copy.renewExpiredTitle;
+  } else if (venue.access_source === null) {
+    title = copy.accessUnlimited;
+    canAct = false;
+  } else {
+    title =
+      venue.access_source === "trial"
+        ? copy.accessTrial
+        : plan
+          ? pickPlanName(plan, kz)
+          : copy.subTitle;
+    detail = daysLine;
+    // «до 5 нояб.» vs «5 қар. дейін» — Kazakh puts the postposition last.
+    if (ends) hint = kz ? `${ends} ${copy.renewUntil}` : `${copy.renewUntil} ${ends}`;
+    if (venue.days_left !== null && venue.days_left <= 3) tone = "warn";
   }
 
   const cta = venue.access_source === "subscription" ? copy.subExtend : copy.subSubscribeShort;
-  const urgent = venue.is_expired || (venue.days_left !== null && venue.days_left <= 3);
 
-  if (urgent) {
-    const expired = venue.is_expired;
-    return (
-      // Stacked: a third-width card has no room for text and button side by side.
-      <div className={`mt-4 rounded-[16px] p-3.5 ${expired ? "bg-red-50" : "bg-amber-50"}`}>
-        <div className="flex items-start gap-2.5">
-          <AlertTriangle
-            size={18}
-            className={`mt-px shrink-0 ${expired ? "text-red-600" : "text-amber-600"}`}
-          />
-          <div className="min-w-0 flex-1">
-            <p className={`text-[13.5px] font-bold leading-tight ${expired ? "text-red-800" : "text-amber-900"}`}>
-              {expired
-                ? copy.renewExpiredTitle
-                : venue.access_source === "trial"
-                  ? copy.renewTrialEnding
-                  : copy.renewSubEnding}
-            </p>
-            <p className={`mt-0.5 text-[12.5px] ${expired ? "text-red-700" : "text-amber-800"}`}>
-              {expired ? copy.accessExpired : daysLeftPhrase(venue.days_left ?? 0, locale)}
-            </p>
-          </div>
-        </div>
+  const box = {
+    neutral: "border-border bg-surface",
+    warn: "border-amber-200/70 bg-amber-50",
+    danger: "border-red-200/70 bg-red-50",
+  }[tone];
+  const dot = {
+    neutral: venue.access_source === "trial" ? "bg-amber-400" : "bg-emerald-500",
+    warn: "bg-amber-500",
+    danger: "bg-red-500",
+  }[tone];
+  const detailColor = {
+    neutral: "text-muted-soft",
+    warn: "text-amber-800",
+    danger: "text-red-700",
+  }[tone];
+
+  return (
+    <div className={`mt-4 flex items-center gap-3 rounded-[14px] border px-3.5 py-3 ${box}`}>
+      <div className="min-w-0 flex-1">
+        <p className="flex items-center gap-2 text-[14px] font-bold leading-tight text-foreground">
+          {icon ?? (
+            <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} aria-hidden />
+          )}
+          <span className="truncate">{title}</span>
+        </p>
+        {detail ? (
+          <p
+            title={hint}
+            className={`mt-1 text-[12.5px] leading-snug ${icon ? "pl-[23px]" : "pl-4"} ${detailColor}`}
+          >
+            {detail}
+          </p>
+        ) : null}
+      </div>
+      {canAct ? (
         <Button
           type="button"
-          variant="primary"
+          variant={tone === "neutral" ? "secondary" : "primary"}
           onClick={onSubscribe}
-          className="mt-3 h-10 w-full py-0 text-[14px]"
+          className="h-9 shrink-0 px-4 py-0 text-[13.5px]"
         >
           {cta}
         </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-      <AccessBadge venue={venue} locale={locale} copy={copy} inRow />
-      <button
-        type="button"
-        onClick={onSubscribe}
-        className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[13px] font-semibold text-accent-hover transition-colors hover:bg-accent-soft"
-      >
-        <Sparkles size={14} />
-        {cta}
-      </button>
+      ) : null}
     </div>
   );
+}
+
+/** «5 нояб.» — compact end date for the plan panel; empty when unknown. */
+function formatShortDate(iso: string | null, locale: Locale): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(locale === "kz" ? "kk-KZ" : "ru-RU", {
+    day: "numeric",
+    month: "short",
+  }).format(date);
 }
 
 /**

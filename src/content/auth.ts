@@ -145,8 +145,8 @@ export type AuthCopy = {
   subSubscribeShort: string;
   subRenewTitle: string;
   renewExpiredTitle: string;
-  renewTrialEnding: string;
-  renewSubEnding: string;
+  renewBlockedDetail: string;
+  renewUntil: string;
 
   /** Access-window labels shown on venue cards + the subscription card. */
   accessTrial: string;
@@ -354,11 +354,11 @@ const RU: AuthCopy = {
   subSuccessTitle: "Заявка отправлена",
   subDone: "Готово",
   subExtend: "Продлить",
-  subSubscribeShort: "Оформить подписку",
+  subSubscribeShort: "Оформить",
   subRenewTitle: "Продлить подписку",
   renewExpiredTitle: "Меню не открывается гостям",
-  renewTrialEnding: "Пробный период заканчивается",
-  renewSubEnding: "Подписка заканчивается",
+  renewBlockedDetail: "Напишите нам, чтобы разобраться",
+  renewUntil: "до",
 
   accessTrial: "Пробный период",
   accessExpired: "Доступ истёк",
@@ -561,11 +561,11 @@ const KZ: AuthCopy = {
   subSuccessTitle: "Өтінім жіберілді",
   subDone: "Дайын",
   subExtend: "Ұзарту",
-  subSubscribeShort: "Жазылым рәсімдеу",
+  subSubscribeShort: "Рәсімдеу",
   subRenewTitle: "Жазылымды ұзарту",
   renewExpiredTitle: "Мәзір қонақтарға ашылмайды",
-  renewTrialEnding: "Сынақ кезеңі аяқталуда",
-  renewSubEnding: "Жазылым аяқталуда",
+  renewBlockedDetail: "Мән-жайын білу үшін бізге жазыңыз",
+  renewUntil: "дейін",
 
   accessTrial: "Сынақ кезеңі",
   accessExpired: "Қолжетімділік бітті",
