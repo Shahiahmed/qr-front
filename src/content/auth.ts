@@ -136,6 +136,17 @@ export type AuthCopy = {
   subManage: string;
   subRenew: string;
   subMenuHint: string;
+  subFeatured: string;
+  subAddComment: string;
+  subNoChargeNote: string;
+  subSuccessTitle: string;
+  subDone: string;
+  subExtend: string;
+  subSubscribeShort: string;
+  subRenewTitle: string;
+  renewExpiredTitle: string;
+  renewTrialEnding: string;
+  renewSubEnding: string;
 
   /** Access-window labels shown on venue cards + the subscription card. */
   accessTrial: string;
@@ -337,6 +348,17 @@ const RU: AuthCopy = {
   subManage: "Оформить подписку",
   subRenew: "Продлить или сменить тариф",
   subMenuHint: "Подписка оформляется отдельно для каждого меню.",
+  subFeatured: "Популярный",
+  subAddComment: "Добавить комментарий",
+  subNoChargeNote: "Сейчас ничего не списывается — менеджер свяжется с вами и активирует тариф.",
+  subSuccessTitle: "Заявка отправлена",
+  subDone: "Готово",
+  subExtend: "Продлить",
+  subSubscribeShort: "Оформить подписку",
+  subRenewTitle: "Продлить подписку",
+  renewExpiredTitle: "Меню не открывается гостям",
+  renewTrialEnding: "Пробный период заканчивается",
+  renewSubEnding: "Подписка заканчивается",
 
   accessTrial: "Пробный период",
   accessExpired: "Доступ истёк",
@@ -532,6 +554,18 @@ const KZ: AuthCopy = {
   subManage: "Жазылым рәсімдеу",
   subRenew: "Ұзарту немесе тарифті ауыстыру",
   subMenuHint: "Жазылым әр мәзірге бөлек рәсімделеді.",
+  // TODO: KZ copy for the in-card subscribe flow — have a native speaker check.
+  subFeatured: "Танымал",
+  subAddComment: "Пікір қосу",
+  subNoChargeNote: "Қазір ештеңе есептен шықпайды — менеджер сізбен хабарласып, тарифті қосады.",
+  subSuccessTitle: "Өтінім жіберілді",
+  subDone: "Дайын",
+  subExtend: "Ұзарту",
+  subSubscribeShort: "Жазылым рәсімдеу",
+  subRenewTitle: "Жазылымды ұзарту",
+  renewExpiredTitle: "Мәзір қонақтарға ашылмайды",
+  renewTrialEnding: "Сынақ кезеңі аяқталуда",
+  renewSubEnding: "Жазылым аяқталуда",
 
   accessTrial: "Сынақ кезеңі",
   accessExpired: "Қолжетімділік бітті",

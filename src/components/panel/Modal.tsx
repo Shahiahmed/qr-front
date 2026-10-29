@@ -10,7 +10,8 @@ export function Modal({
   children,
 }: {
   label: string;
-  title: string;
+  /** Omitted when the body brings its own heading (e.g. a confirmation). */
+  title?: string;
   onClose: () => void;
   children: ReactNode;
 }) {
@@ -44,7 +45,9 @@ export function Modal({
         aria-label={label}
         className="my-auto w-full max-w-[520px] rounded-[24px] bg-white p-6 shadow-[0_40px_80px_-30px_rgba(20,18,16,0.5)] sm:p-8"
       >
-        <h2 className="mb-6 text-[24px] font-extrabold tracking-[-0.03em]">{title}</h2>
+        {title ? (
+          <h2 className="mb-6 text-[24px] font-extrabold tracking-[-0.03em]">{title}</h2>
+        ) : null}
         {children}
       </div>
     </div>

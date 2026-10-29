@@ -1,24 +1,39 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FilePlus2, Pencil, QrCode, Trash2, UtensilsCrossed } from "lucide-react";
+import {
+  AlertTriangle,
+  Clock,
+  FilePlus2,
+  Pencil,
+  QrCode,
+  Sparkles,
+  Trash2,
+  UtensilsCrossed,
+} from "lucide-react";
 import { useState } from "react";
+import { SubscribeDialog } from "@/components/panel/SubscribeDialog";
+import { useSubscriptionStatus } from "@/components/panel/SubscribeForm";
 import { VenueDialog } from "@/components/panel/VenueDialog";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
 import { daysLeftPhrase } from "@/lib/access";
-import { deleteEstablishment, type Establishment } from "@/lib/api";
+import { deleteEstablishment, type Establishment, type MenuSubscription } from "@/lib/api";
 import { PUBLIC_MENU_HOST, VENUES_QUERY_KEY, useVenues } from "@/lib/venues";
 
 export function VenueList({ locale }: { locale: Locale }) {
   const copy = authByLocale[locale];
   const queryClient = useQueryClient();
   const { data: venues, isPending } = useVenues();
+  // Plan + pending request per venue, so each card can offer to subscribe or
+  // renew in place. Until it loads the card just shows its access badge.
+  const { data: status } = useSubscriptionStatus(locale);
 
   const [dialog, setDialog] = useState<{ open: boolean; venue?: Establishment }>({
     open: false,
   });
+  const [subscribing, setSubscribing] = useState<Establishment | null>(null);
 
   const remove = useMutation({
     mutationFn: deleteEstablishment,
@@ -63,7 +78,13 @@ export function VenueList({ locale }: { locale: Locale }) {
               </div>
             </div>
 
-            <AccessBadge venue={venue} locale={locale} copy={copy} />
+            <PlanStrip
+              venue={venue}
+              menu={status?.menus.find((m) => m.id === venue.id)}
+              locale={locale}
+              copy={copy}
+              onSubscribe={() => setSubscribing(venue)}
+            />
 
             <div className="mt-auto flex items-center gap-2 pt-5">
               <Button
@@ -129,7 +150,105 @@ export function VenueList({ locale }: { locale: Locale }) {
           onClose={() => setDialog({ open: false })}
         />
       ) : null}
+
+      {subscribing ? (
+        <SubscribeDialog
+          venue={subscribing}
+          currentPlanId={
+            status?.menus.find((m) => m.id === subscribing.id)?.subscription?.plan?.id ?? null
+          }
+          locale={locale}
+          onClose={() => setSubscribing(null)}
+        />
+      ) : null}
     </>
+  );
+}
+
+/**
+ * The card's plan line: access badge plus a way to subscribe or renew right
+ * here. Calm while there is time left; once the menu is down or ≤3 days from
+ * it, it turns into a tinted call-out with a solid button. A request already
+ * under review replaces the action, so nobody files a second one.
+ */
+function PlanStrip({
+  venue,
+  menu,
+  locale,
+  copy,
+  onSubscribe,
+}: {
+  venue: Establishment;
+  menu: MenuSubscription | undefined;
+  locale: Locale;
+  copy: typeof authByLocale.ru;
+  onSubscribe: () => void;
+}) {
+  // Blocked (platform decision) and grandfathered (no limit) venues have
+  // nothing to buy; status not loaded yet — don't offer what may be pending.
+  if (venue.is_blocked || (venue.access_source === null && !venue.is_expired) || !menu) {
+    return <AccessBadge venue={venue} locale={locale} copy={copy} />;
+  }
+
+  if (menu.pending_request) {
+    return (
+      <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[13px] font-semibold text-amber-700">
+        <Clock size={14} />
+        {copy.subPendingTitle}
+      </span>
+    );
+  }
+
+  const cta = venue.access_source === "subscription" ? copy.subExtend : copy.subSubscribeShort;
+  const urgent = venue.is_expired || (venue.days_left !== null && venue.days_left <= 3);
+
+  if (urgent) {
+    const expired = venue.is_expired;
+    return (
+      // Stacked: a third-width card has no room for text and button side by side.
+      <div className={`mt-4 rounded-[16px] p-3.5 ${expired ? "bg-red-50" : "bg-amber-50"}`}>
+        <div className="flex items-start gap-2.5">
+          <AlertTriangle
+            size={18}
+            className={`mt-px shrink-0 ${expired ? "text-red-600" : "text-amber-600"}`}
+          />
+          <div className="min-w-0 flex-1">
+            <p className={`text-[13.5px] font-bold leading-tight ${expired ? "text-red-800" : "text-amber-900"}`}>
+              {expired
+                ? copy.renewExpiredTitle
+                : venue.access_source === "trial"
+                  ? copy.renewTrialEnding
+                  : copy.renewSubEnding}
+            </p>
+            <p className={`mt-0.5 text-[12.5px] ${expired ? "text-red-700" : "text-amber-800"}`}>
+              {expired ? copy.accessExpired : daysLeftPhrase(venue.days_left ?? 0, locale)}
+            </p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="primary"
+          onClick={onSubscribe}
+          className="mt-3 h-10 w-full py-0 text-[14px]"
+        >
+          {cta}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      <AccessBadge venue={venue} locale={locale} copy={copy} inRow />
+      <button
+        type="button"
+        onClick={onSubscribe}
+        className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[13px] font-semibold text-accent-hover transition-colors hover:bg-accent-soft"
+      >
+        <Sparkles size={14} />
+        {cta}
+      </button>
+    </div>
   );
 }
 
@@ -143,6 +262,7 @@ export function AccessBadge({
   locale,
   copy,
   inRow = false,
+  compact = false,
 }: {
   venue: Establishment;
   locale: Locale;
@@ -150,6 +270,9 @@ export function AccessBadge({
   // `inRow` drops the top margin so the badge can sit inline in a list row
   // instead of stacking under the venue name (its default card use).
   inRow?: boolean;
+  // `compact` drops the «Пробный период ·» prefix for tight spots (the
+  // subscribe dialog's venue row), keeping just the countdown.
+  compact?: boolean;
 }) {
   const gap = inRow ? "" : "mt-3 ";
 
@@ -182,7 +305,7 @@ export function AccessBadge({
   }
 
   const trial = venue.access_source === "trial";
-  const text = trial
+  const text = trial && !compact
     ? `${copy.accessTrial} · ${daysLeftPhrase(venue.days_left, locale)}`
     : daysLeftPhrase(venue.days_left, locale);
 
