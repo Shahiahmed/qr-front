@@ -176,6 +176,9 @@ export type AuthCopy = {
   passwordChangeSuccess: string;
   phoneEmpty: string;
   phoneSaved: string;
+  /** Blocking prompt for accounts without a WhatsApp number (Google sign-ins, older accounts). */
+  phoneGateTitle: string;
+  phoneGateText: string;
 
   qrTitle: string;
   qrSubtitle: string;
@@ -373,6 +376,9 @@ const RU: AuthCopy = {
   passwordChangeSuccess: "Пароль обновлён.",
   phoneEmpty: "Не указан",
   phoneSaved: "Номер сохранён.",
+  phoneGateTitle: "Укажите номер WhatsApp",
+  phoneGateText:
+    "Менеджер напишет вам, поможет настроить меню и ответит на вопросы. Это займёт несколько секунд.",
 
   qrTitle: "QR-код",
   qrSubtitle: "Распечатайте и поставьте на стол. Гость наведёт камеру и увидит меню.",
@@ -565,6 +571,10 @@ const KZ: AuthCopy = {
   passwordChangeSuccess: "Құпиясөз жаңартылды.",
   phoneEmpty: "Көрсетілмеген",
   phoneSaved: "Нөмір сақталды.",
+  // TODO: KZ copy — have a native speaker check the phone prompt.
+  phoneGateTitle: "WhatsApp нөміріңізді көрсетіңіз",
+  phoneGateText:
+    "Менеджер сізге жазып, мәзірді баптауға көмектеседі және сұрақтарға жауап береді. Бұл бірнеше секунд алады.",
 
   qrTitle: "QR-код",
   qrSubtitle: "Басып шығарып, үстелге қойыңыз. Қонақ камераны бағыттап, мәзірді көреді.",

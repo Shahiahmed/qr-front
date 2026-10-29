@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { Logo } from "@/components/landing/ui/Logo";
+import { PhoneGate } from "@/components/panel/PhoneGate";
 import { Preloader } from "@/components/ui/Preloader";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
@@ -296,6 +297,16 @@ export function PanelShell({
           </main>
         )}
       </div>
+
+      {/* No WhatsApp number yet (Google sign-in or an older account): the
+          cabinet stays behind a blocking prompt until one is saved. */}
+      {user && !user.phone && !leaving ? (
+        <PhoneGate
+          locale={locale}
+          onSignOut={() => signOut.mutate()}
+          signingOut={signOut.isPending}
+        />
+      ) : null}
     </div>
   );
 }
