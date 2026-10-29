@@ -221,6 +221,15 @@ function PlanStrip({
     // «до 5 нояб.» vs «5 қар. дейін» — Kazakh puts the postposition last.
     if (ends) hint = kz ? `${ends} ${copy.renewUntil}` : `${copy.renewUntil} ${ends}`;
     if (venue.days_left !== null && venue.days_left <= 3) tone = "warn";
+    // A paid plan with months to go has nothing to renew yet — the button
+    // only shows up in the last month. A trial always offers to subscribe.
+    if (
+      venue.access_source === "subscription" &&
+      venue.days_left !== null &&
+      venue.days_left > RENEW_WINDOW_DAYS
+    ) {
+      canAct = false;
+    }
   }
 
   const cta = venue.access_source === "subscription" ? copy.subExtend : copy.subSubscribeShort;
@@ -253,7 +262,7 @@ function PlanStrip({
         {detail ? (
           <p
             title={hint}
-            className={`mt-1 text-[12.5px] leading-snug ${icon ? "pl-[23px]" : "pl-4"} ${detailColor}`}
+            className={`mt-1 text-[12.5px] leading-snug ${icon ? "pl-5.75" : "pl-4"} ${detailColor}`}
           >
             {detail}
           </p>
@@ -272,6 +281,9 @@ function PlanStrip({
     </div>
   );
 }
+
+/** How close to the end a paid plan gets before the card offers «Продлить». */
+const RENEW_WINDOW_DAYS = 30;
 
 /** «5 нояб.» — compact end date for the plan panel; empty when unknown. */
 function formatShortDate(iso: string | null, locale: Locale): string {
