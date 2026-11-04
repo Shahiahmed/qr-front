@@ -62,8 +62,14 @@ export function SubscribeDialog({
           <span className="block truncate text-[12.5px] text-muted-soft">
             {PUBLIC_MENU_HOST}/{venue.slug}
           </span>
+          {/* Phones: under the name, so the name isn't squeezed to «Ша…». */}
+          <span className="mt-1.5 block sm:hidden">
+            <AccessBadge venue={venue} locale={locale} copy={copy} inRow compact />
+          </span>
         </span>
-        <AccessBadge venue={venue} locale={locale} copy={copy} inRow compact />
+        <span className="hidden shrink-0 sm:block">
+          <AccessBadge venue={venue} locale={locale} copy={copy} inRow compact />
+        </span>
       </div>
 
       <SubscribeForm

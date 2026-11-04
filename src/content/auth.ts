@@ -147,6 +147,22 @@ export type AuthCopy = {
   renewExpiredTitle: string;
   renewBlockedDetail: string;
   renewUntil: string;
+  /** Cabinet redesign: overview greeting, side cards, plan facts, steps. */
+  overviewHello: string;
+  overviewSubtitle: string;
+  overviewAttentionHint: string;
+  overviewRefText: string;
+  overviewHelpTitle: string;
+  overviewHelpText: string;
+  overviewHelpCta: string;
+  venueOpenGuest: string;
+  subCellLeft: string;
+  subHowTitle: string;
+  subStep1: string;
+  subStep2: string;
+  subStep3: string;
+  subPlansTitle: string;
+  refStepShare: string;
 
   /** Access-window labels shown on venue cards + the subscription card. */
   accessTrial: string;
@@ -359,6 +375,21 @@ const RU: AuthCopy = {
   renewExpiredTitle: "Меню не открывается гостям",
   renewBlockedDetail: "Напишите нам, чтобы разобраться",
   renewUntil: "до",
+  overviewHello: "Здравствуйте, {name}",
+  overviewSubtitle: "Ваши меню, сроки и подписки — в одном месте.",
+  overviewAttentionHint: "Продлите доступ, чтобы гости не увидели закрытое меню.",
+  overviewRefText: "Получите {amount} на подписку за каждого друга, который оформит тариф.",
+  overviewHelpTitle: "Нужна помощь?",
+  overviewHelpText: "Напишите нам — поможем заполнить меню и настроить QR-код.",
+  overviewHelpCta: "Написать в WhatsApp",
+  venueOpenGuest: "Открыть меню гостя",
+  subCellLeft: "Осталось",
+  subHowTitle: "Как оформить",
+  subStep1: "Выберите тариф и оставьте заявку",
+  subStep2: "Менеджер напишет вам в WhatsApp",
+  subStep3: "После оплаты тариф включится",
+  subPlansTitle: "Тарифы",
+  refStepShare: "Отправьте ссылку владельцу кафе или ресторана.",
 
   accessTrial: "Пробный период",
   accessExpired: "Доступ истёк",
@@ -566,6 +597,22 @@ const KZ: AuthCopy = {
   renewExpiredTitle: "Мәзір қонақтарға ашылмайды",
   renewBlockedDetail: "Мән-жайын білу үшін бізге жазыңыз",
   renewUntil: "дейін",
+  // TODO: KZ copy for the cabinet redesign — have a native speaker check.
+  overviewHello: "Сәлеметсіз бе, {name}",
+  overviewSubtitle: "Мәзірлеріңіз, мерзімдер мен жазылымдар — бір жерде.",
+  overviewAttentionHint: "Қонақтар жабық мәзірді көрмеуі үшін қолжетімділікті ұзартыңыз.",
+  overviewRefText: "Тариф рәсімдеген әр дос үшін жазылымға {amount} алыңыз.",
+  overviewHelpTitle: "Көмек керек пе?",
+  overviewHelpText: "Бізге жазыңыз — мәзірді толтыруға және QR-кодты баптауға көмектесеміз.",
+  overviewHelpCta: "WhatsApp-қа жазу",
+  venueOpenGuest: "Қонақ мәзірін ашу",
+  subCellLeft: "Қалды",
+  subHowTitle: "Қалай рәсімдеу керек",
+  subStep1: "Тарифті таңдап, өтінім қалдырыңыз",
+  subStep2: "Менеджер WhatsApp арқылы жазады",
+  subStep3: "Төлемнен кейін тариф қосылады",
+  subPlansTitle: "Тарифтер",
+  refStepShare: "Сілтемені кафе немесе мейрамхана иесіне жіберіңіз.",
 
   accessTrial: "Сынақ кезеңі",
   accessExpired: "Қолжетімділік бітті",

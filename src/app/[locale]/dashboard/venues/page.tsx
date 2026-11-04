@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { PanelShell } from "@/components/panel/PanelShell";
 import { VenueList } from "@/components/panel/VenueList";
 import { authByLocale } from "@/content/auth";
@@ -26,7 +25,7 @@ export default async function VenuesPage({
 
   return (
     <PanelShell locale={locale} tab="venues">
-      <PanelPageHeader title={authByLocale[locale].venuesTitle} />
+      {/* The header lives in VenueList — its «add» action opens the venue dialog. */}
       <VenueList locale={locale} />
     </PanelShell>
   );

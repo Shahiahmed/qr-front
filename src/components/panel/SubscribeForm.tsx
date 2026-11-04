@@ -40,7 +40,7 @@ export function pickPlanName(plan: { name_ru: string; name_kk: string | null }, 
 }
 
 /** «/ мес» · «/ жыл» — recurring-price suffix for a plan's period. */
-function periodSuffix(period: Plan["period"], copy: Copy): string {
+export function periodSuffix(period: Plan["period"], copy: Copy): string {
   if (period === "year") return copy.subPerYear;
   if (period === "halfyear") return copy.subPerHalfyear;
   return copy.subPerMonth;
@@ -256,7 +256,7 @@ export function SubscribeForm({
             type="submit"
             variant="primary"
             disabled={mutation.isPending}
-            className="h-12 flex-1 py-0"
+            className="h-12 py-0 sm:flex-1"
           >
             {mutation.isPending
               ? copy.subRequestSending

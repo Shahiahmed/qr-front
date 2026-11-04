@@ -218,8 +218,9 @@ export function PanelShell({
     // costs the code contrast a scanner needs.
     <div className="min-h-dvh bg-surface print:bg-white">
       {/* Mobile top bar — hidden on desktop (the rail takes over) and in print.
-          Just the drawer trigger: logo and logout live in the drawer itself. */}
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-white px-4 py-3 lg:hidden print:hidden">
+          Drawer trigger, the brand, and the avatar as a shortcut to Profile;
+          logout lives in the drawer. */}
+      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-white/95 px-4 py-2.5 backdrop-blur lg:hidden print:hidden">
         <button
           type="button"
           aria-label={copy.navOpen}
@@ -228,6 +229,16 @@ export function PanelShell({
         >
           <MenuIcon size={20} />
         </button>
+        <Logo href={`/${locale}`} size="sm" />
+        <Link
+          href={`/${locale}/dashboard/profile`}
+          aria-label={copy.tabProfile}
+          className={`ml-auto flex h-9 w-9 items-center justify-center rounded-full text-[14px] font-bold hover:no-underline ${
+            tab === "profile" ? "bg-accent text-white" : "bg-accent-soft text-accent-hover"
+          }`}
+        >
+          {initial}
+        </Link>
       </header>
 
       {/* Fixed desktop rail — collapses to an icon-only strip. */}

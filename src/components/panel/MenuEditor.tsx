@@ -244,7 +244,7 @@ export function MenuEditor({
               type="button"
               onClick={() => setTab(item.id)}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[12px] px-3 py-2 text-[13px] font-bold transition-colors sm:text-[14px] ${
+              className={`inline-flex min-h-11 min-w-0 flex-auto items-center justify-center gap-1.5 rounded-[12px] px-2.5 py-2 sm:px-3 text-[13px] font-bold transition-colors sm:text-[14px] ${
                 active
                   ? "bg-accent text-white shadow-sm"
                   : "text-muted hover:bg-surface hover:text-foreground"
@@ -439,10 +439,12 @@ function MenuSections({
           return (
           <section
             key={category.id}
-            className="rounded-[20px] border border-border bg-white p-5"
+            className="rounded-[20px] border border-border bg-white p-4 sm:p-5"
           >
-            <header className="mb-4 flex flex-wrap items-center gap-3 border-b border-border pb-4">
-              <div className="flex shrink-0 flex-col">
+            {/* Phones: the name gets its own line, then reorder arrows on the
+                left and actions on the right. From sm up it is one row. */}
+            <header className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2.5 border-b border-border pb-3 sm:mb-4 sm:pb-4">
+              <div className="order-2 flex shrink-0 gap-1.5 sm:order-none sm:flex-col sm:gap-0">
                 <IconButton
                   label={copy.moveUp}
                   disabled={index === 0}
@@ -461,20 +463,22 @@ function MenuSections({
                 </IconButton>
               </div>
 
-              <h2 className="text-[19px] font-extrabold tracking-[-0.02em]">
-                {category.name_ru}
-              </h2>
-              {category.name_kk ? (
-                <span className="text-[15px] text-muted-soft">· {category.name_kk}</span>
-              ) : null}
+              <div className="order-1 flex min-w-0 basis-full flex-wrap items-baseline gap-x-2 sm:order-none sm:basis-auto">
+                <h2 className="text-[19px] font-extrabold tracking-[-0.02em]">
+                  {category.name_ru}
+                </h2>
+                {category.name_kk ? (
+                  <span className="text-[15px] text-muted-soft">· {category.name_kk}</span>
+                ) : null}
+              </div>
 
-              <div className="ml-auto flex items-center gap-2">
+              <div className="order-3 ml-auto flex items-center gap-2 sm:order-none">
                 <Button
                   variant="secondary"
                   onClick={() => onAddDish(category.id)}
                   disabled={dishLimitReached}
                   aria-label={copy.addDish}
-                  className="px-2.5 py-2 text-sm sm:px-3"
+                  className="h-9 px-2.5 py-0 text-sm sm:px-3"
                 >
                   <Plus size={15} />
                   {/* Label collapses to a bare "+" on phones so the header
@@ -510,101 +514,105 @@ function MenuSections({
               <p className="py-2 text-[15px] text-muted-soft">{copy.noDishes}</p>
             ) : (
               <ul className="flex flex-col divide-y divide-border">
-                {(category.dishes ?? []).map((dish) => (
-                  <li
-                    key={dish.id}
-                    className={`flex items-center gap-2 py-2.5 ${
-                      dish.is_available && dish.is_visible ? "" : "opacity-60"
-                    }`}
-                  >
-                    {/* Tap the row to edit — the primary, most frequent action. */}
-                    <button
-                      type="button"
-                      onClick={() => onEditDish(category.id, dish)}
-                      className="flex min-w-0 flex-1 items-center gap-3 rounded-xl py-1 pr-1 text-left transition-colors hover:bg-surface"
-                    >
-                      {dish.image_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element -- remote thumbnail, not an optimizable asset
-                        <img
-                          src={dish.image_url}
-                          alt=""
-                          className="h-12 w-12 shrink-0 rounded-lg object-cover"
-                        />
-                      ) : (
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-ink/5 text-muted-soft">
-                          <UtensilsCrossed size={18} aria-hidden />
-                        </span>
-                      )}
+                {(category.dishes ?? []).map((dish) => {
+                  // Dim the content, not the <li>: opacity on the row would
+                  // also fade the RowMenu dropdown rendered inside it.
+                  const dim = dish.is_available && dish.is_visible ? "" : "opacity-60";
 
-                      <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span className="font-bold">{dish.name_ru}</span>
-                          {dish.name_kk ? (
-                            <span className="text-sm text-muted-soft">· {dish.name_kk}</span>
-                          ) : null}
-                          {!dish.is_visible ? (
-                            <span className="rounded-md bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted">
-                              {copy.hiddenBadge}
+                  return (
+                    <li key={dish.id} className="flex items-center gap-2 py-2.5">
+                      {/* Tap the row to edit — the primary, most frequent action. */}
+                      <button
+                        type="button"
+                        onClick={() => onEditDish(category.id, dish)}
+                        className={`flex min-w-0 flex-1 items-center gap-3 rounded-xl py-1 pr-1 text-left transition-colors hover:bg-surface ${dim}`}
+                      >
+                        {dish.image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- remote thumbnail, not an optimizable asset
+                          <img
+                            src={dish.image_url}
+                            alt=""
+                            className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-ink/5 text-muted-soft">
+                            <UtensilsCrossed size={18} aria-hidden />
+                          </span>
+                        )}
+
+                        <span className="min-w-0 flex-1">
+                          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span className="font-bold">{dish.name_ru}</span>
+                            {dish.name_kk ? (
+                              <span className="text-sm text-muted-soft">· {dish.name_kk}</span>
+                            ) : null}
+                            {!dish.is_visible ? (
+                              <span className="rounded-md bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted">
+                                {copy.hiddenBadge}
+                              </span>
+                            ) : null}
+                          </span>
+                          {dish.description_ru ? (
+                            <span className="mt-0.5 block truncate text-sm text-muted-soft">
+                              {dish.description_ru}
                             </span>
                           ) : null}
-                        </span>
-                        {dish.description_ru ? (
-                          <span className="mt-0.5 block truncate text-sm text-muted-soft">
-                            {dish.description_ru}
+                          <span className="mt-0.5 block whitespace-nowrap text-[14.5px] font-extrabold text-accent-hover sm:hidden">
+                            {formatPrice(dish.price, currency)}
                           </span>
-                        ) : null}
-                      </span>
+                        </span>
 
-                      <span className="whitespace-nowrap font-extrabold text-accent-hover">
-                        {formatPrice(dish.price, currency)}
-                      </span>
-                    </button>
+                        <span className="hidden whitespace-nowrap font-extrabold text-accent-hover sm:inline">
+                          {formatPrice(dish.price, currency)}
+                        </span>
+                      </button>
 
-                    {/* One-tap stop-list toggle — the second action worth surfacing. */}
-                    <button
-                      type="button"
-                      onClick={() => onToggleStop(dish)}
-                      aria-label={dish.is_available ? copy.toStop : copy.fromStop}
-                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-bold transition-colors ${
-                        dish.is_available
-                          ? "bg-green-50 text-green-700 hover:bg-green-100"
-                          : "bg-red-50 text-red-600 hover:bg-red-100"
-                      }`}
-                    >
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                          dish.is_available ? "bg-green-500" : "bg-red-500"
+                      {/* One-tap stop-list toggle — the second action worth surfacing. */}
+                      <button
+                        type="button"
+                        onClick={() => onToggleStop(dish)}
+                        aria-label={dish.is_available ? copy.toStop : copy.fromStop}
+                        className={`inline-flex h-9 min-w-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-bold transition-colors ${dim} ${
+                          dish.is_available
+                            ? "bg-green-50 text-green-700 hover:bg-green-100"
+                            : "bg-red-50 text-red-600 hover:bg-red-100"
                         }`}
-                        aria-hidden
-                      />
-                      <span className="hidden xs:inline">
-                        {dish.is_available ? copy.inStock : copy.outOfStock}
-                      </span>
-                    </button>
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            dish.is_available ? "bg-green-500" : "bg-red-500"
+                          }`}
+                          aria-hidden
+                        />
+                        <span className="hidden xs:inline">
+                          {dish.is_available ? copy.inStock : copy.outOfStock}
+                        </span>
+                      </button>
 
-                    <RowMenu
-                      label={copy.moreActions}
-                      items={[
-                        {
-                          label: copy.editDish,
-                          icon: <Pencil size={16} />,
-                          onClick: () => onEditDish(category.id, dish),
-                        },
-                        {
-                          label: dish.is_visible ? copy.hideDish : copy.showDish,
-                          icon: dish.is_visible ? <EyeOff size={16} /> : <Eye size={16} />,
-                          onClick: () => onToggleVisible(dish),
-                        },
-                        {
-                          label: copy.deleteDish,
-                          icon: <Trash2 size={16} />,
-                          onClick: () => onDeleteDish(dish.id),
-                          danger: true,
-                        },
-                      ]}
-                    />
-                  </li>
-                ))}
+                      <RowMenu
+                        label={copy.moreActions}
+                        items={[
+                          {
+                            label: copy.editDish,
+                            icon: <Pencil size={16} />,
+                            onClick: () => onEditDish(category.id, dish),
+                          },
+                          {
+                            label: dish.is_visible ? copy.hideDish : copy.showDish,
+                            icon: dish.is_visible ? <EyeOff size={16} /> : <Eye size={16} />,
+                            onClick: () => onToggleVisible(dish),
+                          },
+                          {
+                            label: copy.deleteDish,
+                            icon: <Trash2 size={16} />,
+                            onClick: () => onDeleteDish(dish.id),
+                            danger: true,
+                          },
+                        ]}
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>
@@ -625,7 +633,7 @@ function IconButton({
 }: {
   label: string;
   danger?: boolean;
-  /** Compact height, used for the stacked reorder arrows. */
+  /** Compact height from sm up, used for the stacked reorder arrows. */
   small?: boolean;
   disabled?: boolean;
   onClick: () => void;
@@ -639,7 +647,7 @@ function IconButton({
       onClick={onClick}
       disabled={disabled}
       className={`inline-flex w-9 shrink-0 items-center justify-center border-border-strong text-muted transition-colors disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent ${
-        small ? "h-6 rounded-md border" : "h-9 rounded-lg border"
+        small ? "h-9 rounded-lg border sm:h-6 sm:rounded-md" : "h-9 rounded-lg border"
       } ${
         danger
           ? "hover:border-red-300 hover:bg-red-50 hover:text-red-600"

@@ -1,17 +1,28 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Clock, FilePlus2, Pencil, QrCode, Trash2, UtensilsCrossed } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock,
+  ExternalLink,
+  Pencil,
+  Plus,
+  QrCode,
+  Trash2,
+  UtensilsCrossed,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
+import { RowMenu } from "@/components/panel/RowMenu";
 import { SubscribeDialog } from "@/components/panel/SubscribeDialog";
 import { pickPlanName, useSubscriptionStatus } from "@/components/panel/SubscribeForm";
 import { VenueDialog } from "@/components/panel/VenueDialog";
 import { Button } from "@/components/landing/ui/Button";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
-import { daysLeftPhrase } from "@/lib/access";
+import { daysLeftPhrase, formatAccessDate } from "@/lib/access";
 import { deleteEstablishment, type Establishment, type MenuSubscription } from "@/lib/api";
-import { PUBLIC_MENU_HOST, VENUES_QUERY_KEY, useVenues } from "@/lib/venues";
+import { PUBLIC_MENU_HOST, VENUES_QUERY_KEY, publicMenuUrl, useVenues } from "@/lib/venues";
 
 export function VenueList({ locale }: { locale: Locale }) {
   const copy = authByLocale[locale];
@@ -31,108 +42,133 @@ export function VenueList({ locale }: { locale: Locale }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY }),
   });
 
-  if (isPending) {
-    return (
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {[0, 1].map((key) => (
-          <div key={key} className="h-[190px] animate-pulse rounded-[20px] bg-surface-2" />
-        ))}
-      </div>
-    );
-  }
-
   const list = venues ?? [];
 
   return (
     <>
-      {list.length === 0 ? (
-        <p className="mb-5 text-[15px] text-muted">{copy.venuesEmpty}</p>
-      ) : null}
-
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((venue) => (
-          <article
-            key={venue.id}
-            className="flex flex-col rounded-[20px] border border-border bg-white p-5 shadow-[0_1px_2px_rgba(20,18,16,0.04)] transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(20,18,16,0.28)]"
+      <PanelPageHeader
+        title={copy.venuesTitle}
+        actions={
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => setDialog({ open: true })}
+            className="h-11 px-4 py-0 text-[14.5px]"
           >
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-hover">
-                <UtensilsCrossed size={18} />
-              </span>
-              <div className="min-w-0">
-                <h3 className="truncate text-[17px] font-extrabold tracking-[-0.02em]">
-                  {venue.name}
-                </h3>
-                <p className="mt-0.5 truncate text-[13px] text-muted-soft">
-                  {PUBLIC_MENU_HOST}/{venue.slug}
-                </p>
+            <Plus size={18} strokeWidth={2.5} />
+            {copy.venueAdd}
+          </Button>
+        }
+      />
+
+      {isPending ? (
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {[0, 1].map((key) => (
+            <div key={key} className="h-[236px] animate-pulse rounded-[20px] bg-surface-2" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {list.map((venue) => (
+            <article
+              key={venue.id}
+              className="flex flex-col rounded-[20px] border border-border bg-white shadow-[0_1px_2px_rgba(20,18,16,0.04)] transition-shadow hover:shadow-[0_18px_36px_-24px_rgba(20,18,16,0.35)]"
+            >
+              <div className="flex items-start gap-3 px-5 pt-5">
+                <VenueMark />
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-[17px] font-extrabold tracking-[-0.02em]">
+                    {venue.name}
+                  </h3>
+                  <a
+                    href={publicMenuUrl(venue.slug)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={copy.venueOpenGuest}
+                    className="mt-0.5 inline-flex max-w-full items-center gap-1 text-[13px] text-muted-soft transition-colors hover:text-accent-hover hover:no-underline"
+                  >
+                    <span className="truncate">
+                      {PUBLIC_MENU_HOST}/{venue.slug}
+                    </span>
+                    <ArrowUpRight size={13} className="shrink-0" />
+                  </a>
+                </div>
+                {/* Rare actions stay out of the way; delete sits last, in red. */}
+                <RowMenu
+                  label={copy.venueEdit}
+                  triggerClassName="-mr-1.5 -mt-1 h-9 w-9 rounded-[10px]"
+                  items={[
+                    {
+                      label: copy.venueEdit,
+                      icon: <Pencil size={16} />,
+                      onClick: () => setDialog({ open: true, venue }),
+                    },
+                    {
+                      label: copy.venueOpenGuest,
+                      icon: <ExternalLink size={16} />,
+                      onClick: () => window.open(publicMenuUrl(venue.slug), "_blank", "noopener"),
+                    },
+                    {
+                      label: copy.venueDelete,
+                      icon: <Trash2 size={16} />,
+                      danger: true,
+                      onClick: () => {
+                        // Deleting takes the whole menu with it, so make them mean it.
+                        if (window.confirm(copy.venueDeleteConfirm)) remove.mutate(venue.id);
+                      },
+                    },
+                  ]}
+                />
               </div>
-            </div>
 
-            <PlanStrip
-              venue={venue}
-              menu={status?.menus.find((m) => m.id === venue.id)}
-              locale={locale}
-              copy={copy}
-              onSubscribe={() => setSubscribing(venue)}
-            />
+              <div className="px-5">
+                <PlanStrip
+                  venue={venue}
+                  menu={status?.menus.find((m) => m.id === venue.id)}
+                  locale={locale}
+                  copy={copy}
+                  onSubscribe={() => setSubscribing(venue)}
+                />
+              </div>
 
-            <div className="mt-auto flex items-center gap-2 pt-5">
-              <Button
-                variant="primary"
-                href={`/${locale}/dashboard/venues/${venue.id}/menu`}
-                className="flex-1 py-2.5 text-[15px]"
-              >
-                {copy.venueMenu}
-              </Button>
+              <div className="mt-auto grid grid-cols-2 gap-2 p-5 pt-4">
+                <Button
+                  variant="primary"
+                  href={`/${locale}/dashboard/venues/${venue.id}/menu`}
+                  className="h-11 px-3 py-0 text-[14.5px]"
+                >
+                  <UtensilsCrossed size={16} />
+                  {copy.venueMenu}
+                </Button>
+                <Button
+                  variant="secondary"
+                  href={`/${locale}/dashboard/venues/${venue.id}/qr`}
+                  className="h-11 px-3 py-0 text-[14.5px]"
+                >
+                  <QrCode size={16} />
+                  {copy.qrOpen}
+                </Button>
+              </div>
+            </article>
+          ))}
 
-              <a
-                href={`/${locale}/dashboard/venues/${venue.id}/qr`}
-                aria-label={copy.qrOpen}
-                title={copy.qrOpen}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-strong text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
-              >
-                <QrCode size={16} />
-              </a>
-
-              <button
-                type="button"
-                aria-label={copy.venueEdit}
-                title={copy.venueEdit}
-                onClick={() => setDialog({ open: true, venue })}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-strong text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
-              >
-                <Pencil size={16} />
-              </button>
-
-              <button
-                type="button"
-                aria-label={copy.venueDelete}
-                title={copy.venueDelete}
-                disabled={remove.isPending}
-                onClick={() => {
-                  // Deleting takes the whole menu with it, so make them mean it.
-                  if (window.confirm(copy.venueDeleteConfirm)) remove.mutate(venue.id);
-                }}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-strong text-muted transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          </article>
-        ))}
-
-        <button
-          type="button"
-          onClick={() => setDialog({ open: true })}
-          className="flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-border-strong bg-white/60 p-5 text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover"
-        >
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent-hover">
-            <FilePlus2 size={24} strokeWidth={1.75} />
-          </span>
-          <span className="text-[15px] font-semibold">{copy.venueAdd}</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setDialog({ open: true })}
+            className={`flex min-h-[132px] flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-border-strong bg-white/50 p-6 text-center text-muted transition-colors hover:border-accent hover:bg-accent-soft/40 hover:text-accent-hover sm:min-h-[236px] ${
+              list.length === 0 ? "sm:col-span-2 xl:col-span-3" : ""
+            }`}
+          >
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent-hover">
+              <Plus size={24} />
+            </span>
+            <span className="text-[15px] font-bold">{copy.venueAdd}</span>
+            {list.length === 0 ? (
+              <span className="max-w-[340px] text-[14px] text-muted-soft">{copy.venuesEmpty}</span>
+            ) : null}
+          </button>
+        </div>
+      )}
 
       {dialog.open ? (
         <VenueDialog
@@ -153,6 +189,19 @@ export function VenueList({ locale }: { locale: Locale }) {
         />
       ) : null}
     </>
+  );
+}
+
+/** The venue's square mark — shared by every cabinet list so venues read alike. */
+export function VenueMark({ size = "md" }: { size?: "sm" | "md" }) {
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center bg-accent-soft text-accent-hover ${
+        size === "sm" ? "h-10 w-10 rounded-xl" : "h-11 w-11 rounded-[14px]"
+      }`}
+    >
+      <UtensilsCrossed size={size === "sm" ? 17 : 19} />
+    </span>
   );
 }
 
@@ -180,7 +229,7 @@ function PlanStrip({
   const kz = locale === "kz";
   const pending = menu?.pending_request ?? null;
   const plan = menu?.subscription?.plan ?? null;
-  const ends = formatShortDate(venue.access_ends_at, locale);
+  const ends = formatAccessDate(venue.access_ends_at, locale, false);
   const daysLine = venue.days_left !== null ? daysLeftPhrase(venue.days_left, locale) : "";
 
   type Tone = "neutral" | "warn" | "danger";
@@ -285,21 +334,16 @@ function PlanStrip({
 /** How close to the end a paid plan gets before the card offers «Продлить». */
 const RENEW_WINDOW_DAYS = 30;
 
-/** «5 нояб.» — compact end date for the plan panel; empty when unknown. */
-function formatShortDate(iso: string | null, locale: Locale): string {
-  if (!iso) return "";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat(locale === "kz" ? "kk-KZ" : "ru-RU", {
-    day: "numeric",
-    month: "short",
-  }).format(date);
-}
+/** What AccessBadge reads — a venue, or a menu row of the subscription status. */
+export type AccessInfo = Pick<Establishment, "is_expired" | "access_source" | "days_left"> & {
+  is_blocked?: boolean;
+};
 
 /**
- * Per-venue access window. Expired venues 404 for guests, so the owner needs
- * a loud warning; trial/subscription show the countdown. Grandfathered venues
- * (access_source null — created before the limit) simply show «no limit».
+ * Per-venue access window as a dotted pill. Expired venues 404 for guests, so
+ * the owner needs a loud warning; trial/subscription show the countdown.
+ * Grandfathered venues (access_source null — created before the limit) simply
+ * show «no limit».
  */
 export function AccessBadge({
   venue,
@@ -308,7 +352,7 @@ export function AccessBadge({
   inRow = false,
   compact = false,
 }: {
-  venue: Establishment;
+  venue: AccessInfo;
   locale: Locale;
   copy: typeof authByLocale.ru;
   // `inRow` drops the top margin so the badge can sit inline in a list row
@@ -318,47 +362,47 @@ export function AccessBadge({
   // subscribe dialog's venue row), keeping just the countdown.
   compact?: boolean;
 }) {
-  const gap = inRow ? "" : "mt-3 ";
+  let tone: "red" | "amber" | "green" | "gray";
+  let text: string;
+  let hint: string | undefined;
 
   // Checked first: a platform block wins over any access window.
   if (venue.is_blocked) {
-    return (
-      <span
-        title={copy.accessBlockedHint}
-        className={`${gap}inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-1 text-[13px] font-semibold text-red-600`}
-      >
-        {copy.accessBlocked}
-      </span>
-    );
+    tone = "red";
+    text = copy.accessBlocked;
+    hint = copy.accessBlockedHint;
+  } else if (venue.is_expired) {
+    tone = "red";
+    text = copy.accessExpired;
+  } else if (venue.access_source === null || venue.days_left === null) {
+    tone = "gray";
+    text = copy.accessUnlimited;
+  } else {
+    const trial = venue.access_source === "trial";
+    const days = daysLeftPhrase(venue.days_left, locale);
+    tone = venue.days_left <= 3 ? "amber" : trial ? "amber" : "green";
+    text = trial && !compact ? `${copy.accessTrial} · ${days}` : days;
   }
 
-  if (venue.is_expired) {
-    return (
-      <span className={`${gap}inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-1 text-[13px] font-semibold text-red-600`}>
-        {copy.accessExpired}
-      </span>
-    );
-  }
-
-  if (venue.access_source === null || venue.days_left === null) {
-    return (
-      <span className={`${gap}inline-flex w-fit items-center rounded-full bg-surface-2 px-3 py-1 text-[13px] font-semibold text-muted`}>
-        {copy.accessUnlimited}
-      </span>
-    );
-  }
-
-  const trial = venue.access_source === "trial";
-  const text = trial && !compact
-    ? `${copy.accessTrial} · ${daysLeftPhrase(venue.days_left, locale)}`
-    : daysLeftPhrase(venue.days_left, locale);
+  const pill = {
+    red: "bg-red-50 text-red-700 ring-red-200/70",
+    amber: "bg-amber-50 text-amber-800 ring-amber-200/70",
+    green: "bg-emerald-50 text-emerald-800 ring-emerald-200/70",
+    gray: "bg-surface-2 text-muted ring-border-strong/60",
+  }[tone];
+  const dot = {
+    red: "bg-red-500",
+    amber: "bg-amber-500",
+    green: "bg-emerald-500",
+    gray: "bg-muted-soft/60",
+  }[tone];
 
   return (
     <span
-      className={`${gap}inline-flex w-fit items-center rounded-full px-3 py-1 text-[13px] font-semibold ${
-        trial ? "bg-amber-50 text-amber-700" : "bg-accent-soft text-accent-hover"
-      }`}
+      title={hint}
+      className={`${inRow ? "" : "mt-3 "}inline-flex w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[12.5px] font-semibold ring-1 ring-inset ${pill}`}
     >
+      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
       {text}
     </span>
   );

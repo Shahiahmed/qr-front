@@ -13,6 +13,11 @@ export const VENUES_QUERY_KEY = ["establishments"] as const;
 export const PUBLIC_MENU_HOST =
   (process.env.NEXT_PUBLIC_MENU_HOST ?? "qr-menu.kz") + "/m";
 
+/** Absolute link to a venue's guest menu, for "open as a guest" actions. */
+export function publicMenuUrl(slug: string): string {
+  return `https://${PUBLIC_MENU_HOST}/${slug}`;
+}
+
 export function useVenues() {
   return useQuery({
     queryKey: VENUES_QUERY_KEY,
