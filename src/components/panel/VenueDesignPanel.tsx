@@ -491,21 +491,47 @@ function TelegramConnect({
 }) {
   const queryClient = useQueryClient();
   const connected = venue.telegram_connected;
+  // Deep link minted by the API. Shown as a real link the owner taps: phones
+  // (Safari, WhatsApp/Instagram in-app browsers) silently block window.open
+  // after an await, so the old flow spun and then nothing opened.
+  const [link, setLink] = useState<string | null>(null);
+  const waiting = link !== null && !connected;
 
   const connect = useMutation({
     mutationFn: () => linkTelegram(venue.id),
     onSuccess: ({ url }) => {
-      // The owner finishes the bind inside Telegram; refetch when they return.
-      window.open(url, "_blank", "noopener,noreferrer");
+      setLink(url);
+      // Saves a tap where popups are allowed (desktop); the link is the fallback.
+      const tab = window.open(url, "_blank");
+      if (tab) tab.opener = null;
     },
   });
 
   const disconnect = useMutation({
     mutationFn: () => unlinkTelegram(venue.id),
     onSuccess: () => {
+      setLink(null);
       queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY });
     },
   });
+
+  // While the owner is in Telegram, poll for the webhook's bind and refresh on
+  // return to the tab — no «обновите страницу». Gives up after 10 minutes.
+  useEffect(() => {
+    if (!waiting) return;
+    const refresh = () => queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY });
+    const timer = window.setInterval(refresh, 4000);
+    const stop = window.setTimeout(() => window.clearInterval(timer), 10 * 60 * 1000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(timer);
+      window.clearTimeout(stop);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [waiting, queryClient]);
 
   const busy = connect.isPending || disconnect.isPending;
 
@@ -552,6 +578,16 @@ function TelegramConnect({
                 )}
                 {copy.tgDisconnect}
               </button>
+            ) : waiting ? (
+              <a
+                href={link ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-accent-hover"
+              >
+                <Send size={15} strokeWidth={2.5} />
+                {copy.tgOpen}
+              </a>
             ) : (
               <button
                 type="button"
@@ -569,8 +605,9 @@ function TelegramConnect({
             )}
           </div>
 
-          {connect.isSuccess && !connected ? (
-            <p className="mt-2 text-[12px] leading-snug text-muted-soft">
+          {waiting ? (
+            <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug text-muted-soft">
+              <Loader2 size={13} className="mt-px shrink-0 animate-spin" />
               {copy.tgWaitingHint}
             </p>
           ) : null}

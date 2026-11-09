@@ -76,6 +76,8 @@ export type MenuCopy = {
   tgConnect: string;
   tgConnecting: string;
   tgDisconnect: string;
+  /** Link button shown once the deep link is minted — a tap phones never block. */
+  tgOpen: string;
   tgWaitingHint: string;
   tgError: string;
   // Service charge («обслуживание») block on the contacts tab
@@ -201,8 +203,9 @@ const RU: MenuCopy = {
   tgConnect: "Подключить Telegram",
   tgConnecting: "Открываем…",
   tgDisconnect: "Отключить",
+  tgOpen: "Открыть Telegram",
   tgWaitingHint:
-    "Откройте бота в Telegram и нажмите «Старт». После этого обновите страницу.",
+    "Нажмите «Открыть Telegram», затем «Старт» в боте. Статус здесь обновится сам.",
   tgError: "Не удалось. Попробуйте ещё раз.",
   svcTitle: "Плата за обслуживание",
   svcHint:
@@ -325,8 +328,10 @@ const KZ: MenuCopy = {
   tgConnect: "Telegram қосу",
   tgConnecting: "Ашылуда…",
   tgDisconnect: "Ажырату",
+  // TODO(kk-review): tgOpen, tgWaitingHint — проверить носителем.
+  tgOpen: "Telegram-ды ашу",
   tgWaitingHint:
-    "Telegram-да ботты ашып, «Старт» түймесін басыңыз. Содан кейін бетті жаңартыңыз.",
+    "«Telegram-ды ашу», содан кейін боттағы «Старт» түймесін басыңыз. Күй осында өзі жаңарады.",
   tgError: "Мүмкін болмады. Қайта көріңіз.",
   // TODO(kk-review): native speaker — service charge block.
   svcTitle: "Қызмет көрсету ақысы",
