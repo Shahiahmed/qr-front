@@ -54,6 +54,8 @@ export type PublicMenu = {
   /** Optional venue blurb under the cover. Demo fills it; real venues later. */
   description_ru?: string | null;
   description_kk?: string | null;
+  /** Percent the venue adds to the bill; null/omitted = no service charge. */
+  service_charge_percent?: number | null;
   /** True when a Telegram chat is bound — shows the guest "call waiter" button. */
   waiter_call_enabled?: boolean;
   categories: PublicCategory[];

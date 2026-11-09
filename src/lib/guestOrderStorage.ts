@@ -6,6 +6,8 @@
  * the same phone do not share a cart.
  */
 
+import { serviceChargeFor } from "@/lib/money";
+
 export type GuestCart = Record<number, number>;
 
 export type GuestOrderLine = {
@@ -22,7 +24,11 @@ export type GuestOrderTicket = {
   table: string;
   currency: string;
   items: GuestOrderLine[];
+  /** Dishes only — the service charge is kept apart so the ticket can list it. */
   totalMinor: number;
+  /** Venue's percent when the order was placed; absent on older tickets. */
+  servicePercent?: number | null;
+  serviceMinor?: number;
 };
 
 export type GuestOrderStore = {
@@ -80,13 +86,19 @@ export function createOrderTicket(input: {
   table: string;
   currency: string;
   lines: GuestOrderLine[];
+  servicePercent?: number | null;
 }): GuestOrderTicket {
   const totalMinor = input.lines.reduce(
     (sum, line) => sum + line.price * line.qty,
     0,
   );
+  // Snapshot of the percent at order time — a later change by the owner
+  // doesn't rewrite a ticket the waiter has already seen.
+  const servicePercent = input.servicePercent ?? null;
 
   return {
+    servicePercent,
+    serviceMinor: serviceChargeFor(totalMinor, servicePercent),
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     createdAt: new Date().toISOString(),
     table: input.table.trim(),

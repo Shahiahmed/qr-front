@@ -31,3 +31,18 @@ export function formatPrice(minor: number, currency = "KZT"): string {
 
   return `${formatted} ${symbols[currency] ?? currency}`;
 }
+
+/**
+ * Service charge on a bill of `minor` тиын at `percent`, rounded to a whole
+ * currency unit. Mirrors `Establishment::serviceChargeFor` on the server —
+ * same formula, so the cart and the Telegram order agree to the tenge.
+ */
+export function serviceChargeFor(minor: number, percent: number | null | undefined): number {
+  if (!percent || percent <= 0) return 0;
+  return Math.round((minor * percent) / 10000) * MINOR;
+}
+
+/** 10 → «10%», 12.5 → «12,5%». */
+export function formatPercent(percent: number): string {
+  return `${String(percent).replace(".", ",")}%`;
+}

@@ -78,6 +78,13 @@ export type MenuCopy = {
   tgDisconnect: string;
   tgWaitingHint: string;
   tgError: string;
+  // Service charge («обслуживание») block on the contacts tab
+  svcTitle: string;
+  svcHint: string;
+  svcCustom: string;
+  /** «{bill}» / «{total}» are replaced with formatted amounts. */
+  svcExample: string;
+  svcInvalid: string;
 
   // Images (cover + logo)
   imagesLabel: string;
@@ -134,9 +141,9 @@ const RU: MenuCopy = {
 
   tabMenu: "Меню",
   tabLook: "Оформление",
-  tabContacts: "Контакты",
+  tabContacts: "Настройки",
   lookSub: "Обложка, логотип и цвет меню.",
-  contactsSub: "Адрес, телефон, Wi‑Fi и соцсети в шапке меню.",
+  contactsSub: "Контакты, Wi‑Fi, соцсети, обслуживание и Telegram.",
 
   addCategory: "Добавить раздел",
   editCategory: "Изменить раздел",
@@ -197,6 +204,12 @@ const RU: MenuCopy = {
   tgWaitingHint:
     "Откройте бота в Telegram и нажмите «Старт». После этого обновите страницу.",
   tgError: "Не удалось. Попробуйте ещё раз.",
+  svcTitle: "Плата за обслуживание",
+  svcHint:
+    "Процент добавляется к сумме заказа. Гости видят его в шапке меню, официант — в заказе в Telegram.",
+  svcCustom: "Свой",
+  svcExample: "Счёт {bill} → гость заплатит {total}",
+  svcInvalid: "Укажите от 0,5 до 30%",
 
   imagesLabel: "Фото заведения",
   coverLabel: "Обложка",
@@ -251,9 +264,10 @@ const KZ: MenuCopy = {
 
   tabMenu: "Мәзір",
   tabLook: "Безендіру",
-  tabContacts: "Байланыс",
+  // TODO(kk-review): «Баптаулар» и подзаголовок — проверить носителем.
+  tabContacts: "Баптаулар",
   lookSub: "Мұқаба, логотип және мәзір түсі.",
-  contactsSub: "Мекенжай, телефон, Wi‑Fi және әлеуметтік желілер.",
+  contactsSub: "Байланыс, Wi‑Fi, әлеуметтік желілер, қызмет ақысы және Telegram.",
 
   addCategory: "Бөлім қосу",
   editCategory: "Бөлімді өзгерту",
@@ -314,6 +328,13 @@ const KZ: MenuCopy = {
   tgWaitingHint:
     "Telegram-да ботты ашып, «Старт» түймесін басыңыз. Содан кейін бетті жаңартыңыз.",
   tgError: "Мүмкін болмады. Қайта көріңіз.",
+  // TODO(kk-review): native speaker — service charge block.
+  svcTitle: "Қызмет көрсету ақысы",
+  svcHint:
+    "Пайыз тапсырыс сомасына қосылады. Қонақтар оны мәзір басында, даяшы Telegram-дағы тапсырыста көреді.",
+  svcCustom: "Басқа",
+  svcExample: "Есепшот {bill} → қонақ {total} төлейді",
+  svcInvalid: "0,5-тен 30%-ке дейін енгізіңіз",
 
   imagesLabel: "Мекеме фотосы",
   coverLabel: "Мұқаба",

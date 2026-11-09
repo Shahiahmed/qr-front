@@ -7,6 +7,7 @@ import {
   EyeOff,
   ImageIcon,
   Loader2,
+  Percent,
   Send,
   Trash2,
   Upload,
@@ -28,6 +29,7 @@ import {
 } from "@/lib/api";
 import { DEFAULT_VENUE_COVER_URL } from "@/lib/defaultCover";
 import { initialLogoDataUrl } from "@/lib/initialLogo";
+import { formatPrice, serviceChargeFor } from "@/lib/money";
 import { VENUES_QUERY_KEY } from "@/lib/venues";
 
 export type VenueDesignSection = "look" | "contacts";
@@ -63,6 +65,9 @@ export function VenueDesignPanel({
     facebook_url: venue.facebook_url ?? "",
     tiktok_url: venue.tiktok_url ?? "",
   });
+  // Service charge: switch + percent as typed («12,5»). Off saves null.
+  const [serviceOn, setServiceOn] = useState(venue.service_charge_percent !== null);
+  const [serviceValue, setServiceValue] = useState(percentInput(venue.service_charge_percent));
 
   // Keep local form in sync when the venue list refreshes after an image upload.
   useEffect(() => {
@@ -77,14 +82,28 @@ export function VenueDesignPanel({
       facebook_url: venue.facebook_url ?? "",
       tiktok_url: venue.tiktok_url ?? "",
     });
+    setServiceOn(venue.service_charge_percent !== null);
+    setServiceValue(percentInput(venue.service_charge_percent));
   }, [venue]);
+
+  const servicePercent = parsePercent(serviceValue);
+  const serviceValid = !serviceOn || servicePercent !== null;
 
   const set = (key: keyof typeof fields) => (value: string) =>
     setFields((f) => ({ ...f, [key]: value }));
 
   const save = useMutation({
     mutationFn: () =>
-      updateEstablishment(venue.id, { theme, layout, ...fields }, locale),
+      updateEstablishment(
+        venue.id,
+        {
+          theme,
+          layout,
+          ...fields,
+          service_charge_percent: serviceOn ? servicePercent : null,
+        },
+        locale,
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: VENUES_QUERY_KEY });
     },
@@ -122,7 +141,7 @@ export function VenueDesignPanel({
       <Button
         variant="primary"
         onClick={() => save.mutate()}
-        disabled={save.isPending}
+        disabled={save.isPending || !serviceValid}
         className="py-2.5 text-[15px]"
       >
         {save.isPending ? copy.saving : copy.save}
@@ -314,9 +333,146 @@ export function VenueDesignPanel({
         />
       </div>
 
+      <ServiceCharge
+        copy={copy}
+        currency={venue.currency}
+        enabled={serviceOn}
+        value={serviceValue}
+        percent={servicePercent}
+        onToggle={setServiceOn}
+        onChange={setServiceValue}
+      />
+
       {saveBar}
 
       <TelegramConnect venue={venue} copy={copy} />
+    </section>
+  );
+}
+
+/** Same cap as the server's `Establishment::MAX_SERVICE_CHARGE`. */
+const MAX_SERVICE_CHARGE = 30;
+/** One-tap choices — the usual percents in Kazakhstan's cafés. */
+const SERVICE_PRESETS = [5, 10, 12, 15];
+
+/** 12.5 → «12,5» for the input; null → «10», the usual pick when switching on. */
+function percentInput(percent: number | null): string {
+  return percent === null ? "10" : String(percent).replace(".", ",");
+}
+
+/** «12,5» → 12.5; null when it's not a 0.5–30 percent with at most one decimal. */
+function parsePercent(input: string): number | null {
+  const normalized = input.trim().replace(",", ".");
+  if (!/^\d{1,2}(\.\d)?$/.test(normalized)) return null;
+  const value = Number(normalized);
+  return value >= 0.5 && value <= MAX_SERVICE_CHARGE ? value : null;
+}
+
+/**
+ * «Плата за обслуживание»: a switch, the common percents as one-tap chips, a
+ * field for any other value, and a worked example so the owner sees exactly
+ * what the guest will pay. Saved with the rest of the contacts form.
+ */
+function ServiceCharge({
+  copy,
+  currency,
+  enabled,
+  value,
+  percent,
+  onToggle,
+  onChange,
+}: {
+  copy: MenuCopy;
+  currency: string;
+  enabled: boolean;
+  value: string;
+  percent: number | null;
+  onToggle: (on: boolean) => void;
+  onChange: (value: string) => void;
+}) {
+  // A round bill reads at a glance: 10 000 ₸ → 11 000 ₸.
+  const sampleBill = 1_000_000;
+  const example = copy.svcExample
+    .replace("{bill}", formatPrice(sampleBill, currency))
+    .replace("{total}", formatPrice(sampleBill + serviceChargeFor(sampleBill, percent), currency));
+
+  return (
+    <section className="mt-6 rounded-[20px] border border-border bg-surface p-4">
+      <div className="flex items-center gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent">
+          <Percent size={18} strokeWidth={2.25} />
+        </span>
+        <h3 className="min-w-0 flex-1 text-[15px] font-extrabold leading-tight tracking-[-0.01em]">
+          {copy.svcTitle}
+        </h3>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          aria-label={copy.svcTitle}
+          onClick={() => onToggle(!enabled)}
+          // before: widens the tap area to ~64×44 without changing the look.
+          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors before:absolute before:-inset-x-2 before:-inset-y-2 before:content-[''] ${
+            enabled ? "bg-accent" : "bg-border-strong"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.25)] transition-[left] ${
+              enabled ? "left-[22px]" : "left-0.5"
+            }`}
+          />
+        </button>
+      </div>
+      <p className="mt-2 text-[13px] leading-snug text-muted-soft">{copy.svcHint}</p>
+
+      {enabled ? (
+        <>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="grid grid-cols-4 gap-2">
+              {SERVICE_PRESETS.map((preset) => {
+                const selected = percent === preset;
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => onChange(String(preset))}
+                    aria-pressed={selected}
+                    className={`h-10 rounded-xl border px-2 text-[14px] font-bold tabular-nums transition-colors sm:min-w-14 sm:px-3 ${
+                      selected
+                        ? "border-accent bg-accent text-white"
+                        : "border-border-strong bg-white hover:border-accent hover:text-accent"
+                    }`}
+                  >
+                    {preset}%
+                  </button>
+                );
+              })}
+            </div>
+            <label className="relative">
+              <span className="sr-only">{copy.svcCustom}</span>
+              <input
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                inputMode="decimal"
+                placeholder={copy.svcCustom}
+                maxLength={4}
+                className={`h-10 w-full rounded-xl border bg-white pl-3 pr-7 text-[14px] font-bold tabular-nums outline-none transition-colors focus:border-accent sm:w-[92px] ${
+                  percent === null ? "border-red-400" : "border-border-strong"
+                }`}
+              />
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[14px] font-bold text-muted-soft">
+                %
+              </span>
+            </label>
+          </div>
+
+          {percent === null ? (
+            <p className="mt-2 text-[12.5px] font-semibold text-red-600">{copy.svcInvalid}</p>
+          ) : (
+            <p className="mt-2 text-[13px] text-muted">{example}</p>
+          )}
+        </>
+      ) : null}
     </section>
   );
 }

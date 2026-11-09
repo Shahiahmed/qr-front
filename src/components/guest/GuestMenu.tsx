@@ -15,7 +15,7 @@ import {
   type GuestOrderTicket,
 } from "@/lib/guestOrderStorage";
 import { loadGuestPrefs, saveGuestPrefs } from "@/lib/guestPrefs";
-import { formatPrice } from "@/lib/money";
+import { formatPercent, formatPrice, serviceChargeFor } from "@/lib/money";
 import { pick, type PublicDish, type PublicMenu } from "@/lib/guestMenuTypes";
 
 const LANGUAGES: { code: GuestLocale; label: string }[] = [
@@ -180,6 +180,9 @@ export function GuestMenu({
     (sum, [id, q]) => sum + (dishById.get(Number(id))?.price ?? 0) * q,
     0,
   );
+  // Venue service charge on top of the dishes — same rounding as the server.
+  const servicePercent = menu.service_charge_percent || null;
+  const serviceMinor = serviceChargeFor(totalMinor, servicePercent);
 
   // Restore cart / open ticket after a refresh on the same phone.
   useEffect(() => {
@@ -284,6 +287,7 @@ export function GuestMenu({
       table,
       currency: menu.currency,
       lines,
+      servicePercent,
     });
 
     setOrderStatus("idle");
@@ -633,7 +637,7 @@ export function GuestMenu({
                     {copy.orderBar}
                   </span>
                   <span className="tabular-nums">
-                    {formatPrice(totalMinor, menu.currency)}
+                    {formatPrice(totalMinor + serviceMinor, menu.currency)}
                   </span>
                 </button>
               )}
@@ -740,11 +744,14 @@ export function GuestMenu({
                       );
                     })
                   )}
-                  <li className="mt-1 flex items-center justify-between border-t border-border pt-3">
-                    <span className="text-[15px] text-muted">{copy.cartTotal}</span>
-                    <span className="text-[20px] font-extrabold tabular-nums">
-                      {formatPrice(ticket.totalMinor, ticket.currency)}
-                    </span>
+                  <li className="mt-1 border-t border-border pt-3">
+                    <BillSummary
+                      copy={copy}
+                      currency={ticket.currency}
+                      dishesMinor={ticket.totalMinor}
+                      servicePercent={ticket.servicePercent ?? null}
+                      serviceMinor={ticket.serviceMinor ?? 0}
+                    />
                   </li>
                 </ul>
 
@@ -860,11 +867,14 @@ export function GuestMenu({
                       </div>
                     ) : null}
 
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-[15px] text-muted">{copy.cartTotal}</span>
-                      <span className="text-[20px] font-extrabold tabular-nums">
-                        {formatPrice(totalMinor, menu.currency)}
-                      </span>
+                    <div className="mb-3">
+                      <BillSummary
+                        copy={copy}
+                        currency={menu.currency}
+                        dishesMinor={totalMinor}
+                        servicePercent={servicePercent}
+                        serviceMinor={serviceMinor}
+                      />
                     </div>
                     <button
                       type="button"
@@ -1083,6 +1093,50 @@ export function GuestMenu({
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * «Итого» of the cart and the placed ticket. With a service charge it spells
+ * out dishes + «Обслуживание 10%» above the total, so the guest sees where the
+ * extra comes from; without one it's the single total row as before.
+ */
+function BillSummary({
+  copy,
+  currency,
+  dishesMinor,
+  servicePercent,
+  serviceMinor,
+}: {
+  copy: GuestCopy;
+  currency: string;
+  dishesMinor: number;
+  servicePercent: number | null;
+  serviceMinor: number;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      {servicePercent ? (
+        <>
+          <div className="flex items-center justify-between text-[14px] text-muted">
+            <span>{copy.cartDishes}</span>
+            <span className="tabular-nums">{formatPrice(dishesMinor, currency)}</span>
+          </div>
+          <div className="flex items-center justify-between text-[14px] text-muted">
+            <span>
+              {copy.serviceCharge} {formatPercent(servicePercent)}
+            </span>
+            <span className="tabular-nums">{formatPrice(serviceMinor, currency)}</span>
+          </div>
+        </>
+      ) : null}
+      <div className="flex items-center justify-between">
+        <span className="text-[15px] text-muted">{copy.cartTotal}</span>
+        <span className="text-[20px] font-extrabold tabular-nums">
+          {formatPrice(dishesMinor + serviceMinor, currency)}
+        </span>
+      </div>
     </div>
   );
 }

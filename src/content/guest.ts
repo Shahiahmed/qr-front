@@ -31,6 +31,12 @@ export type GuestCopy = {
   cartTitle: string;
   cartEmpty: string;
   cartTotal: string;
+  /** Subtotal row above the service charge in the cart and ticket. */
+  cartDishes: string;
+  /** «Обслуживание» — the cart row and the header chip, followed by «10%». */
+  serviceCharge: string;
+  /** Chip tooltip: the percent is added to the bill, not to the dish prices. */
+  serviceChargeHint: string;
   cartTableLabel: string;
   cartTablePlaceholder: string;
   cartCommentLabel: string;
@@ -103,6 +109,9 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     cartTitle: "Ваш заказ",
     cartEmpty: "В заказе пока ничего нет.",
     cartTotal: "Итого",
+    cartDishes: "Блюда",
+    serviceCharge: "Обслуживание",
+    serviceChargeHint: "Добавляется к сумме счёта",
     cartTableLabel: "Номер стола",
     cartTablePlaceholder: "например, 12",
     cartCommentLabel: "Комментарий",
@@ -168,6 +177,10 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     cartTitle: "Сіздің тапсырысыңыз",
     cartEmpty: "Тапсырыста әзірге ештеңе жоқ.",
     cartTotal: "Барлығы",
+    // TODO(kk-review): native speaker — «Тағамдар», «Қызмет көрсету», hint.
+    cartDishes: "Тағамдар",
+    serviceCharge: "Қызмет көрсету",
+    serviceChargeHint: "Есепшот сомасына қосылады",
     cartTableLabel: "Үстел нөмірі",
     cartTablePlaceholder: "мысалы, 12",
     cartCommentLabel: "Түсініктеме",

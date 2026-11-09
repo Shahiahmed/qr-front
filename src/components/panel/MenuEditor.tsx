@@ -8,10 +8,10 @@ import {
   EyeOff,
   ExternalLink,
   FolderPlus,
-  MapPin,
   Palette,
   Pencil,
   Plus,
+  SlidersHorizontal,
   Sparkles,
   Trash2,
   UtensilsCrossed,
@@ -206,7 +206,7 @@ export function MenuEditor({
     {
       id: "contacts",
       label: copy.tabContacts,
-      icon: <MapPin size={16} strokeWidth={2.25} />,
+      icon: <SlidersHorizontal size={16} strokeWidth={2.25} />,
     },
   ];
 
@@ -250,7 +250,8 @@ export function MenuEditor({
                   : "text-muted hover:bg-surface hover:text-foreground"
               }`}
             >
-              <span className="shrink-0">{item.icon}</span>
+              {/* Narrow phones: words only — «Оформление» doesn't fit with an icon. */}
+              <span className="hidden shrink-0 xs:inline">{item.icon}</span>
               <span className="truncate">{item.label}</span>
             </button>
           );

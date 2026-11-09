@@ -275,6 +275,8 @@ export type Establishment = {
   logo_url: string | null;
   /** When false, the guest cover hides the logo (file stays). Default true. */
   show_logo: boolean;
+  /** Percent added to the guest's bill (e.g. 10, 12.5); null = no service charge. */
+  service_charge_percent: number | null;
   /** True once a Telegram chat is bound — guests can call the waiter. */
   telegram_connected: boolean;
   created_at: string | null;
@@ -312,6 +314,7 @@ export type EstablishmentPayload = {
   theme?: string;
   layout?: string;
   show_logo?: boolean;
+  service_charge_percent?: number | null;
 };
 
 export async function listEstablishments(): Promise<Establishment[]> {

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Check, KeyRound, MapPin, Phone, Wifi } from "lucide-react";
+import { Check, KeyRound, MapPin, Percent, Phone, Wifi } from "lucide-react";
 import type { GuestCopy } from "@/content/guest";
 import { DEFAULT_VENUE_COVER_URL } from "@/lib/defaultCover";
 import { initialLogoDataUrl } from "@/lib/initialLogo";
 import type { PublicMenu } from "@/lib/guestMenuTypes";
+import { formatPercent } from "@/lib/money";
 
 /**
  * Venue cover with contact chips overlaid on the photo.
@@ -71,7 +72,8 @@ function hasVenueInfo(menu: PublicMenu): boolean {
       menu.wifi_password?.trim() ||
       menu.instagram_url?.trim() ||
       menu.facebook_url?.trim() ||
-      menu.tiktok_url?.trim(),
+      menu.tiktok_url?.trim() ||
+      menu.service_charge_percent,
   );
 }
 
@@ -83,6 +85,7 @@ function VenueChips({ menu, copy }: { menu: PublicMenu; copy: GuestCopy }) {
   const instagram = menu.instagram_url?.trim() || null;
   const facebook = menu.facebook_url?.trim() || null;
   const tiktok = menu.tiktok_url?.trim() || null;
+  const service = menu.service_charge_percent || null;
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -105,6 +108,16 @@ function VenueChips({ menu, copy }: { menu: PublicMenu; copy: GuestCopy }) {
           <KeyRound size={14} strokeWidth={2.25} className="shrink-0 text-accent" aria-hidden />
           <span className="font-bold tabular-nums">{wifiPassword}</span>
         </CopyChip>
+      ) : null}
+
+      {/* Said up front, so the percent on the bill is never a surprise. */}
+      {service ? (
+        <span className={chipClass} title={copy.serviceChargeHint}>
+          <Percent size={14} strokeWidth={2.25} className="shrink-0 text-accent" aria-hidden />
+          <span>
+            {copy.serviceCharge} <span className="font-bold tabular-nums">{formatPercent(service)}</span>
+          </span>
+        </span>
       ) : null}
 
       {phone ? (
