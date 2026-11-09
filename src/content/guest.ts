@@ -54,7 +54,14 @@ export type GuestCopy = {
   placedTable: string;
   /** Order stays on this phone for the waiter to read (venue not connected). */
   localNote: string;
-  showTicket: string;
+  /** Bottom bar + sheet title: every order placed during this visit. */
+  myOrders: string;
+  /** Card heading in «Мои заказы»; {n} is the order's number in the visit. */
+  orderNumber: string;
+  /** Sum of all placed orders, shown when there is more than one. */
+  visitTotal: string;
+  /** Under the list: where the orders live and for how long. */
+  ordersKept: string;
   ticketEmpty: string;
   done: string;
   // Bottom navigation + guest-chosen look (colour + layout)
@@ -126,7 +133,10 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     orderSentText: "Кухня уже получила ваш заказ. Официант скоро подойдёт.",
     placedTable: "Стол",
     localNote: "Пока без сервера: заказ виден только на этом устройстве.",
-    showTicket: "Показать заказ",
+    myOrders: "Мои заказы",
+    orderNumber: "Заказ №{n}",
+    visitTotal: "Итого за визит",
+    ordersKept: "История заказов хранится 12 часов.",
     ticketEmpty: "В заказе ничего нет.",
     done: "Готово",
     navMenu: "Меню",
@@ -195,7 +205,11 @@ export const guestByLocale: Record<GuestLocale, GuestCopy> = {
     orderSentText: "Ас үй тапсырысыңызды алды. Даяшы жақын арада келеді.",
     placedTable: "Үстел",
     localNote: "Әзірге серверсіз: тапсырыс тек осы құрылғыда көрінеді.",
-    showTicket: "Тапсырысты көрсету",
+    // TODO(kk-review): myOrders … ordersKept — проверить носителем.
+    myOrders: "Менің тапсырыстарым",
+    orderNumber: "Тапсырыс №{n}",
+    visitTotal: "Барлық тапсырыс сомасы",
+    ordersKept: "Тапсырыстар тарихы 12 сағат сақталады.",
     ticketEmpty: "Тапсырыста ештеңе жоқ.",
     done: "Дайын",
     navMenu: "Мәзір",

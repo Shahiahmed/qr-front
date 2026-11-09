@@ -1,14 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { BellRing, Check, Minus, Plus, Search, Settings2, ShoppingBag, X } from "lucide-react";
+import {
+  BellRing,
+  Check,
+  Minus,
+  Plus,
+  ReceiptText,
+  Search,
+  Settings2,
+  ShoppingBag,
+  X,
+} from "lucide-react";
 import { GuestVenueCover } from "@/components/guest/GuestVenueHero";
 import { callWaiter, sendOrder, type WaiterCallReason } from "@/lib/api";
 import { guestByLocale, type GuestLocale } from "@/content/guest";
 import { getLayout, MENU_LAYOUTS, type LayoutKey } from "@/content/layouts";
 import { getTheme, MENU_THEMES, themeVars, type ThemeKey } from "@/content/themes";
 import {
-  clearGuestOrder,
   createOrderTicket,
   loadGuestOrder,
   saveGuestOrder,
@@ -59,8 +68,8 @@ function dishMatches(dish: PublicDish, words: string[]): boolean {
  * whether the venue bound a Telegram chat (same flag as call-the-waiter): when
  * it did, the order is POSTed to the API and pushed to the kitchen's chat; when
  * it didn't (or on the demo), it stays a local ticket the guest shows a waiter.
- * Either way the cart and the placed ticket live in `localStorage` on this
- * phone so a refresh keeps them.
+ * Either way the cart and every placed order («Мои заказы») live in
+ * `localStorage` on this phone, so the guest can reopen them all visit long.
  */
 export function GuestMenu({
   menu,
@@ -160,11 +169,16 @@ export function GuestMenu({
   // dish id → quantity in the order
   const [cart, setCart] = useState<Record<number, number>>({});
   const [cartOpen, setCartOpen] = useState(false);
-  const [placed, setPlaced] = useState(false);
+  // The cart sheet shows either the draft cart or «Мои заказы».
+  const [ordersView, setOrdersView] = useState(false);
   const [table, setTable] = useState(readQrTable);
   const [comment, setComment] = useState("");
   const [orderStatus, setOrderStatus] = useState<"idle" | "sending" | "error">("idle");
-  const [ticket, setTicket] = useState<GuestOrderTicket | null>(null);
+  // Every order placed this visit, oldest first. Kept on the phone — closing
+  // the sheet or tapping «Готово» never drops one (see guestOrderStorage).
+  const [orders, setOrders] = useState<GuestOrderTicket[]>([]);
+  // The order just sent: the sheet opens on a success header and highlights it.
+  const [justPlacedId, setJustPlacedId] = useState<string | null>(null);
   // Gate persistence until localStorage has been read — otherwise the first
   // save would wipe a restored ticket with empty state.
   const [hydrated, setHydrated] = useState(false);
@@ -184,7 +198,7 @@ export function GuestMenu({
   const servicePercent = menu.service_charge_percent || null;
   const serviceMinor = serviceChargeFor(totalMinor, servicePercent);
 
-  // Restore cart / open ticket after a refresh on the same phone.
+  // Restore the cart and placed orders after a refresh on the same phone.
   useEffect(() => {
     if (!ordering) {
       setHydrated(false);
@@ -195,10 +209,7 @@ export function GuestMenu({
     if (stored) {
       setCart(stored.cart);
       setTable(stored.table);
-      if (stored.ticket) {
-        setTicket(stored.ticket);
-        setPlaced(true);
-      }
+      setOrders(stored.orders);
     }
     setHydrated(true);
   }, [ordering, menu.slug]);
@@ -215,11 +226,11 @@ export function GuestMenu({
     if (prefs.layout) setLayoutKey(getLayout(prefs.layout));
   }, [menu.slug]);
 
-  // Persist draft + ticket whenever they change (after first hydrate).
+  // Persist draft + placed orders whenever they change (after first hydrate).
   useEffect(() => {
     if (!ordering || !hydrated) return;
-    saveGuestOrder(menu.slug, { cart, table, ticket });
-  }, [ordering, menu.slug, hydrated, cart, table, ticket]);
+    saveGuestOrder(menu.slug, { cart, table, orders });
+  }, [ordering, menu.slug, hydrated, cart, table, orders]);
 
   const addOne = (id: number) =>
     setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
@@ -232,15 +243,11 @@ export function GuestMenu({
       return next;
     });
 
-  const resetOrder = () => {
-    setCart({});
-    setTable(readQrTable());
-    setComment("");
-    setOrderStatus("idle");
-    setPlaced(false);
-    setTicket(null);
-    setCartOpen(false);
-    clearGuestOrder(menu.slug);
+  /** Open the cart sheet on the draft cart, or on «Мои заказы». */
+  const openSheet = (showOrders: boolean) => {
+    setJustPlacedId(null);
+    setOrdersView(showOrders);
+    setCartOpen(true);
   };
 
   const submitOrder = async () => {
@@ -291,9 +298,11 @@ export function GuestMenu({
     });
 
     setOrderStatus("idle");
-    setTicket(nextTicket);
+    setOrders((prev) => [...prev, nextTicket]);
+    setJustPlacedId(nextTicket.id);
     setCart({});
-    setPlaced(true);
+    setComment("");
+    setOrdersView(true);
   };
 
   const headerOffset = () => headerRef.current?.offsetHeight ?? 132;
@@ -382,7 +391,7 @@ export function GuestMenu({
   }, [sections.length]);
 
   // Lock the page behind any bottom sheet (cart or settings) and let Escape
-  // close it. A placed ticket stays in storage — Escape only hides the sheet.
+  // close it. Placed orders stay in storage — Escape only hides the sheet.
   const anySheetOpen = cartOpen || settingsOpen || waiterOpen;
   useEffect(() => {
     if (!anySheetOpen) return;
@@ -401,7 +410,11 @@ export function GuestMenu({
     };
   }, [anySheetOpen]);
 
-  const barVisible = ordering && !cartOpen && (totalCount > 0 || Boolean(ticket));
+  const barVisible = ordering && !cartOpen && (totalCount > 0 || orders.length > 0);
+  const visitTotalMinor = orders.reduce(
+    (sum, order) => sum + order.totalMinor + (order.serviceMinor ?? 0),
+    0,
+  );
   const lastSectionId = visibleSections[visibleSections.length - 1]?.id;
   const about = pick(
     locale,
@@ -605,29 +618,27 @@ export function GuestMenu({
         {barVisible ? (
           <div className="border-t border-border bg-white/95 backdrop-blur-lg">
             <div className="mx-auto max-w-[680px] px-4 py-3">
-              {ticket && totalCount === 0 ? (
+              {orders.length > 0 && totalCount === 0 ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    setPlaced(true);
-                    setCartOpen(true);
-                  }}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_color-mix(in_srgb,var(--accent)_80%,transparent)] transition-transform active:scale-[0.99]"
+                  onClick={() => openSheet(true)}
+                  className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_color-mix(in_srgb,var(--accent)_80%,transparent)] transition-transform active:scale-[0.99]"
                 >
-                  {copy.showTicket}
-                  {ticket.table ? (
-                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs tabular-nums">
-                      {copy.placedTable} {ticket.table}
+                  <span className="flex items-center gap-2">
+                    <ReceiptText size={18} strokeWidth={2.25} />
+                    {copy.myOrders}
+                    <span className="grid h-6 min-w-6 place-items-center rounded-full bg-white/20 px-1.5 text-xs tabular-nums">
+                      {orders.length}
                     </span>
-                  ) : null}
+                  </span>
+                  <span className="tabular-nums">
+                    {formatPrice(visitTotalMinor, orders[orders.length - 1].currency)}
+                  </span>
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={() => {
-                    setPlaced(false);
-                    setCartOpen(true);
-                  }}
+                  onClick={() => openSheet(false)}
                   className="flex w-full items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_-12px_color-mix(in_srgb,var(--accent)_80%,transparent)] transition-transform active:scale-[0.99]"
                 >
                   <span className="flex items-center gap-2">
@@ -657,8 +668,8 @@ export function GuestMenu({
                 badge={totalCount > 0 ? totalCount : undefined}
                 onClick={() => {
                   setSettingsOpen(false);
-                  setPlaced(Boolean(ticket) && totalCount === 0);
-                  setCartOpen(true);
+                  setWaiterOpen(false);
+                  openSheet(totalCount === 0 && orders.length > 0);
                 }}
               />
             ) : null}
@@ -703,84 +714,45 @@ export function GuestMenu({
           />
 
           <div className="relative flex max-h-[88dvh] w-full max-w-[680px] flex-col rounded-t-[26px] bg-surface shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.4)]">
-            {placed && ticket ? (
-              <div className="flex flex-col overflow-y-auto px-5 pb-6 pt-5">
-                <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-accent-hover">
-                  <Check size={28} strokeWidth={2.5} />
-                </div>
-                <h2 className="mt-4 text-center text-[22px] font-extrabold tracking-[-0.01em]">
-                  {serverOrdering ? copy.orderSentTitle : copy.placedTitle}
-                </h2>
-                <p className="mt-1.5 text-center text-[14px] text-muted-soft">
-                  {serverOrdering ? copy.orderSentText : copy.placedText}
-                </p>
-
-                {ticket.table ? (
-                  <p className="mt-4 text-center text-[42px] font-extrabold tabular-nums tracking-[-0.03em]">
-                    {copy.placedTable} {ticket.table}
-                  </p>
-                ) : null}
-
-                <ul className="mt-5 flex flex-col gap-2.5 rounded-2xl border border-border bg-white p-4">
-                  {ticket.items.length === 0 ? (
-                    <li className="py-4 text-center text-muted">{copy.ticketEmpty}</li>
-                  ) : (
-                    ticket.items.map((line) => {
-                      const name =
-                        pick(locale, line.name_ru, line.name_kk) ?? line.name_ru;
-                      return (
-                        <li
-                          key={line.id}
-                          className="flex items-start justify-between gap-3 text-[15px]"
-                        >
-                          <span className="min-w-0 font-bold">
-                            {name}{" "}
-                            <span className="text-muted-soft">× {line.qty}</span>
-                          </span>
-                          <span className="shrink-0 font-extrabold tabular-nums text-accent-hover">
-                            {formatPrice(line.price * line.qty, ticket.currency)}
-                          </span>
-                        </li>
-                      );
-                    })
-                  )}
-                  <li className="mt-1 border-t border-border pt-3">
-                    <BillSummary
-                      copy={copy}
-                      currency={ticket.currency}
-                      dishesMinor={ticket.totalMinor}
-                      servicePercent={ticket.servicePercent ?? null}
-                      serviceMinor={ticket.serviceMinor ?? 0}
-                    />
-                  </li>
-                </ul>
-
-                {serverOrdering ? null : (
-                  <p className="mt-4 text-center text-xs text-muted-soft">
-                    {copy.localNote}
-                  </p>
-                )}
-
-                <button
-                  type="button"
-                  onClick={resetOrder}
-                  className="mt-5 w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white"
-                >
-                  {copy.done}
-                </button>
-              </div>
+            {ordersView && orders.length > 0 ? (
+              <OrdersSheet
+                copy={copy}
+                locale={locale}
+                orders={orders}
+                justPlacedId={justPlacedId}
+                serverOrdering={serverOrdering}
+                visitTotalMinor={visitTotalMinor}
+                onClose={() => {
+                  setCartOpen(false);
+                  setJustPlacedId(null);
+                }}
+              />
             ) : (
               <>
-                <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                   <h2 className="text-[18px] font-extrabold">{copy.cartTitle}</h2>
-                  <button
-                    type="button"
-                    onClick={() => setCartOpen(false)}
-                    aria-label={copy.close}
-                    className="grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-muted transition-colors hover:text-foreground"
-                  >
-                    <X size={18} strokeWidth={2.5} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Earlier orders stay one tap away while a new one is built. */}
+                    {orders.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => openSheet(true)}
+                        className="flex h-8 items-center gap-1.5 rounded-full bg-accent-soft px-3 text-[13px] font-bold text-accent-hover"
+                      >
+                        <ReceiptText size={15} strokeWidth={2.25} />
+                        {copy.myOrders}
+                        <span className="tabular-nums">· {orders.length}</span>
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => setCartOpen(false)}
+                      aria-label={copy.close}
+                      className="grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-muted transition-colors hover:text-foreground"
+                    >
+                      <X size={18} strokeWidth={2.5} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-5 py-3">
@@ -1093,6 +1065,159 @@ export function GuestMenu({
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/** «14:32» in the guest's language — when each order was placed. */
+function formatOrderTime(iso: string, locale: GuestLocale): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString(locale === "kk" ? "kk-KZ" : "ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * «Мои заказы»: every order placed this visit, newest first, each with its own
+ * bill. Right after checkout it opens on a success header with the new order
+ * highlighted. «Готово» only closes the sheet — the orders stay on the phone.
+ */
+function OrdersSheet({
+  copy,
+  locale,
+  orders,
+  justPlacedId,
+  serverOrdering,
+  visitTotalMinor,
+  onClose,
+}: {
+  copy: GuestCopy;
+  locale: GuestLocale;
+  orders: GuestOrderTicket[];
+  justPlacedId: string | null;
+  serverOrdering: boolean;
+  visitTotalMinor: number;
+  onClose: () => void;
+}) {
+  const justPlaced = orders.find((order) => order.id === justPlacedId) ?? null;
+  const currency = orders[orders.length - 1]?.currency ?? "KZT";
+  // Numbered in placing order, listed newest first.
+  const numbered = orders.map((order, index) => ({ order, number: index + 1 })).reverse();
+
+  return (
+    <div className="flex flex-col overflow-y-auto px-5 pb-6 pt-5">
+      {justPlaced ? (
+        <>
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-accent-hover">
+            <Check size={28} strokeWidth={2.5} />
+          </div>
+          <h2 className="mt-4 text-center text-[22px] font-extrabold tracking-[-0.01em]">
+            {serverOrdering ? copy.orderSentTitle : copy.placedTitle}
+          </h2>
+          <p className="mt-1.5 text-center text-[14px] text-muted-soft">
+            {serverOrdering ? copy.orderSentText : copy.placedText}
+          </p>
+          {justPlaced.table ? (
+            <p className="mt-4 text-center text-[42px] font-extrabold tabular-nums tracking-[-0.03em]">
+              {copy.placedTable} {justPlaced.table}
+            </p>
+          ) : null}
+        </>
+      ) : (
+        <div className="flex items-center justify-between">
+          <h2 className="text-[18px] font-extrabold">{copy.myOrders}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={copy.close}
+            className="grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-muted transition-colors hover:text-foreground"
+          >
+            <X size={18} strokeWidth={2.5} />
+          </button>
+        </div>
+      )}
+
+      <ol className="mt-5 flex flex-col gap-3">
+        {numbered.map(({ order, number }) => {
+          const fresh = order.id === justPlacedId;
+          return (
+            <li
+              key={order.id}
+              className={`rounded-2xl border bg-white p-4 ${
+                fresh ? "border-accent" : "border-border"
+              }`}
+            >
+              <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px] text-muted-soft">
+                <span className="text-[14px] font-extrabold text-foreground">
+                  {copy.orderNumber.replace("{n}", String(number))}
+                </span>
+                <span className="tabular-nums">{formatOrderTime(order.createdAt, locale)}</span>
+                {order.table ? (
+                  <span className="tabular-nums">
+                    · {copy.placedTable} {order.table}
+                  </span>
+                ) : null}
+              </div>
+
+              <ul className="flex flex-col gap-2.5">
+                {order.items.length === 0 ? (
+                  <li className="py-4 text-center text-muted">{copy.ticketEmpty}</li>
+                ) : (
+                  order.items.map((line) => {
+                    const name = pick(locale, line.name_ru, line.name_kk) ?? line.name_ru;
+                    return (
+                      <li
+                        key={line.id}
+                        className="flex items-start justify-between gap-3 text-[15px]"
+                      >
+                        <span className="min-w-0 font-bold">
+                          {name} <span className="text-muted-soft">× {line.qty}</span>
+                        </span>
+                        <span className="shrink-0 font-extrabold tabular-nums text-accent-hover">
+                          {formatPrice(line.price * line.qty, order.currency)}
+                        </span>
+                      </li>
+                    );
+                  })
+                )}
+              </ul>
+
+              <div className="mt-3 border-t border-border pt-3">
+                <BillSummary
+                  copy={copy}
+                  currency={order.currency}
+                  dishesMinor={order.totalMinor}
+                  servicePercent={order.servicePercent ?? null}
+                  serviceMinor={order.serviceMinor ?? 0}
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      {orders.length > 1 ? (
+        <div className="mt-4 flex items-center justify-between rounded-2xl bg-surface-2 px-4 py-3">
+          <span className="text-[15px] font-bold">{copy.visitTotal}</span>
+          <span className="text-[20px] font-extrabold tabular-nums">
+            {formatPrice(visitTotalMinor, currency)}
+          </span>
+        </div>
+      ) : null}
+
+      <p className="mt-4 text-center text-xs text-muted-soft">
+        {serverOrdering ? copy.ordersKept : `${copy.localNote} ${copy.ordersKept}`}
+      </p>
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="mt-5 w-full rounded-2xl bg-accent py-3.5 text-[15px] font-bold text-white"
+      >
+        {copy.done}
+      </button>
     </div>
   );
 }
