@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
+  Copy,
   Eye,
   EyeOff,
   ImageIcon,
@@ -606,10 +607,13 @@ function TelegramConnect({
           </div>
 
           {waiting ? (
-            <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug text-muted-soft">
-              <Loader2 size={13} className="mt-px shrink-0 animate-spin" />
-              {copy.tgWaitingHint}
-            </p>
+            <>
+              <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug text-muted-soft">
+                <Loader2 size={13} className="mt-px shrink-0 animate-spin" />
+                {copy.tgWaitingHint}
+              </p>
+              <ManualStartCode link={link} copy={copy} />
+            </>
           ) : null}
 
           {connect.isError || disconnect.isError ? (
@@ -836,5 +840,59 @@ function Field({
         className="w-full rounded-xl border border-border-strong bg-white px-3.5 py-2.5 text-[15px] outline-none transition-colors focus:border-accent"
       />
     </label>
+  );
+}
+
+/**
+ * Fallback when the deep link doesn't deliver «/start <token>»: the owner
+ * already has a chat with the bot (Telegram then just opens it, and they don't
+ * press «Start» again), or Telegram didn't open at all. Sending the same
+ * command by hand binds the venue — the webhook accepts it as-is.
+ */
+function ManualStartCode({ link, copy }: { link: string | null; copy: MenuCopy }) {
+  const [copied, setCopied] = useState(false);
+  let command: string | null = null;
+  let bot: string | null = null;
+  try {
+    const url = link ? new URL(link) : null;
+    const token = url?.searchParams.get("start");
+    if (url && token) {
+      command = `/start ${token}`;
+      bot = `@${url.pathname.replace(/^\//, "")}`;
+    }
+  } catch {
+    command = null;
+  }
+  if (!command || !bot) return null;
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard blocked — the command stays selectable on screen.
+    }
+  };
+
+  return (
+    <div className="mt-3 rounded-lg border border-border bg-white/60 p-3">
+      <p className="text-[12px] leading-snug text-muted-soft">
+        {copy.tgManualHint.replace("{bot}", bot)}
+      </p>
+      <div className="mt-2 flex items-center gap-2">
+        <code className="min-w-0 flex-1 select-all truncate rounded-md bg-black/[0.04] px-2.5 py-2 font-mono text-[13px] text-ink">
+          {command}
+        </code>
+        <button
+          type="button"
+          onClick={onCopy}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border-strong bg-white px-3 py-2 text-[13px] font-semibold text-ink transition-colors hover:bg-black/[0.04]"
+        >
+          {copied ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} />}
+          {copied ? copy.tgCopied : copy.tgCopy}
+        </button>
+      </div>
+    </div>
   );
 }

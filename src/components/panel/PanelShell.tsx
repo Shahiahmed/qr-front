@@ -10,6 +10,7 @@ import {
   LayoutList,
   LogOut,
   Menu as MenuIcon,
+  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -106,7 +107,9 @@ export function PanelShell({
     { id: "referral", label: copy.tabReferral, href: `/${locale}/dashboard/referral`, icon: Gift },
   ];
 
-  const initial = (user?.email?.[0] ?? "?").toUpperCase();
+  // Person silhouette for everyone: phone sign-ups have no email, and the old
+  // email initial fell back to «?».
+  const initial = <UserRound size={18} strokeWidth={2.25} aria-hidden />;
 
   // Rendered twice — the fixed desktop rail and the mobile drawer — so it lives
   // in a closure that both call. `onNavigate` closes the drawer after a tap;
@@ -188,8 +191,8 @@ export function PanelShell({
                   {copy.tabProfile}
                 </span>
                 {user ? (
-                  <span className="block truncate text-[12px] text-muted-soft" title={user.email}>
-                    {user.email}
+                  <span className="block truncate text-[12px] text-muted-soft" title={user.email || user.phone || undefined}>
+                    {user.email || user.phone}
                   </span>
                 ) : null}
               </span>

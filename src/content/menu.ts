@@ -79,6 +79,10 @@ export type MenuCopy = {
   /** Link button shown once the deep link is minted — a tap phones never block. */
   tgOpen: string;
   tgWaitingHint: string;
+  /** Fallback: send «/start <token>» by hand. `{bot}` → @username. */
+  tgManualHint: string;
+  tgCopy: string;
+  tgCopied: string;
   tgError: string;
   // Service charge («обслуживание») block on the contacts tab
   svcTitle: string;
@@ -206,6 +210,10 @@ const RU: MenuCopy = {
   tgOpen: "Открыть Telegram",
   tgWaitingHint:
     "Нажмите «Открыть Telegram», затем «Старт» в боте. Статус здесь обновится сам.",
+  tgManualHint:
+    "Не подключается? Скопируйте эту команду и отправьте её сообщением боту {bot}:",
+  tgCopy: "Копировать",
+  tgCopied: "Скопировано",
   tgError: "Не удалось. Попробуйте ещё раз.",
   svcTitle: "Плата за обслуживание",
   svcHint:
@@ -328,10 +336,14 @@ const KZ: MenuCopy = {
   tgConnect: "Telegram қосу",
   tgConnecting: "Ашылуда…",
   tgDisconnect: "Ажырату",
-  // TODO(kk-review): tgOpen, tgWaitingHint — проверить носителем.
+  // TODO(kk-review): tgOpen, tgWaitingHint, tgManualHint, tgCopy, tgCopied — проверить носителем.
   tgOpen: "Telegram-ды ашу",
   tgWaitingHint:
     "«Telegram-ды ашу», содан кейін боттағы «Старт» түймесін басыңыз. Күй осында өзі жаңарады.",
+  tgManualHint:
+    "Қосылмай жатыр ма? Мына команданы көшіріп, {bot} ботына хабарлама ретінде жіберіңіз:",
+  tgCopy: "Көшіру",
+  tgCopied: "Көшірілді",
   tgError: "Мүмкін болмады. Қайта көріңіз.",
   // TODO(kk-review): native speaker — service charge block.
   svcTitle: "Қызмет көрсету ақысы",
