@@ -42,6 +42,8 @@ export type PublicMenu = {
   logo_url?: string | null;
   /** false hides the logo on the cover; omit/true shows it (letter fallback if no file). */
   show_logo?: boolean;
+  /** false hides the dish search bar; omit/true shows it. */
+  show_search?: boolean;
   wifi_ssid?: string | null;
   wifi_password?: string | null;
   instagram_url?: string | null;

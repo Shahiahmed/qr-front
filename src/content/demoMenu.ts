@@ -36,6 +36,7 @@ export const demoMenu: PublicMenu = {
   cover_url: DEFAULT_VENUE_COVER_URL,
   logo_url: initialLogoDataUrl("Дастархан"),
   show_logo: true,
+  show_search: true,
   wifi_ssid: "Dastarkhan_Guest",
   wifi_password: "dastar2024",
   instagram_url: "https://instagram.com/dastarkhan",

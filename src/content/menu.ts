@@ -65,6 +65,9 @@ export type MenuCopy = {
   fFacebook: string;
   fTiktok: string;
   socialHint: string;
+  groupContacts: string;
+  groupWifi: string;
+  groupSocial: string;
   designSaved: string;
   designError: string;
 
@@ -100,6 +103,7 @@ export type MenuCopy = {
   logoHint: string;
   showLogo: string;
   hideLogo: string;
+  searchTitle: string;
   uploadImage: string;
   changeImage: string;
   removeImage: string;
@@ -125,6 +129,10 @@ export type MenuCopy = {
   // Section order
   moveUp: string;
   moveDown: string;
+  /** Editor toolbar summary + empty-menu manual path (2026-11-12). */
+  menuSummary: string;
+  stopSummary: string;
+  addCategoryManual: string;
 
   kkOptional: string;
   cancel: string;
@@ -196,6 +204,9 @@ const RU: MenuCopy = {
   fFacebook: "Facebook",
   fTiktok: "TikTok",
   socialHint: "Ссылка на профиль",
+  groupContacts: "Контакты",
+  groupWifi: "Wi‑Fi для гостей",
+  groupSocial: "Соцсети",
   designSaved: "Сохранено",
   designError: "Не удалось сохранить. Проверьте ссылки соцсетей.",
 
@@ -231,6 +242,7 @@ const RU: MenuCopy = {
     "По умолчанию — первая буква названия. Замените своим PNG (лучше с прозрачным фоном).",
   showLogo: "Показать на меню",
   hideLogo: "Скрыть с меню",
+  searchTitle: "Поиск блюд",
   uploadImage: "Загрузить",
   changeImage: "Заменить",
   removeImage: "Удалить",
@@ -253,6 +265,9 @@ const RU: MenuCopy = {
 
   moveUp: "Выше",
   moveDown: "Ниже",
+  menuSummary: "Разделов: {c} · Блюд: {d}",
+  stopSummary: "В стоп-листе: {n}",
+  addCategoryManual: "Создать раздел вручную",
 
   kkOptional: "Можно заполнить позже",
   cancel: "Отмена",
@@ -325,6 +340,10 @@ const KZ: MenuCopy = {
   fFacebook: "Facebook",
   fTiktok: "TikTok",
   socialHint: "Профиль сілтемесі",
+  // TODO(kk-review): group labels
+  groupContacts: "Байланыс",
+  groupWifi: "Қонақтарға арналған Wi‑Fi",
+  groupSocial: "Әлеуметтік желілер",
   designSaved: "Сақталды",
   designError: "Сақтау мүмкін болмады. Әлеуметтік желі сілтемелерін тексеріңіз.",
 
@@ -362,6 +381,7 @@ const KZ: MenuCopy = {
     "Әдепкі — атаудың бірінші әрпі. Өзіңіздікімен ауыстырыңыз (мөлдір PNG жақсырақ).",
   showLogo: "Мәзірде көрсету",
   hideLogo: "Мәзірден жасыру",
+  searchTitle: "Тағамдарды іздеу",
   uploadImage: "Жүктеу",
   changeImage: "Ауыстыру",
   removeImage: "Жою",
@@ -384,6 +404,10 @@ const KZ: MenuCopy = {
 
   moveUp: "Жоғары",
   moveDown: "Төмен",
+  // TODO(kk-review): editor toolbar summary.
+  menuSummary: "Бөлім: {c} · Тағам: {d}",
+  stopSummary: "Стоп-парақта: {n}",
+  addCategoryManual: "Бөлімді қолмен құру",
 
   kkOptional: "Кейін толтыруға болады",
   cancel: "Болдырмау",

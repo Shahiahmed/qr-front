@@ -155,6 +155,24 @@ export type AuthCopy = {
   overviewHelpTitle: string;
   overviewHelpText: string;
   overviewHelpCta: string;
+  /** Overview hardening + status line (2026-11-12). */
+  overviewLoadError: string;
+  overviewLoadErrorHint: string;
+  overviewRetry: string;
+  overviewSumActive: string;
+  overviewSumAttention: string;
+  overviewSumAllGood: string;
+  overviewExpiredLine: string;
+  overviewSoonLine: string;
+  overviewSubscribeCta: string;
+  overviewExtendCta: string;
+  overviewContactCta: string;
+  /** Plural forms for a dish count: one / few / many. */
+  overviewDishesForms: readonly [string, string, string];
+  overviewMenuEmpty: string;
+  overviewTgOn: string;
+  overviewTgOff: string;
+  skipToContent: string;
   venueOpenGuest: string;
   subCellLeft: string;
   subHowTitle: string;
@@ -382,6 +400,22 @@ const RU: AuthCopy = {
   overviewHelpTitle: "Нужна помощь?",
   overviewHelpText: "Напишите нам — поможем заполнить меню и настроить QR-код.",
   overviewHelpCta: "Написать в WhatsApp",
+  overviewLoadError: "Не удалось загрузить заведения",
+  overviewLoadErrorHint: "Проверьте интернет и попробуйте ещё раз.",
+  overviewRetry: "Повторить",
+  overviewSumActive: "Работают: {n}",
+  overviewSumAttention: "Требуют внимания: {n}",
+  overviewSumAllGood: "Все меню работают",
+  overviewExpiredLine: "Гости не видят меню · доступ закончился {date}",
+  overviewSoonLine: "Меню закроется {date}",
+  overviewSubscribeCta: "Оформить подписку",
+  overviewExtendCta: "Продлить подписку",
+  overviewContactCta: "Написать нам",
+  overviewDishesForms: ["блюдо", "блюда", "блюд"],
+  overviewMenuEmpty: "Меню пустое",
+  overviewTgOn: "Telegram подключён",
+  overviewTgOff: "Telegram не подключён",
+  skipToContent: "Перейти к содержимому",
   venueOpenGuest: "Открыть меню гостя",
   subCellLeft: "Осталось",
   subHowTitle: "Как оформить",
@@ -605,6 +639,23 @@ const KZ: AuthCopy = {
   overviewHelpTitle: "Көмек керек пе?",
   overviewHelpText: "Бізге жазыңыз — мәзірді толтыруға және QR-кодты баптауға көмектесеміз.",
   overviewHelpCta: "WhatsApp-қа жазу",
+  // TODO(kk-review): overview hardening + status line.
+  overviewLoadError: "Мекемелерді жүктеу мүмкін болмады",
+  overviewLoadErrorHint: "Интернетті тексеріп, қайта көріңіз.",
+  overviewRetry: "Қайталау",
+  overviewSumActive: "Жұмыс істейді: {n}",
+  overviewSumAttention: "Назар қажет: {n}",
+  overviewSumAllGood: "Барлық мәзір жұмыс істейді",
+  overviewExpiredLine: "Қонақтар мәзірді көрмейді · қолжетімділік {date} бітті",
+  overviewSoonLine: "Мәзір {date} жабылады",
+  overviewSubscribeCta: "Жазылым рәсімдеу",
+  overviewExtendCta: "Жазылымды ұзарту",
+  overviewContactCta: "Бізге жазу",
+  overviewDishesForms: ["тағам", "тағам", "тағам"],
+  overviewMenuEmpty: "Мәзір бос",
+  overviewTgOn: "Telegram қосулы",
+  overviewTgOff: "Telegram қосылмаған",
+  skipToContent: "Мазмұнға өту",
   venueOpenGuest: "Қонақ мәзірін ашу",
   subCellLeft: "Қалды",
   subHowTitle: "Қалай рәсімдеу керек",

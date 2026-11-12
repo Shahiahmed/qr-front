@@ -9,6 +9,10 @@ import type { CSSProperties } from "react";
  * (`--accent`, `--accent-hover`, `--accent-soft`, `--accent-tint`), so applying
  * a theme is just setting those on the menu's root element.
  *
+ * Every `accent` carries white text (≥ 4.5:1) and every `accentHover` reads as
+ * text on white and on `accentSoft` (≥ 4.5:1) — prices and buttons use them.
+ * Classic is the QR меню brand orange.
+ *
  * Keys must match `Establishment::THEMES` on the backend.
  */
 
@@ -39,8 +43,8 @@ export const MENU_THEMES: MenuTheme[] = [
     key: "classic",
     labelRu: "Классический",
     labelKk: "Классикалық",
-    accent: "#ff6a4d",
-    accentHover: "#ee5233",
+    accent: "#d2401a",
+    accentHover: "#a8330f",
     accentSoft: "#fff1ec",
     accentTint: "#ffe3d9",
   },
@@ -57,8 +61,8 @@ export const MENU_THEMES: MenuTheme[] = [
     key: "forest",
     labelRu: "Лес",
     labelKk: "Орман",
-    accent: "#1f9d57",
-    accentHover: "#178048",
+    accent: "#1a864a",
+    accentHover: "#16733f",
     accentSoft: "#e8f6ee",
     accentTint: "#cdebd9",
   },
@@ -66,8 +70,8 @@ export const MENU_THEMES: MenuTheme[] = [
     key: "ocean",
     labelRu: "Океан",
     labelKk: "Мұхит",
-    accent: "#2b8fd6",
-    accentHover: "#1f76b8",
+    accent: "#237ab7",
+    accentHover: "#1e6a9f",
     accentSoft: "#e7f2fb",
     accentTint: "#cbe4f6",
   },
@@ -84,7 +88,7 @@ export const MENU_THEMES: MenuTheme[] = [
     key: "sand",
     labelRu: "Песок",
     labelKk: "Құм",
-    accent: "#a9761f",
+    accent: "#9a6b1c",
     accentHover: "#8c6015",
     accentSoft: "#f7efdd",
     accentTint: "#ecdcb9",
@@ -93,8 +97,8 @@ export const MENU_THEMES: MenuTheme[] = [
     key: "rose",
     labelRu: "Роза",
     labelKk: "Раушан",
-    accent: "#e05a72",
-    accentHover: "#c8465e",
+    accent: "#d93351",
+    accentHover: "#c22441",
     accentSoft: "#fdeaee",
     accentTint: "#f8ccd5",
   },

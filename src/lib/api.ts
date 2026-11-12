@@ -275,10 +275,14 @@ export type Establishment = {
   logo_url: string | null;
   /** When false, the guest cover hides the logo (file stays). Default true. */
   show_logo: boolean;
+  /** When false, the guest menu has no dish search bar. Default true. */
+  show_search: boolean;
   /** Percent added to the guest's bill (e.g. 10, 12.5); null = no service charge. */
   service_charge_percent: number | null;
   /** True once a Telegram chat is bound — guests can call the waiter. */
   telegram_connected: boolean;
+  /** Dish count — only on the list endpoint (GET /establishments). */
+  dishes_count?: number;
   created_at: string | null;
   /** When the public menu stops working (ISO), or null for no limit. */
   access_ends_at: string | null;
@@ -314,6 +318,7 @@ export type EstablishmentPayload = {
   theme?: string;
   layout?: string;
   show_logo?: boolean;
+  show_search?: boolean;
   service_charge_percent?: number | null;
 };
 

@@ -13,7 +13,7 @@ import {
 import { AccessBadge, VenueMark } from "@/components/panel/VenueList";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
-import { daysLeftPhrase, formatAccessDate } from "@/lib/access";
+import { formatAccessDate } from "@/lib/access";
 import { getPlans, type MenuSubscription } from "@/lib/api";
 import { formatPrice } from "@/lib/money";
 import { PUBLIC_MENU_HOST } from "@/lib/venues";
@@ -91,20 +91,11 @@ function MenuRow({
         ? copy.accessUnlimited
         : copy.subFreeName;
   const until = formatAccessDate(menu.access_ends_at, locale);
-  const left = menu.is_expired
-    ? copy.accessExpired
-    : menu.days_left !== null
-      ? daysLeftPhrase(menu.days_left, locale)
-      : "∞";
-
-  const cells: { label: string; value: string; warn?: boolean }[] = [
+  // «Time left» is the header badge's job; the facts below are plan + date,
+  // so «Осталось 2 дн.» no longer appears twice in one card.
+  const cells: { label: string; value: string }[] = [
     { label: copy.subPickPlan, value: planName },
     { label: copy.subActiveUntil, value: until || "—" },
-    {
-      label: copy.subCellLeft,
-      value: left,
-      warn: menu.is_expired || (menu.days_left !== null && menu.days_left <= 3),
-    },
   ];
 
   return (
@@ -112,32 +103,30 @@ function MenuRow({
       <div className="flex flex-wrap items-start gap-x-3 gap-y-3">
         <VenueMark />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[17px] font-extrabold tracking-[-0.02em]">{menu.name}</h3>
+          <h2 className="truncate text-[17px] font-extrabold tracking-[-0.02em]">{menu.name}</h2>
           <p className="mt-0.5 truncate text-[13px] text-muted-soft">
             {PUBLIC_MENU_HOST}/{menu.slug}
           </p>
         </div>
-        {/* Phones read the same status from the facts below — no room for both. */}
-        <span className="hidden sm:block">
+        {/* The one place time-left is shown — so it shows on phones too. */}
+        <span className="basis-full pl-14 sm:basis-auto sm:pl-0">
           <AccessBadge venue={menu} locale={locale} copy={copy} inRow compact />
         </span>
       </div>
 
       {/* Plan / end date / time left, as three readable facts — a column of
           label/value rows on phones, three cells side by side from sm up. */}
-      <dl className="mt-5 grid divide-y divide-border overflow-hidden rounded-[14px] border border-border bg-surface/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <dl className="mt-5 grid divide-y divide-border overflow-hidden rounded-[14px] border border-border bg-surface/60 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
         {cells.map((cell) => (
           <div
             key={cell.label}
             className="flex min-w-0 items-baseline justify-between gap-3 px-4 py-2.5 sm:block sm:py-3"
           >
-            <dt className="truncate text-[11.5px] font-semibold uppercase tracking-[0.04em] text-muted-soft">
+            <dt className="truncate text-[13px] text-muted">
               {cell.label}
             </dt>
             <dd
-              className={`truncate text-[14px] font-bold sm:mt-1 sm:text-[15px] ${
-                cell.warn ? "text-red-700" : "text-foreground"
-              }`}
+              className="truncate text-[14px] font-bold sm:mt-0.5 sm:text-[15px]"
             >
               {cell.value}
             </dd>
@@ -148,7 +137,7 @@ function MenuRow({
       {/* Pending request banner */}
       {pending ? (
         <div className="mt-4 flex items-start gap-3 rounded-[16px] border border-amber-200 bg-amber-50 p-4">
-          <Clock size={18} className="mt-0.5 shrink-0 text-amber-600" />
+          <Clock size={18} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />
           <div>
             <p className="font-bold text-amber-900">{copy.subPendingTitle}</p>
             <p className="mt-0.5 text-sm text-amber-800">
@@ -176,7 +165,7 @@ function MenuRow({
 
       {/* Expired hint when nothing covers the menu anymore. */}
       {menu.is_expired && !pending ? (
-        <p className="mt-4 rounded-[16px] bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-4 rounded-[16px] border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
           {copy.accessExpiredHint}
         </p>
       ) : null}

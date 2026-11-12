@@ -88,7 +88,6 @@ export function Pricing({ initialPlans }: { initialPlans: ApiPlan[] }) {
     >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <SectionHeading
-          kicker={copy.priceKicker}
           title={copy.priceTitle}
           subtitle={copy.priceSub}
           titleId="pricing-title"
@@ -200,7 +199,7 @@ function PlanCard({
         </span>
       </div>
       {note ? (
-        <div className={`mt-1 text-sm font-semibold ${dark ? "text-[var(--on-dark-accent)]" : "text-success"}`}>
+        <div className={`mt-1 text-sm font-semibold ${dark ? "text-[var(--on-dark-success)]" : "text-success"}`}>
           {note}
         </div>
       ) : null}

@@ -111,7 +111,7 @@ function PhoneRow({ locale, phone }: { locale: Locale; phone: string | null }) {
       <button
         type="button"
         onClick={startEdit}
-        className="inline-flex min-h-10 shrink-0 items-center rounded-[10px] px-3 text-sm font-semibold text-accent-hover transition-colors hover:bg-accent-soft"
+        className="-mr-3 inline-flex min-h-10 shrink-0 items-center rounded-[10px] px-3 text-sm font-semibold text-accent-hover transition-colors hover:bg-accent-soft"
       >
         {copy.venueEdit}
       </button>
@@ -174,7 +174,15 @@ export function ProfileCard({ locale }: { locale: Locale }) {
     mutation.mutate();
   }
 
-  if (!user) return null;
+  // Skeleton of the two cards rather than a blank page while the user loads.
+  if (!user) {
+    return (
+      <div className="flex max-w-[520px] flex-col gap-5" aria-busy="true">
+        <div className="h-[180px] animate-pulse rounded-[20px] bg-surface-2" />
+        <div className="h-[420px] animate-pulse rounded-[20px] bg-surface-2" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex max-w-[520px] flex-col gap-5">
@@ -184,10 +192,13 @@ export function ProfileCard({ locale }: { locale: Locale }) {
             <dt className="text-sm text-muted-soft">{copy.nameLabel}</dt>
             <dd className="text-lg font-bold">{user.name}</dd>
           </div>
-          <div>
-            <dt className="text-sm text-muted-soft">{copy.emailLabel}</dt>
-            <dd className="text-[15px]">{user.email}</dd>
-          </div>
+          {/* Phone-only sign-ups have no email — skip the row, not an empty label. */}
+          {user.email ? (
+            <div>
+              <dt className="text-sm text-muted-soft">{copy.emailLabel}</dt>
+              <dd className="break-all text-[15px]">{user.email}</dd>
+            </div>
+          ) : null}
           <PhoneRow locale={locale} phone={user.phone ?? null} />
         </dl>
       </div>
@@ -203,7 +214,7 @@ export function ProfileCard({ locale }: { locale: Locale }) {
 
         <div className="flex flex-col gap-4">
           {formError ? (
-            <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
               {formError}
             </p>
           ) : null}

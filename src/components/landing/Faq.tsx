@@ -48,7 +48,6 @@ export function Faq() {
         {/* Left: heading + a way out when the answer isn't listed. */}
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
-            kicker={copy.faqKicker}
             title={copy.faqTitle}
             subtitle={copy.faqSub}
             titleId="faq-title"

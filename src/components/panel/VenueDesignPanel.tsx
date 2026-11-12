@@ -110,22 +110,23 @@ export function VenueDesignPanel({
     },
   });
 
-  // One-tap like the stop-list: the logo stays on disk, guests just stop seeing it.
-  const toggleLogo = useMutation({
-    mutationFn: (showLogo: boolean) =>
-      updateEstablishment(venue.id, { show_logo: showLogo }, locale),
-    onMutate: async (showLogo) => {
+  // One-tap like the stop-list, saved at once: the logo stays on disk and the
+  // search can come back any time — guests just stop seeing them.
+  const toggleFlag = useMutation({
+    mutationFn: (change: { show_logo: boolean } | { show_search: boolean }) =>
+      updateEstablishment(venue.id, change, locale),
+    onMutate: async (change) => {
       await queryClient.cancelQueries({ queryKey: VENUES_QUERY_KEY });
       const previous =
         queryClient.getQueryData<Establishment[]>(VENUES_QUERY_KEY);
       queryClient.setQueryData<Establishment[]>(VENUES_QUERY_KEY, (current) =>
         current?.map((item) =>
-          item.id === venue.id ? { ...item, show_logo: showLogo } : item,
+          item.id === venue.id ? { ...item, ...change } : item,
         ),
       );
       return { previous };
     },
-    onError: (_error, _showLogo, context) => {
+    onError: (_error, _change, context) => {
       if (context?.previous) {
         queryClient.setQueryData(VENUES_QUERY_KEY, context.previous);
       }
@@ -136,63 +137,68 @@ export function VenueDesignPanel({
   });
 
   const showLogo = venue.show_logo !== false;
+  const showSearch = venue.show_search !== false;
 
+  // Ends the form card: a hairline above, so it reads as «save everything
+  // above» — and the Telegram card (which acts on its own) sits outside it.
   const saveBar = (
-    <div className="mt-5 flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3 pt-5">
       <Button
         variant="primary"
         onClick={() => save.mutate()}
         disabled={save.isPending || !serviceValid}
-        className="py-2.5 text-[15px]"
+        className="h-11 px-6 py-0 text-[15px]"
       >
         {save.isPending ? copy.saving : copy.save}
       </Button>
 
-      {save.isSuccess && !save.isPending ? (
-        <span className="inline-flex items-center gap-1.5 text-[14px] font-bold text-accent-hover">
-          <Check size={16} strokeWidth={2.5} />
-          {copy.designSaved}
-        </span>
-      ) : null}
+      <span aria-live="polite" className="inline-flex">
+        {save.isSuccess && !save.isPending ? (
+          <span className="inline-flex items-center gap-1.5 text-[14px] font-bold text-emerald-700">
+            <Check size={16} strokeWidth={2.5} aria-hidden />
+            {copy.designSaved}
+          </span>
+        ) : null}
+      </span>
 
       {save.isError ? (
-        <span className="text-[14px] font-semibold text-red-600">
+        <span role="alert" className="text-[14px] font-semibold text-red-700">
           {copy.designError}
         </span>
       ) : null}
     </div>
   );
 
-  if (section === "look") {
-    return (
-      <section className="rounded-[20px] border border-border bg-white p-5">
-        <header className="mb-5">
-          <h2 className="text-[17px] font-extrabold tracking-[-0.02em]">
-            {copy.tabLook}
-          </h2>
-          <p className="mt-0.5 text-[13px] text-muted-soft">{copy.lookSub}</p>
-        </header>
+  // The tab above already names the panel, so the card opens straight on its
+  // groups; each group gets a real heading instead of a grey label.
+  const card =
+    "divide-y divide-border rounded-[20px] border border-border bg-white px-4 pb-5 sm:px-6";
 
-        <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.imagesLabel}</p>
-        <div className="mb-6 space-y-4">
+  if (section === "look") {
+    // A settings form: on wide screens every row is «label | control», so the
+    // controls line up in one column instead of floating around a wide card.
+    return (
+      <section aria-label={copy.tabLook} className={card}>
+        <Row title={copy.coverLabel} hint={copy.coverHint}>
           <ImageUploader
             venue={venue}
             kind="cover"
             currentUrl={venue.cover_url}
             previewFallback={DEFAULT_VENUE_COVER_URL}
             label={copy.coverLabel}
-            hint={copy.coverHint}
             shape="wide"
             copy={copy}
             locale={locale}
           />
+        </Row>
+
+        <Row title={copy.logoLabel} hint={copy.logoHint}>
           <ImageUploader
             venue={venue}
             kind="logo"
             currentUrl={venue.logo_url}
             previewFallback={initialLogoDataUrl(venue.name)}
             label={copy.logoLabel}
-            hint={copy.logoHint}
             shape="square"
             copy={copy}
             locale={locale}
@@ -200,154 +206,262 @@ export function VenueDesignPanel({
             trailing={
               <button
                 type="button"
-                onClick={() => toggleLogo.mutate(!showLogo)}
-                disabled={toggleLogo.isPending}
+                onClick={() => toggleFlag.mutate({ show_logo: !showLogo })}
+                disabled={toggleFlag.isPending}
                 aria-pressed={showLogo}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-bold transition-colors disabled:opacity-40 ${
+                className={`inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-bold transition-colors disabled:opacity-40 ${
                   showLogo
                     ? "text-muted hover:bg-surface hover:text-foreground"
                     : "bg-surface text-foreground hover:bg-surface-2"
                 }`}
               >
                 {showLogo ? (
-                  <EyeOff size={14} strokeWidth={2.25} />
+                  <EyeOff size={14} strokeWidth={2.25} aria-hidden />
                 ) : (
-                  <Eye size={14} strokeWidth={2.25} />
+                  <Eye size={14} strokeWidth={2.25} aria-hidden />
                 )}
                 {showLogo ? copy.hideLogo : copy.showLogo}
               </button>
             }
           />
-        </div>
+        </Row>
 
-        <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.layoutLabel}</p>
-        <div className="mb-6 grid grid-cols-3 gap-2.5">
-          {MENU_LAYOUTS.map((preset) => {
-            const selected = layout === preset.key;
-            return (
-              <button
-                key={preset.key}
-                type="button"
-                onClick={() => setLayout(preset.key)}
-                aria-pressed={selected}
-                className={`flex flex-col gap-2 rounded-[20px] border p-2.5 text-left transition-colors ${
-                  selected
-                    ? "border-foreground bg-surface"
-                    : "border-border-strong hover:bg-surface"
-                }`}
-              >
-                <LayoutPreview layout={preset.key} />
-                <span className="flex items-start gap-1">
-                  <span className="min-w-0">
-                    <span className="block text-[13px] font-bold leading-tight">
-                      {themeLang === "kk" ? preset.labelKk : preset.labelRu}
-                    </span>
-                    <span className="mt-0.5 block text-[11px] leading-tight text-muted-soft">
-                      {themeLang === "kk" ? preset.descKk : preset.descRu}
-                    </span>
-                  </span>
-                  {selected ? (
-                    <Check
-                      size={15}
-                      strokeWidth={3}
-                      className="ml-auto shrink-0 text-accent-hover"
-                    />
-                  ) : null}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <p className="mb-2.5 text-[14px] font-bold text-muted">{copy.themeLabel}</p>
-        <div className="flex flex-wrap gap-2">
-          {MENU_THEMES.map((preset) => {
-            const selected = theme === preset.key;
-            return (
-              <button
-                key={preset.key}
-                type="button"
-                onClick={() => setTheme(preset.key)}
-                aria-pressed={selected}
-                className={`inline-flex items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-3 text-[13px] font-bold transition-colors ${
-                  selected
-                    ? "border-foreground bg-surface"
-                    : "border-border-strong hover:bg-surface"
-                }`}
-              >
-                <span
-                  className="grid h-6 w-6 place-items-center rounded-full text-white"
-                  style={{ background: preset.accent }}
+        <Row title={copy.layoutLabel}>
+          {/* Phones: one row per layout (picture left, words right) — three
+              squeezed columns wrapped the descriptions into 4 lines. */}
+          <div className="grid gap-2.5 sm:grid-cols-3">
+            {MENU_LAYOUTS.map((preset) => {
+              const selected = layout === preset.key;
+              return (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => setLayout(preset.key)}
+                  aria-pressed={selected}
+                  className={`flex items-center gap-3 rounded-2xl border p-2.5 text-left transition-colors sm:flex-col sm:items-stretch sm:gap-2.5 ${
+                    selected
+                      ? "border-foreground bg-surface ring-1 ring-inset ring-foreground"
+                      : "border-border-strong hover:bg-surface"
+                  }`}
                 >
-                  {selected ? <Check size={14} strokeWidth={3} /> : null}
-                </span>
-                {themeLang === "kk" ? preset.labelKk : preset.labelRu}
-              </button>
-            );
-          })}
-        </div>
+                  <span className="block w-28 shrink-0 sm:w-auto">
+                    <LayoutPreview layout={preset.key} />
+                  </span>
+                  <span className="flex min-w-0 flex-1 items-start gap-1.5 sm:px-0.5">
+                    <span className="min-w-0">
+                      <span className="block text-[14px] font-bold leading-tight">
+                        {themeLang === "kk" ? preset.labelKk : preset.labelRu}
+                      </span>
+                      <span className="mt-1 block text-[12.5px] leading-snug text-muted">
+                        {themeLang === "kk" ? preset.descKk : preset.descRu}
+                      </span>
+                    </span>
+                    {selected ? (
+                      <Check
+                        size={16}
+                        strokeWidth={3}
+                        className="ml-auto shrink-0 text-accent-hover"
+                        aria-hidden
+                      />
+                    ) : null}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </Row>
 
-        {saveBar}
+        <Row title={copy.themeLabel}>
+          <div className="flex flex-wrap gap-2">
+            {MENU_THEMES.map((preset) => {
+              const selected = theme === preset.key;
+              return (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => setTheme(preset.key)}
+                  aria-pressed={selected}
+                  className={`inline-flex min-h-10 items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-3.5 text-[13.5px] font-bold transition-colors ${
+                    selected
+                      ? "border-foreground bg-surface ring-1 ring-inset ring-foreground"
+                      : "border-border-strong hover:bg-surface"
+                  }`}
+                >
+                  <span
+                    className="grid h-7 w-7 place-items-center rounded-full text-white"
+                    style={{ background: preset.accent }}
+                  >
+                    {selected ? <Check size={15} strokeWidth={3} aria-hidden /> : null}
+                  </span>
+                  {themeLang === "kk" ? preset.labelKk : preset.labelRu}
+                </button>
+              );
+            })}
+          </div>
+        </Row>
+
+        {/* Saved at once — no copy needed for an on/off. */}
+        <Row title={copy.searchTitle} inline>
+          <Switch
+            checked={showSearch}
+            label={copy.searchTitle}
+            disabled={toggleFlag.isPending}
+            onChange={(on) => toggleFlag.mutate({ show_search: on })}
+          />
+        </Row>
+
+        {/* Lines up with the control column. */}
+        <div className="xl:pl-[232px]">{saveBar}</div>
       </section>
     );
   }
 
   return (
-    <section className="rounded-[20px] border border-border bg-white p-5">
-      <header className="mb-5">
-        <h2 className="text-[17px] font-extrabold tracking-[-0.02em]">
-          {copy.tabContacts}
-        </h2>
-        <p className="mt-0.5 text-[13px] text-muted-soft">{copy.contactsSub}</p>
-      </header>
+    <div className="flex flex-col gap-5">
+      <section aria-label={copy.tabContacts} className={card}>
+        {/* Grouped by what the guest does with it: call / connect / follow. */}
+        <Group title={copy.groupContacts}>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field
+              label={copy.fAddress}
+              value={fields.address}
+              onChange={set("address")}
+              className="sm:col-span-2"
+            />
+            <Field label={copy.fPhone} value={fields.phone} onChange={set("phone")} inputMode="tel" />
+          </div>
+        </Group>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field
-          label={copy.fAddress}
-          value={fields.address}
-          onChange={set("address")}
-          className="sm:col-span-2"
-        />
-        <Field label={copy.fPhone} value={fields.phone} onChange={set("phone")} inputMode="tel" />
-        <Field label={copy.fWifiName} value={fields.wifi_ssid} onChange={set("wifi_ssid")} />
-        <Field label={copy.fWifiPass} value={fields.wifi_password} onChange={set("wifi_password")} />
-        <Field
-          label={copy.fInstagram}
-          value={fields.instagram_url}
-          onChange={set("instagram_url")}
-          placeholder={copy.socialHint}
-          inputMode="url"
-        />
-        <Field
-          label={copy.fFacebook}
-          value={fields.facebook_url}
-          onChange={set("facebook_url")}
-          placeholder={copy.socialHint}
-          inputMode="url"
-        />
-        <Field
-          label={copy.fTiktok}
-          value={fields.tiktok_url}
-          onChange={set("tiktok_url")}
-          placeholder={copy.socialHint}
-          inputMode="url"
-        />
-      </div>
+        <Group title={copy.groupWifi}>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label={copy.fWifiName} value={fields.wifi_ssid} onChange={set("wifi_ssid")} />
+            <Field label={copy.fWifiPass} value={fields.wifi_password} onChange={set("wifi_password")} />
+          </div>
+        </Group>
 
-      <ServiceCharge
-        copy={copy}
-        currency={venue.currency}
-        enabled={serviceOn}
-        value={serviceValue}
-        percent={servicePercent}
-        onToggle={setServiceOn}
-        onChange={setServiceValue}
-      />
+        <Group title={copy.groupSocial}>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Field
+              label={copy.fInstagram}
+              value={fields.instagram_url}
+              onChange={set("instagram_url")}
+              placeholder={copy.socialHint}
+              inputMode="url"
+            />
+            <Field
+              label={copy.fFacebook}
+              value={fields.facebook_url}
+              onChange={set("facebook_url")}
+              placeholder={copy.socialHint}
+              inputMode="url"
+            />
+            <Field
+              label={copy.fTiktok}
+              value={fields.tiktok_url}
+              onChange={set("tiktok_url")}
+              placeholder={copy.socialHint}
+              inputMode="url"
+            />
+          </div>
+        </Group>
 
-      {saveBar}
+        <div className="py-5">
+          <ServiceCharge
+            copy={copy}
+            currency={venue.currency}
+            enabled={serviceOn}
+            value={serviceValue}
+            percent={servicePercent}
+            onToggle={setServiceOn}
+            onChange={setServiceValue}
+          />
+        </div>
 
+        {saveBar}
+      </section>
+
+      {/* Acts on its own (no «Save») — so it lives outside the form card. */}
       <TelegramConnect venue={venue} copy={copy} />
-    </section>
+    </div>
+  );
+}
+
+/** The same switch as the service charge's, for one-tap on/off settings. */
+function Switch({
+  checked,
+  label,
+  describedBy,
+  disabled,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  describedBy?: string;
+  disabled?: boolean;
+  onChange: (on: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      aria-describedby={describedBy}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      // before: widens the tap area to ~64x44 without changing the look.
+      className={`relative h-7 w-12 shrink-0 rounded-full transition-colors before:absolute before:-inset-x-2 before:-inset-y-2 before:content-[''] disabled:opacity-60 ${
+        checked ? "bg-accent" : "bg-border-strong"
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.25)] transition-[left] ${
+          checked ? "left-[22px]" : "left-0.5"
+        }`}
+      />
+    </button>
+  );
+}
+
+/**
+ * One setting: label (and a short hint) above the control on phones, beside
+ * it from xl up — a fixed label column keeps every control on one left edge.
+ * `inline` keeps a tiny control (a switch) on the label's line on phones.
+ */
+function Row({
+  title,
+  hint,
+  inline = false,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  inline?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`py-5 xl:grid xl:grid-cols-[200px_minmax(0,1fr)] xl:gap-8 ${
+        inline ? "flex items-center justify-between gap-4" : "xl:items-start"
+      }`}
+    >
+      <div className={inline ? "min-w-0" : "mb-3.5 xl:mb-0"}>
+        <h2 className="text-[15px] font-extrabold tracking-[-0.01em]">{title}</h2>
+        {hint ? (
+          <p className="mt-1 text-[13px] leading-snug text-muted">{hint}</p>
+        ) : null}
+      </div>
+      <div className="min-w-0">{children}</div>
+    </div>
+  );
+}
+
+function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="py-5">
+      <h2 className="mb-3.5 text-[15px] font-extrabold tracking-[-0.01em]">{title}</h2>
+      {children}
+    </div>
   );
 }
 
@@ -398,7 +512,7 @@ function ServiceCharge({
     .replace("{total}", formatPrice(sampleBill + serviceChargeFor(sampleBill, percent), currency));
 
   return (
-    <section className="mt-6 rounded-[20px] border border-border bg-surface p-4">
+    <section className="rounded-2xl border border-border bg-surface p-4">
       <div className="flex items-center gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent">
           <Percent size={18} strokeWidth={2.25} />
@@ -537,16 +651,16 @@ function TelegramConnect({
   const busy = connect.isPending || disconnect.isPending;
 
   return (
-    <section className="mt-6 rounded-[20px] border border-border bg-surface p-4">
+    <section className="rounded-[20px] border border-border bg-white p-4 sm:px-6 sm:py-5">
       <div className="flex items-start gap-3">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent">
-          <Send size={18} strokeWidth={2.25} />
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface text-accent">
+          <Send size={18} strokeWidth={2.25} aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-[15px] font-extrabold tracking-[-0.01em]">
+            <h2 className="text-[15px] font-extrabold tracking-[-0.01em]">
               {copy.tgTitle}
-            </h3>
+            </h2>
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${
                 connected
@@ -636,7 +750,6 @@ function ImageUploader({
   currentUrl,
   previewFallback,
   label,
-  hint,
   shape,
   copy,
   locale,
@@ -648,8 +761,8 @@ function ImageUploader({
   currentUrl: string | null;
   /** Shown in the thumb when nothing uploaded yet (stock cover for guests). */
   previewFallback?: string;
+  /** Alt text for the preview — the visible label is the Row's. */
   label: string;
-  hint: string;
   shape: "wide" | "square";
   copy: MenuCopy;
   locale: Locale;
@@ -698,7 +811,8 @@ function ImageUploader({
     : "h-[68px] w-[68px] rounded-full";
 
   return (
-    <div className="flex items-start gap-3.5">
+    <div>
+      <div className="flex items-center gap-3.5">
       <div
         className={`relative shrink-0 overflow-hidden border border-border-strong bg-surface ${frame} ${
           dimmed ? "opacity-40" : ""
@@ -719,18 +833,14 @@ function ImageUploader({
         ) : null}
       </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="text-[13px] font-semibold">{label}</p>
-        <p className="mt-0.5 text-[12px] leading-snug text-muted-soft">{hint}</p>
-
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-white px-2.5 py-1.5 text-[13px] font-bold transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 h-9 rounded-lg border border-border-strong bg-white px-3 text-[13px] font-bold transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
           >
-            <Upload size={14} strokeWidth={2.5} />
+            <Upload size={14} strokeWidth={2.5} aria-hidden />
             {currentUrl ? copy.changeImage : copy.uploadImage}
           </button>
 
@@ -739,7 +849,7 @@ function ImageUploader({
               type="button"
               onClick={() => remove.mutate()}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold text-muted transition-colors hover:text-red-600 disabled:opacity-40"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-bold text-muted transition-colors hover:bg-red-50 hover:text-red-700 disabled:opacity-40"
             >
               <Trash2 size={14} strokeWidth={2.25} />
               {copy.removeImage}
@@ -748,11 +858,13 @@ function ImageUploader({
 
           {trailing}
         </div>
-
-        {error ? (
-          <p className="mt-1.5 text-[12px] font-semibold text-red-600">{error}</p>
-        ) : null}
       </div>
+
+      {error ? (
+        <p role="alert" className="mt-2 text-[13px] font-semibold text-red-700">
+          {error}
+        </p>
+      ) : null}
 
       <input
         ref={inputRef}

@@ -36,7 +36,7 @@ export function GuestVenueCover({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={cover}
-        alt={menu.name}
+        alt=""
         className="h-full w-full object-cover"
       />
       <div

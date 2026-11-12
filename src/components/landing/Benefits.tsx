@@ -52,9 +52,6 @@ export function Benefits() {
     >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <Reveal className="mx-auto mb-12 max-w-[640px] text-center lg:mb-14">
-          <p className="mb-3 text-sm font-bold uppercase tracking-[0.08em] text-accent-hover">
-            {copy.advKicker}
-          </p>
           <h2
             id="benefits-title"
             className="text-balance text-[clamp(30px,5.2vw,44px)] font-extrabold leading-[1.1] tracking-[-0.02em] text-ink"
@@ -67,17 +64,14 @@ export function Benefits() {
           {LEAD.map((index, order) => {
             const feature = copy.features[index];
             if (!feature) return null;
-            const Icon = FEATURE_ICONS[index] ?? Languages;
 
             return (
               <Reveal as="li" key={feature.title} delay={order * 80}>
                 <div className="flex h-full flex-col rounded-[24px] border border-border bg-white p-7 sm:p-8">
-                  <div className="mb-7 flex min-h-[132px] items-center justify-center rounded-[18px] bg-surface p-4">
+                  {/* Fixed height so the three titles start on one line. */}
+                  <div className="mb-6 flex h-[176px] items-center justify-center rounded-[18px] bg-surface p-4">
                     {illustrations[index]}
                   </div>
-                  <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent-hover">
-                    <Icon size={18} strokeWidth={2} />
-                  </span>
                   <h3 className="mb-2 text-[20px] font-extrabold tracking-[-0.02em] text-ink">
                     {feature.title}
                   </h3>

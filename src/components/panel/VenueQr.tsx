@@ -16,6 +16,7 @@ import {
   type QrCornerStyle,
   type QrDotStyle,
 } from "@/content/qr";
+import { PanelLoadError } from "@/components/panel/PanelLoadError";
 import { useVenues } from "@/lib/venues";
 
 // Rendered large so a downloaded/printed code stays crisp; the preview is
@@ -63,7 +64,7 @@ export function VenueQr({
 }) {
   const copy = authByLocale[locale];
   const menuCopy = menuByLocale[locale];
-  const { data: venues, isPending } = useVenues();
+  const { data: venues, isPending, isError, refetch, isFetching } = useVenues();
 
   const venue = venues?.find((item) => item.id === establishmentId);
 
@@ -192,6 +193,11 @@ export function VenueQr({
 
   if (isPending) {
     return <div className="h-96 animate-pulse rounded-[20px] bg-surface-2" />;
+  }
+
+  // A failed load is not «venue not found» — offer a retry instead.
+  if (isError) {
+    return <PanelLoadError locale={locale} onRetry={() => refetch()} retrying={isFetching} />;
   }
 
   if (!venue) {
@@ -407,7 +413,7 @@ export function VenueQr({
         {/* Offscreen render target for the styling library. */}
         <div ref={canvasHostRef} className="pointer-events-none absolute -left-[9999px] top-0" />
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
           {/* The finished tent — what the owner gets. */}
           <div className="flex flex-col gap-4 rounded-[20px] border border-border bg-white p-5">
             <div>
@@ -458,35 +464,40 @@ export function VenueQr({
             <div>
               <p className="mb-1.5 text-sm font-semibold">{copy.qrLinkLabel}</p>
               <div className="flex flex-wrap items-center gap-2">
-                <code className="min-w-0 flex-1 truncate rounded-xl bg-surface-2 px-3 py-2.5 text-sm">
+                <code className="flex h-11 min-w-0 flex-1 items-center truncate rounded-xl bg-surface-2 px-3 text-sm">
                   {menuUrl}
                 </code>
                 <button
                   type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText(menuUrl);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 1800);
+                    navigator.clipboard
+                      ?.writeText(menuUrl)
+                      .then(() => {
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 1800);
+                      })
+                      .catch(() => {});
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-border-strong px-3 py-2.5 text-sm font-semibold text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                  aria-live="polite"
+                  className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-border-strong bg-white px-4 text-sm font-bold text-foreground transition-colors hover:border-foreground"
                 >
-                  <Copy size={15} />
+                  <Copy size={15} aria-hidden />
                   {copied ? copy.qrCopied : copy.qrCopy}
                 </button>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2.5">
-              <Button variant="primary" onClick={downloadTent} className="py-2.5 text-[15px]">
-                <Download size={16} />
+            <div className="flex flex-col gap-2.5 xs:flex-row xs:flex-wrap">
+              <Button variant="primary" onClick={downloadTent} className="h-11 py-0 text-[15px]">
+                <Download size={16} aria-hidden />
                 {copy.qrDownloadTent}
               </Button>
               <Button
                 variant="secondary"
                 onClick={downloadCodePng}
-                className="py-2.5 text-[15px]"
+                className="h-11 py-0 text-[15px]"
               >
-                <Download size={16} />
+                <Download size={16} aria-hidden />
                 {copy.qrDownloadPng}
               </Button>
             </div>
@@ -496,16 +507,16 @@ export function VenueQr({
 
           {/* Style + text controls */}
           <div className="flex flex-col gap-6 rounded-[20px] border border-border bg-white p-5">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-[17px] font-bold tracking-[-0.01em]">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <h2 className="whitespace-nowrap text-[17px] font-extrabold tracking-[-0.02em]">
                 {copy.qrCustomize}
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={resetStyle}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+                className="-mx-2 inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-2 text-sm font-semibold text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
               >
-                <RotateCcw size={15} />
+                <RotateCcw size={15} aria-hidden />
                 {copy.qrReset}
               </button>
             </div>
@@ -527,6 +538,7 @@ export function VenueQr({
                       }}
                       title={label}
                       aria-label={label}
+                      aria-pressed={active}
                       className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
                         active ? "border-foreground" : "border-border"
                       }`}
@@ -545,7 +557,7 @@ export function VenueQr({
             {/* Dot shape */}
             <section className="flex flex-col gap-3">
               <p className="text-sm font-semibold">{copy.qrStyleDots}</p>
-              <div className="grid grid-cols-2 gap-2 xs:grid-cols-3 sm:grid-cols-5">
+              <div className="grid grid-cols-5 gap-2">
                 {QR_DOT_STYLES.map((style) => (
                   <StyleTile
                     key={style.key}
@@ -614,7 +626,7 @@ export function VenueQr({
                   <button
                     type="button"
                     onClick={clearLogo}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition-colors hover:text-red-600"
+                    className="inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold text-muted transition-colors hover:text-red-700"
                   >
                     <Trash2 size={15} />
                     {copy.qrLogoRemove}
@@ -625,7 +637,7 @@ export function VenueQr({
               )}
 
               {logoError ? (
-                <p className="text-[13px] leading-snug text-red-600">{copy.qrLogoError}</p>
+                <p role="alert" className="text-[13px] font-medium leading-snug text-red-700">{copy.qrLogoError}</p>
               ) : null}
             </section>
 
@@ -638,7 +650,7 @@ export function VenueQr({
                   type="text"
                   value={heading}
                   onChange={(event) => setHeading(event.target.value)}
-                  className="rounded-xl border border-border px-3 py-2 text-[15px] font-medium text-foreground outline-none focus:border-border-strong"
+                  className="h-11 rounded-xl border border-border-strong bg-white px-3 text-[15px] font-medium text-foreground outline-none focus:border-accent"
                 />
               </label>
               <label className="flex flex-col gap-1 text-[13px] font-semibold text-muted">
@@ -647,7 +659,7 @@ export function VenueQr({
                   type="text"
                   value={caption}
                   onChange={(event) => setCaption(event.target.value)}
-                  className="rounded-xl border border-border px-3 py-2 text-[15px] font-medium text-foreground outline-none focus:border-border-strong"
+                  className="h-11 rounded-xl border border-border-strong bg-white px-3 text-[15px] font-medium text-foreground outline-none focus:border-accent"
                 />
               </label>
               <CheckRow checked={showName} onChange={setShowName} label={copy.qrShowName} />
@@ -664,7 +676,7 @@ export function VenueQr({
                   value={table}
                   onChange={(event) => setTable(event.target.value)}
                   placeholder={copy.qrTablePlaceholder}
-                  className="rounded-xl border border-border px-3 py-2 text-[15px] font-medium text-foreground outline-none focus:border-border-strong"
+                  className="h-11 rounded-xl border border-border-strong bg-white px-3 text-[15px] font-medium text-foreground outline-none focus:border-accent"
                 />
               </label>
               <p className="text-[13px] leading-snug text-muted">{copy.qrTableHint}</p>
@@ -738,6 +750,7 @@ function StyleTile({
       onClick={onClick}
       title={label}
       aria-label={label}
+      aria-pressed={active}
       className={`flex items-center justify-center rounded-xl border px-2 py-3 transition-colors ${
         active
           ? "border-foreground bg-surface-2 text-foreground"
@@ -762,7 +775,8 @@ function LogoButton({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
+      aria-pressed={active}
+      className={`inline-flex min-h-10 items-center gap-1.5 rounded-xl border px-3 text-sm font-semibold transition-colors ${
         active
           ? "border-foreground bg-surface-2 text-foreground"
           : "border-border text-muted hover:border-border-strong hover:text-foreground"

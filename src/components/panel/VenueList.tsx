@@ -12,6 +12,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { PanelLoadError } from "@/components/panel/PanelLoadError";
 import { PanelPageHeader } from "@/components/panel/PanelPageHeader";
 import { RowMenu } from "@/components/panel/RowMenu";
 import { SubscribeDialog } from "@/components/panel/SubscribeDialog";
@@ -27,7 +28,7 @@ import { PUBLIC_MENU_HOST, VENUES_QUERY_KEY, publicMenuUrl, useVenues } from "@/
 export function VenueList({ locale }: { locale: Locale }) {
   const copy = authByLocale[locale];
   const queryClient = useQueryClient();
-  const { data: venues, isPending } = useVenues();
+  const { data: venues, isPending, isError, refetch, isFetching } = useVenues();
   // Plan + pending request per venue, so each card can offer to subscribe or
   // renew in place. Until it loads the card just shows its access badge.
   const { data: status } = useSubscriptionStatus(locale);
@@ -67,19 +68,35 @@ export function VenueList({ locale }: { locale: Locale }) {
             <div key={key} className="h-[236px] animate-pulse rounded-[20px] bg-surface-2" />
           ))}
         </div>
+      ) : isError ? (
+        // A failed load must not read as «no venues yet» — that invites a duplicate.
+        <PanelLoadError locale={locale} onRetry={() => refetch()} retrying={isFetching} />
       ) : (
+        <>
+        {remove.isError ? (
+          <p
+            role="alert"
+            className="mb-5 rounded-[16px] border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800"
+          >
+            {copy.networkError}
+          </p>
+        ) : null}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {list.map((venue) => (
             <article
               key={venue.id}
-              className="flex flex-col rounded-[20px] border border-border bg-white shadow-[0_1px_2px_rgba(20,18,16,0.04)] transition-shadow hover:shadow-[0_18px_36px_-24px_rgba(20,18,16,0.35)]"
+              // Dimmed while its delete is in flight, so the click visibly took.
+              aria-busy={remove.isPending && remove.variables === venue.id}
+              className={`flex flex-col rounded-[20px] border border-border bg-white shadow-[0_1px_2px_rgba(20,18,16,0.04)] transition-[box-shadow,opacity] hover:shadow-[0_18px_36px_-24px_rgba(20,18,16,0.35)] ${
+                remove.isPending && remove.variables === venue.id ? "pointer-events-none opacity-50" : ""
+              }`}
             >
               <div className="flex items-start gap-3 px-5 pt-5">
                 <VenueMark />
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-[17px] font-extrabold tracking-[-0.02em]">
+                  <h2 className="truncate text-[17px] font-extrabold tracking-[-0.02em]">
                     {venue.name}
-                  </h3>
+                  </h2>
                   <a
                     href={publicMenuUrl(venue.slug)}
                     target="_blank"
@@ -168,6 +185,7 @@ export function VenueList({ locale }: { locale: Locale }) {
             ) : null}
           </button>
         </div>
+        </>
       )}
 
       {dialog.open ? (

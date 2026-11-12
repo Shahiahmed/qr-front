@@ -21,6 +21,7 @@ import { Preloader } from "@/components/ui/Preloader";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
 import { currentUser, logout } from "@/lib/api";
+import { formatPhone } from "@/lib/phone";
 import { persistAuthUser, USER_QUERY_KEY, useSetAuthUser } from "@/lib/useAuth";
 import { setSidebarCollapsed, useSidebarCollapsed } from "@/lib/useSidebarCollapsed";
 
@@ -191,8 +192,8 @@ export function PanelShell({
                   {copy.tabProfile}
                 </span>
                 {user ? (
-                  <span className="block truncate text-[12px] text-muted-soft" title={user.email || user.phone || undefined}>
-                    {user.email || user.phone}
+                  <span className="block truncate text-[12px] text-muted-soft" title={user.email || (user.phone ? formatPhone(user.phone) : undefined)}>
+                    {user.email || (user.phone ? formatPhone(user.phone) : null)}
                   </span>
                 ) : null}
               </span>
@@ -220,6 +221,13 @@ export function PanelShell({
     // White when printing: the tinted panel background is wasted ink and
     // costs the code contrast a scanner needs.
     <div className="min-h-dvh bg-surface print:bg-white">
+      {/* Keyboard users skip the rail straight to the page. */}
+      <a
+        href="#panel-main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[12px] focus:bg-white focus:px-4 focus:py-3 focus:text-[14px] focus:font-bold focus:text-foreground focus:shadow-[0_8px_24px_-8px_rgba(20,18,16,0.3)] focus:outline-2 focus:outline-accent"
+      >
+        {copy.skipToContent}
+      </a>
       {/* Mobile top bar — hidden on desktop (the rail takes over) and in print.
           Drawer trigger, the brand, and the avatar as a shortcut to Profile;
           logout lives in the drawer. */}
@@ -306,7 +314,7 @@ export function PanelShell({
           // Anchored to the rail, not centred: collapsing the sidebar hands its
           // width to the content instead of leaving a gap on the left. The cap
           // only keeps lines readable on very wide monitors.
-          <main className="w-full max-w-[1320px] px-4 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+          <main id="panel-main" tabIndex={-1} className="w-full focus:outline-none max-w-[1320px] px-4 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
             {children}
           </main>
         )}

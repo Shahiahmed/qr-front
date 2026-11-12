@@ -83,6 +83,12 @@ export function GuestMenu({
   );
   const copy = guestByLocale[locale];
 
+  // Screen readers and translators pick the voice from <html lang>; the guest
+  // layout ships "ru", so follow the language the guest is actually reading.
+  useEffect(() => {
+    document.documentElement.lang = locale === "kk" ? "kk" : "ru";
+  }, [locale]);
+
   // The owner's theme / layout are only the default — the guest can override
   // them in the Settings sheet, and the choice is stored per-slug on this phone
   // (see the hydrate effect below). SSR and the first client render use the
@@ -128,6 +134,11 @@ export function GuestMenu({
   };
 
   const sections = menu.categories.filter((category) => category.dishes.length > 0);
+  // A menu with no photos at all gets no plate stand-ins in the list layouts:
+  // a dozen identical placeholders is noise, not a designed list.
+  const hasPhotos = sections.some((category) =>
+    category.dishes.some((dish) => Boolean(dish.image_url)),
+  );
   const [active, setActive] = useState<number | null>(sections[0]?.id ?? null);
   const sectionRefs = useRef(new Map<number, HTMLElement>());
   const tabRefs = useRef(new Map<number, HTMLButtonElement>());
@@ -428,7 +439,7 @@ export function GuestMenu({
     // `theme` is the guest's choice (defaults to the owner's), not `menu.theme`.
     <div
       style={themeVars(theme)}
-      className={`min-h-dvh bg-surface ${barVisible ? "pb-44" : "pb-24"}`}
+      className={`min-h-dvh bg-surface ${barVisible ? "pb-40" : "pb-20"}`}
     >
       <GuestVenueCover menu={menu} copy={copy} />
 
@@ -462,7 +473,7 @@ export function GuestMenu({
                 type="button"
                 onClick={() => setLocale(code)}
                 aria-pressed={locale === code}
-                className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
+                className={`h-8 rounded-full px-3 text-xs font-bold transition-all ${
                   locale === code
                     ? "bg-white text-foreground shadow-[0_2px_6px_-2px_rgba(0,0,0,0.15)]"
                     : "text-muted-soft"
@@ -474,7 +485,7 @@ export function GuestMenu({
           </div>
         </div>
 
-        {sections.length > 0 ? (
+        {sections.length > 0 && menu.show_search !== false ? (
           <div role="search" className="mx-auto max-w-[680px] px-4 pb-2.5">
             <div className="relative">
               <Search
@@ -577,13 +588,14 @@ export function GuestMenu({
             // highlighting uses the at-bottom scroll-spy instead.
             className="pt-7"
           >
-            <h2 className="mb-3 text-[17px] font-extrabold uppercase tracking-[0.06em] text-muted">
+            <h2 className="mb-3 text-[20px] font-extrabold tracking-[-0.02em] text-foreground">
               {pick(locale, category.name_ru, category.name_kk)}
             </h2>
 
             <DishList
               dishes={category.dishes}
               layout={layout}
+              hasPhotos={hasPhotos}
               locale={locale}
               currency={menu.currency}
               ordering={ordering}
@@ -594,7 +606,7 @@ export function GuestMenu({
             />
 
             {category.id === lastSectionId ? (
-              <div className="pt-8">
+              <div className="pt-6">
                 <PoweredByFooter locale={locale} copy={copy} />
               </div>
             ) : null}
@@ -1357,6 +1369,7 @@ type GuestCopy = (typeof guestByLocale)[GuestLocale];
 function DishList({
   dishes,
   layout,
+  hasPhotos,
   locale,
   currency,
   ordering,
@@ -1367,6 +1380,7 @@ function DishList({
 }: {
   dishes: PublicDish[];
   layout: LayoutKey;
+  hasPhotos: boolean;
   locale: GuestLocale;
   currency: string;
   ordering: boolean;
@@ -1389,6 +1403,7 @@ function DishList({
           key={dish.id}
           dish={dish}
           layout={layout}
+          hasPhotos={hasPhotos}
           locale={locale}
           currency={currency}
           ordering={ordering}
@@ -1434,6 +1449,7 @@ function DishPlaceholder({ className }: { className: string }) {
 function DishCard({
   dish,
   layout,
+  hasPhotos,
   locale,
   currency,
   ordering,
@@ -1444,6 +1460,7 @@ function DishCard({
 }: {
   dish: PublicDish;
   layout: LayoutKey;
+  hasPhotos: boolean;
   locale: GuestLocale;
   currency: string;
   ordering: boolean;
@@ -1526,9 +1543,9 @@ function DishCard({
             loading="lazy"
             className="h-12 w-12 shrink-0 rounded-xl bg-surface-2 object-cover"
           />
-        ) : (
+        ) : hasPhotos ? (
           <DishPlaceholder className="h-12 w-12 rounded-xl" />
-        )}
+        ) : null}
         <div className="min-w-0 flex-1">
           <h3 className="text-[15px] font-bold leading-snug">{name}</h3>
           {description ? (
@@ -1560,9 +1577,9 @@ function DishCard({
             loading="lazy"
             className="h-24 w-24 shrink-0 rounded-[13px] bg-surface-2 object-cover"
           />
-        ) : (
+        ) : hasPhotos ? (
           <DishPlaceholder className="h-24 w-24 rounded-[13px]" />
-        )}
+        ) : null}
 
         <div className="flex min-w-0 flex-1 flex-col">
           <h3 className="text-[16px] font-bold leading-snug">{name}</h3>
@@ -1573,7 +1590,7 @@ function DishCard({
           ) : null}
           {soldOut}
 
-          <div className="mt-auto flex items-center justify-between gap-2 pt-2.5">
+          <div className="mt-auto flex items-center justify-between gap-2 pt-3">
             {price}
             {controls}
           </div>
@@ -1604,7 +1621,7 @@ function OrderControls({
           type="button"
           onClick={() => onRemove(dish.id)}
           aria-label={copy.removeAria}
-          className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-white/15"
+          className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/15"
         >
           <Minus size={16} strokeWidth={2.5} />
         </button>
@@ -1615,7 +1632,7 @@ function OrderControls({
           type="button"
           onClick={() => onAdd(dish.id)}
           aria-label={copy.addAria}
-          className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-white/15"
+          className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/15"
         >
           <Plus size={16} strokeWidth={2.5} />
         </button>
@@ -1627,9 +1644,9 @@ function OrderControls({
     <button
       type="button"
       onClick={() => onAdd(dish.id)}
-      className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-3.5 py-1.5 text-[13px] font-bold text-accent-hover transition-colors hover:bg-accent hover:text-white"
+      className="inline-flex h-9 items-center gap-1 rounded-full bg-accent-soft px-3.5 text-[13px] font-bold text-accent-hover transition-colors hover:bg-accent hover:text-white"
     >
-      <Plus size={15} strokeWidth={2.5} />
+      <Plus size={15} strokeWidth={2.5} aria-hidden />
       {copy.add}
     </button>
   );
@@ -1643,7 +1660,7 @@ function PoweredByFooter({
   copy: (typeof guestByLocale)[GuestLocale];
 }) {
   return (
-    <footer className="border-t border-border/70 pt-5">
+    <footer className="border-t border-border/70 pt-4">
       <a
         href={`/${locale === "kk" ? "kz" : "ru"}`}
         target="_blank"

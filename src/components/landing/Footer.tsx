@@ -23,7 +23,7 @@ export function Footer() {
         </div>
 
         <nav aria-labelledby="foot-product">
-          <h2 id="foot-product" className="mb-4 text-sm font-bold uppercase tracking-[0.08em] text-[var(--on-dark-muted)]">
+          <h2 id="foot-product" className="mb-3 text-[15px] font-bold text-[var(--on-dark-muted)]">
             {copy.footProduct}
           </h2>
           <ul className="flex flex-col gap-1">
@@ -41,7 +41,7 @@ export function Footer() {
         </nav>
 
         <div>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-[0.08em] text-[var(--on-dark-muted)]">
+          <h2 className="mb-3 text-[15px] font-bold text-[var(--on-dark-muted)]">
             {copy.footContacts}
           </h2>
           {/* TODO: email — добавить, когда будет адрес. */}

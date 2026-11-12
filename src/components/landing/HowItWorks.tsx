@@ -14,7 +14,6 @@ export function HowItWorks() {
     <section id="how" aria-labelledby="how-title" className="py-16 lg:py-[104px]">
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <SectionHeading
-          kicker={copy.hiwKicker}
           title={copy.hiwTitle}
           subtitle={copy.hiwSub}
           titleId="how-title"
@@ -94,9 +93,9 @@ function CabinetMockup({ copy, cabinetLabel }: { copy: LandingCopy; cabinetLabel
 
         {/* Dish table */}
         <div className="min-w-0 p-3 sm:p-4">
-          <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-3 pb-2 text-[12px] font-bold uppercase tracking-[0.06em] text-muted-soft sm:gap-x-8">
+          <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-3 pb-2 whitespace-nowrap text-[13px] font-semibold text-muted sm:gap-x-8">
             <span>{c.colDish}</span>
-            <span className="w-[72px] text-right">{c.colPrice}</span>
+            <span className="w-[64px] text-right sm:w-[72px]">{c.colPrice}</span>
             <span className="w-[76px] text-right">{c.colStock}</span>
           </div>
           <ul className="flex flex-col">
@@ -114,7 +113,7 @@ function CabinetMockup({ copy, cabinetLabel }: { copy: LandingCopy; cabinetLabel
                     className={`h-9 w-9 shrink-0 rounded-lg object-cover ${dish.soldOut ? "opacity-50 grayscale" : ""}`}
                   />
                   <span
-                    className={`truncate text-[14px] font-semibold ${dish.soldOut ? "text-muted-soft" : "text-ink"}`}
+                    className={`line-clamp-2 text-[14px] font-semibold leading-snug ${dish.soldOut ? "text-muted-soft" : "text-ink"}`}
                   >
                     {dish.name}
                   </span>
@@ -124,7 +123,7 @@ function CabinetMockup({ copy, cabinetLabel }: { copy: LandingCopy; cabinetLabel
                     </span>
                   ) : null}
                 </span>
-                <span className="w-[72px] whitespace-nowrap text-right text-[14px] font-bold text-ink">
+                <span className="w-[64px] whitespace-nowrap text-right text-[14px] font-bold text-ink sm:w-[72px]">
                   {dish.price}
                 </span>
                 <span className="flex w-[76px] justify-end">

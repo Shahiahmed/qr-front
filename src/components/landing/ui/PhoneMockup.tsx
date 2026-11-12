@@ -77,7 +77,7 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
             {copy.heroDishes.map((dish) => (
               <div
                 key={dish.name}
-                className={`flex min-h-0 flex-1 items-center gap-2.5 rounded-xl border border-border px-2 py-1.5 ${
+                className={`flex min-h-0 flex-1 items-center gap-2 rounded-xl border border-border px-1.5 py-1.5 sm:gap-2.5 sm:px-2 ${
                   dish.soldOut ? "bg-surface opacity-60" : ""
                 }`}
               >
@@ -85,18 +85,18 @@ export function PhoneMockup({ className = "", animated = true }: PhoneMockupProp
                 <img
                   src={dish.image}
                   alt=""
-                  className="h-[42px] w-[42px] shrink-0 rounded-lg object-cover sm:h-[46px] sm:w-[46px]"
+                  className="h-9 w-9 shrink-0 rounded-lg object-cover sm:h-[46px] sm:w-[46px]"
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[12px] font-bold sm:text-[13px]">
+                  <div className="line-clamp-2 text-[12px] font-bold leading-tight sm:text-[13px]">
                     {dish.name}
                   </div>
-                  <div className="truncate text-[10px] text-[var(--muted-soft)] sm:text-[11px]">
+                  <div className="mt-0.5 truncate text-[10px] text-[var(--muted-soft)] sm:text-[11px]">
                     {dish.desc}
                   </div>
                 </div>
                 {dish.soldOut ? (
-                  <div className="whitespace-nowrap rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-bold text-muted">
+                  <div className="whitespace-nowrap rounded-full bg-surface-2 px-1.5 py-0.5 text-[9px] font-bold text-muted sm:px-2 sm:text-[10px]">
                     {copy.heroSoldOut}
                   </div>
                 ) : (

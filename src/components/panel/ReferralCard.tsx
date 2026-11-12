@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Check, Copy, Gift, Send, Users, Wallet } from "lucide-react";
+import { Check, Copy, Gift, Send, Wallet } from "lucide-react";
 import { useState } from "react";
 import { authByLocale } from "@/content/auth";
 import type { Locale } from "@/content/landing";
@@ -14,9 +14,8 @@ const REFERRAL_QUERY_KEY = ["referral"] as const;
 type Copy = typeof authByLocale.ru;
 
 /**
- * «Пригласить друга»: the balance up top as the reason to care, then the link
- * to share next to a three-step «how it works», so the whole loop reads on
- * one screen.
+ * «Пригласить друга»: the link to share leads (it is the task); the balance
+ * and «how it works» sit beside it, so the whole loop reads on one screen.
  */
 export function ReferralCard({ locale }: { locale: Locale }) {
   const copy = authByLocale[locale];
@@ -50,102 +49,119 @@ export function ReferralCard({ locale }: { locale: Locale }) {
       ) : null}
 
       {!data.enabled ? (
-        <p className="rounded-[16px] bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+        <p className="rounded-[16px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
           {copy.refDisabled}
         </p>
       ) : null}
 
-      {/* Balance + results in one brand card. */}
-      <section className="relative overflow-hidden rounded-[22px] bg-[linear-gradient(140deg,#d2401a_0%,#a8330f_100%)] p-6 text-white sm:p-7">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-        />
-        <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="flex items-center gap-2 text-[14px] font-semibold text-white/80">
-              <Wallet size={16} />
-              {copy.refBalanceTitle}
-            </p>
-            <p className="mt-2 text-[40px] font-extrabold leading-none tracking-[-0.03em] sm:text-[46px]">
-              {formatPrice(data.credit)}
-            </p>
-            <p className="mt-3 max-w-[420px] text-[14px] leading-relaxed text-white/80">
-              {copy.refBalanceHint}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 md:w-[300px]">
-            <Stat icon={Users} caption={copy.refStatInvited} value={data.invited_count} />
-            <Stat icon={Check} caption={copy.refStatConverted} value={data.converted_count} />
-          </div>
-        </div>
-      </section>
-
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
-        {/* Invite link + code + share. */}
-        <section className="rounded-[20px] border border-border bg-white p-5 shadow-[0_1px_2px_rgba(20,18,16,0.03)] sm:p-6">
-          <h3 className="text-[17px] font-extrabold tracking-[-0.02em]">{copy.refLinkTitle}</h3>
-          <p className="mt-1 text-sm text-muted-soft">{copy.refLinkHint}</p>
+      {/* The link is the job here, so it leads; the balance is the result of
+          doing it and sits beside it as plain facts — no banner. */}
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+        <section
+          aria-labelledby="ref-link-title"
+          className="rounded-[20px] border border-border bg-white p-5 sm:p-6"
+        >
+          <h2 id="ref-link-title" className="text-[17px] font-extrabold tracking-[-0.02em]">
+            {copy.refLinkTitle}
+          </h2>
+          <p className="mt-1 text-[14px] text-muted">{copy.refLinkHint}</p>
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <input
               readOnly
               value={link}
+              aria-label={copy.refLinkTitle}
               onFocus={(e) => e.currentTarget.select()}
-              className="min-w-0 flex-1 rounded-xl border border-border-strong bg-surface px-4 py-3 text-sm text-muted outline-none"
+              className="h-11 w-full min-w-0 shrink-0 rounded-xl sm:flex-1 border border-border-strong bg-surface px-4 text-[14px] text-foreground outline-none focus:border-accent"
             />
             <CopyButton value={link} label={copy.refCopy} doneLabel={copy.refCopied} />
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted-soft">{copy.refCodeLabel}:</span>
-            <span className="rounded-lg bg-surface-2 px-3 py-1 font-mono text-sm font-bold tracking-[0.15em] text-foreground">
+            <span className="text-[14px] text-muted">{copy.refCodeLabel}:</span>
+            <span className="rounded-lg bg-surface-2 px-3 py-1 font-mono text-[14px] font-bold tracking-[0.15em] text-foreground">
               {code}
             </span>
           </div>
 
+          {/* Neutral buttons, brand colour only on the icon: white text on the
+              WhatsApp/Telegram fills fails contrast (about 2:1 and 3:1). */}
           <div className="mt-5 grid grid-cols-2 gap-2 border-t border-border pt-5">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90 hover:no-underline"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border-strong bg-white px-4 text-[14px] font-bold text-foreground transition-colors hover:border-foreground hover:no-underline"
             >
-              <Send size={15} />
+              <Send size={15} className="text-emerald-600" aria-hidden />
               {copy.refShareWhatsapp}
             </a>
             <a
               href={`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(copy.refShareText)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#229ED9] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90 hover:no-underline"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border-strong bg-white px-4 text-[14px] font-bold text-foreground transition-colors hover:border-foreground hover:no-underline"
             >
-              <Send size={15} />
+              <Send size={15} className="text-sky-600" aria-hidden />
               {copy.refShareTelegram}
             </a>
           </div>
         </section>
 
-        {/* How it works — reward amounts, hidden while the program is off. */}
-        {data.enabled ? (
-          <section className="rounded-[20px] border border-border bg-white p-5 shadow-[0_1px_2px_rgba(20,18,16,0.03)] sm:p-6">
-            <h3 className="text-[17px] font-extrabold tracking-[-0.02em]">{copy.refHowTitle}</h3>
-            <ol className="mt-4 flex flex-col gap-4">
-              {[
-                copy.refStepShare,
-                copy.refHowInvited.replace("{amount}", formatPrice(data.referred_reward)),
-                copy.refHowInviter.replace("{amount}", formatPrice(data.referrer_reward)),
-              ].map((text, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] font-extrabold text-accent-hover">
-                    {i + 1}
-                  </span>
-                  <span className="pt-0.5 text-[14.5px] leading-snug text-muted">{text}</span>
-                </li>
-              ))}
-            </ol>
+        <div className="flex flex-col gap-5">
+          <section
+            aria-labelledby="ref-balance-title"
+            className="rounded-[20px] border border-border bg-white p-5 sm:p-6"
+          >
+            <h2
+              id="ref-balance-title"
+              className="flex items-center gap-2 text-[14px] font-bold text-muted"
+            >
+              <Wallet size={16} className="text-accent-hover" aria-hidden />
+              {copy.refBalanceTitle}
+            </h2>
+            <p className="mt-1.5 text-[34px] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
+              {formatPrice(data.credit)}
+            </p>
+            <p className="mt-2 text-[14px] leading-snug text-muted">{copy.refBalanceHint}</p>
+            <dl className="mt-4 grid grid-cols-2 divide-x divide-border border-t border-border pt-4">
+              <div className="pr-4">
+                <dt className="text-[13px] text-muted">{copy.refStatInvited}</dt>
+                <dd className="mt-0.5 text-[20px] font-extrabold tabular-nums">{data.invited_count}</dd>
+              </div>
+              <div className="pl-4">
+                <dt className="text-[13px] text-muted">{copy.refStatConverted}</dt>
+                <dd className="mt-0.5 text-[20px] font-extrabold tabular-nums">{data.converted_count}</dd>
+              </div>
+            </dl>
           </section>
-        ) : null}
+
+          {/* How it works — reward amounts, hidden while the program is off. */}
+          {data.enabled ? (
+            <section
+              aria-labelledby="ref-how-title"
+              className="rounded-[20px] border border-border bg-white p-5 sm:p-6"
+            >
+              <h2 id="ref-how-title" className="text-[17px] font-extrabold tracking-[-0.02em]">
+                {copy.refHowTitle}
+              </h2>
+              <ol className="mt-4 flex flex-col gap-3.5">
+                {[
+                  copy.refStepShare,
+                  copy.refHowInvited.replace("{amount}", formatPrice(data.referred_reward)),
+                  copy.refHowInviter.replace("{amount}", formatPrice(data.referrer_reward)),
+                ].map((text, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] font-extrabold text-accent-hover">
+                      {i + 1}
+                    </span>
+                    <span className="pt-0.5 text-[14.5px] leading-snug text-muted">{text}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -177,30 +193,12 @@ function CopyButton({
     <button
       type="button"
       onClick={copy}
-      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
+      aria-live="polite"
+      className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-5 text-[14px] font-bold text-white transition-colors hover:bg-accent-hover"
     >
       {copied ? <Check size={16} /> : <Copy size={16} />}
       {copied ? doneLabel : label}
     </button>
-  );
-}
-
-/** A frosted counter on the brand card. */
-function Stat({
-  icon: Icon,
-  caption,
-  value,
-}: {
-  icon: typeof Users;
-  caption: string;
-  value: number;
-}) {
-  return (
-    <div className="rounded-[16px] bg-white/12 p-4 ring-1 ring-inset ring-white/15">
-      <Icon size={16} className="text-white/75" />
-      <p className="mt-2.5 text-[26px] font-extrabold leading-none tracking-[-0.03em]">{value}</p>
-      <p className="mt-1.5 text-[12.5px] leading-tight text-white/80">{caption}</p>
-    </div>
   );
 }
 
